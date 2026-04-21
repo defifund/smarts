@@ -34,7 +34,7 @@ module ChainReader
       end
 
       def hex_to_bytes(hex)
-        [hex.to_s.sub(/\A0x/, "")].pack("H*")
+        [ hex.to_s.sub(/\A0x/, "") ].pack("H*")
       end
 
       # Recursively builds the canonical ABI type string for an input/output hash.

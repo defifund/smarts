@@ -12,7 +12,7 @@
 
 # Mount the MCP middleware in your Rails application
 # You can customize the options below to fit your needs.
-require 'fast_mcp'
+require "fast_mcp"
 
 FastMcp.mount_in_rails(
   Rails.application,

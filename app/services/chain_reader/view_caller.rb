@@ -33,7 +33,7 @@ module ChainReader
           read_individually(fns)
         end
 
-      fns.zip(results).to_h { |fn, r| [Base.function_signature(fn), r] }
+      fns.zip(results).to_h { |fn, r| [ Base.function_signature(fn), r ] }
     end
 
     def read_individually(fns)

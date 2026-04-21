@@ -186,5 +186,4 @@ module ProtocolAdapters
       nil
     end
   end
-
 end

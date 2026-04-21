@@ -23,14 +23,14 @@ module ChainReader
       return [] if calls.empty?
 
       tuples = calls.map do |c|
-        [c.target, true, inner_calldata(c.function, c.args)]
+        [ c.target, true, inner_calldata(c.function, c.args) ]
       end
 
       agg_data = Base.selector(AGGREGATE3_SIG) +
-                 Eth::Abi.encode(["(address,bool,bytes)[]"], [tuples]).unpack1("H*")
+                 Eth::Abi.encode([ "(address,bool,bytes)[]" ], [ tuples ]).unpack1("H*")
 
       hex = Base.eth_call_hex(@chain, to: ADDRESS, data: agg_data)
-      decoded = Eth::Abi.decode(["(bool,bytes)[]"], Base.hex_to_bytes(hex))[0]
+      decoded = Eth::Abi.decode([ "(bool,bytes)[]" ], Base.hex_to_bytes(hex))[0]
 
       decoded.each_with_index.map { |(success, return_data), i| decode_one(calls[i], success, return_data) }
     end
