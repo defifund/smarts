@@ -44,13 +44,66 @@ class ContractsHelperTest < ActionView::TestCase
     assert_equal "[[1, 2], [3]]", format_abi_value([ [ 1, 2 ], [ 3 ] ], "uint256[][]")
   end
 
-  test "format_abi_value falls back to inspect for tuple types (current limitation)" do
-    # Tuples (Solidity structs) decode to arrays. We don't have per-component
-    # formatting yet, so fall through to inspect. Test documents this so tuple
-    # support later has a signal when it lands.
+  test "format_abi_output renders tuple with component names inline" do
     tuple_value = [ 1_000_000_000, "0xabc", true ]
-    formatted = format_abi_value(tuple_value, "tuple")
-    assert_equal tuple_value.inspect, formatted
+    output = {
+      "type" => "tuple",
+      "components" => [
+        { "name" => "liquidity", "type" => "uint256" },
+        { "name" => "addr",      "type" => "address" },
+        { "name" => "unlocked",  "type" => "bool" }
+      ]
+    }
+
+    assert_equal "(liquidity: 1,000,000,000, addr: 0xabc, unlocked: true)",
+                 format_abi_output(tuple_value, output)
+  end
+
+  test "format_abi_output renders unnamed tuple components without labels" do
+    output = {
+      "type" => "tuple",
+      "components" => [ { "type" => "uint256" }, { "type" => "uint256" } ]
+    }
+    assert_equal "(1,000, 2,000)", format_abi_output([ 1_000, 2_000 ], output)
+  end
+
+  test "format_abi_output handles arrays of tuples" do
+    output = {
+      "type" => "tuple[]",
+      "components" => [
+        { "name" => "a", "type" => "uint256" },
+        { "name" => "b", "type" => "uint256" }
+      ]
+    }
+    assert_equal "[(a: 1, b: 2), (a: 3, b: 4)]",
+                 format_abi_output([ [ 1, 2 ], [ 3, 4 ] ], output)
+  end
+
+  test "format_abi_output passes through scalars to format_abi_value" do
+    assert_equal "1,000,000", format_abi_output(1_000_000, { "type" => "uint256" })
+    assert_equal "true", format_abi_output(true, { "type" => "bool" })
+  end
+
+  test "render_live_result formats tuple return value with component names" do
+    result = ChainReader::Multicall3Client::Result.new(
+      success: true,
+      values: [ [ 7919111111111, -42, true ] ]
+    )
+    fn = {
+      "outputs" => [ {
+        "type" => "tuple",
+        "components" => [
+          { "name" => "sqrtPriceX96", "type" => "uint160" },
+          { "name" => "tick",         "type" => "int24" },
+          { "name" => "unlocked",     "type" => "bool" }
+        ]
+      } ]
+    }
+
+    html = render_live_result(result, fn)
+    assert_includes html, "sqrtPriceX96: 7,919,111,111,111"
+    assert_includes html, "tick: -42"
+    assert_includes html, "unlocked: true"
   end
 
   test "render_live_result returns nil when result is nil" do

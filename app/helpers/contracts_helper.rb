@@ -1,4 +1,24 @@
 module ContractsHelper
+  # Dispatches by ABI output shape: tuples → (name: val, ...), arrays → [...],
+  # scalars → format_abi_value. Prefer this over format_abi_value when you have
+  # the full output hash (with components for tuples).
+  def format_abi_output(value, output)
+    type = output["type"].to_s
+    if type == "tuple"
+      format_tuple(value, Array(output["components"]))
+    elsif type.start_with?("tuple[")
+      suffix = type.sub(/\Atuple/, "")
+      if suffix == "[]"
+        "[" + Array(value).map { |v| format_tuple(v, Array(output["components"])) }.join(", ") + "]"
+      else
+        # Fixed-size tuple array like tuple[2]: treat as array of tuples
+        "[" + Array(value).map { |v| format_tuple(v, Array(output["components"])) }.join(", ") + "]"
+      end
+    else
+      format_abi_value(value, type)
+    end
+  end
+
   # Format a single decoded ABI value for inline display.
   # Types handled: uint/int*, bool, address, string, bytes*, arrays (shallow).
   def format_abi_value(value, type)
@@ -34,8 +54,7 @@ module ContractsHelper
     return nil if outputs.empty? || result.values.empty?
 
     parts = result.values.each_with_index.map do |v, i|
-      type = outputs[i]["type"]
-      format_abi_value(v, type)
+      format_abi_output(v, outputs[i])
     end
 
     content_tag(:span, "→ #{parts.join(', ')}", class: "text-success text-xs font-mono break-all")
@@ -60,5 +79,15 @@ module ContractsHelper
   def format_integer(n)
     return n.to_s unless n.is_a?(Integer)
     n.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\1,').reverse
+  end
+
+  def format_tuple(value, components)
+    parts = components.each_with_index.map do |comp, i|
+      v = Array(value)[i]
+      rendered = format_abi_output(v, comp)
+      name = comp["name"].to_s
+      name.empty? ? rendered : "#{name}: #{rendered}"
+    end
+    "(#{parts.join(', ')})"
   end
 end

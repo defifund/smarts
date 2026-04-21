@@ -41,7 +41,8 @@ module ChainReader
         data = Base.selector(Base.function_signature(fn))
         begin
           hex = Base.eth_call_hex(@chain, to: @contract.address, data: data)
-          types = Array(fn["outputs"]).map { |o| o["type"] }
+          outputs = Array(fn["outputs"])
+          types = outputs.map { |o| Base.abi_type_string(o) }
           values = types.empty? ? [] : Eth::Abi.decode(types, Base.hex_to_bytes(hex))
           Multicall3Client::Result.new(success: true, values: values)
         rescue => e

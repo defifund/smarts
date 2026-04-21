@@ -139,6 +139,20 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
     assert_match 'aria-label="IERC.sol"', response.body
   end
 
+  test "show tolerates protocol-adapter failure and renders the page without a panel" do
+    contract = contracts(:uni_token)
+    crashing = ->(_c) { raise StandardError, "adapter bug" }
+
+    stub_class_method(ChainReader::ViewCaller, :call, ->(_c) { {} }) do
+      stub_class_method(ProtocolAdapters::Base, :resolve, crashing) do
+        get contract_path(chain: "eth", address: contract.address)
+      end
+    end
+
+    assert_response :success
+    refute_match "Uniswap V3", response.body
+  end
+
   test "show tolerates live-value failure and still renders page" do
     contract = contracts(:uni_token)
     raising = ->(_c) { raise ChainReader::Base::RpcError, "rpc down" }

@@ -85,6 +85,32 @@ class ChainReader::Multicall3ClientTest < ActiveSupport::TestCase
     assert_includes captured[:data], "0" * 63 + "1", "inner calldata should carry the encoded address arg"
   end
 
+  test "decodes tuple return value using components" do
+    # Mimics Uniswap V3's slot0()-style struct return.
+    fn = {
+      "name" => "position",
+      "inputs" => [],
+      "outputs" => [ {
+        "type" => "tuple",
+        "components" => [
+          { "type" => "uint160", "name" => "sqrtPriceX96" },
+          { "type" => "int24",   "name" => "tick" },
+          { "type" => "bool",    "name" => "locked" }
+        ]
+      } ]
+    }
+    calls = [ ChainReader::Multicall3Client::Call.new(target: @target, function: fn) ]
+
+    inner_tuple = Eth::Abi.encode([ "(uint160,int24,bool)" ], [ [ 7919111111111, -42, true ] ])
+    fake_response = encode_multicall_response([ [ true, inner_tuple ] ])
+
+    stub_eth_call(fake_response) do
+      results = ChainReader::Multicall3Client.call(chain: @chain, calls: calls)
+      assert results[0].success
+      assert_equal [ [ 7919111111111, -42, true ] ], results[0].values
+    end
+  end
+
   test "returns success=false with decode error when return data is malformed" do
     calls = [ call_for("supply", [], [ "uint256" ]) ]
 

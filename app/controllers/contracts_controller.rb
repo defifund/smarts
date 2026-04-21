@@ -12,6 +12,7 @@ class ContractsController < ApplicationController
     end
 
     @live_values = load_live_values(@contract)
+    @protocol_adapter = resolve_protocol_adapter(@contract)
   rescue EtherscanClient::NotVerifiedError
     render :not_verified, status: :not_found
   rescue EtherscanClient::Error => e
@@ -26,5 +27,12 @@ class ContractsController < ApplicationController
   rescue => e
     Rails.logger.warn("[ContractsController] live values failed: #{e.class}: #{e.message}")
     {}
+  end
+
+  def resolve_protocol_adapter(contract)
+    ProtocolAdapters::Base.resolve(contract)
+  rescue => e
+    Rails.logger.warn("[ContractsController] adapter resolve failed: #{e.class}: #{e.message}")
+    nil
   end
 end

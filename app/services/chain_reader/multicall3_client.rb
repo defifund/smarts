@@ -39,7 +39,7 @@ module ChainReader
 
     def inner_calldata(fn_abi, args)
       sel = Base.selector(Base.function_signature(fn_abi))
-      types = Array(fn_abi["inputs"]).map { |i| i["type"] }
+      types = Array(fn_abi["inputs"]).map { |i| Base.abi_type_string(i) }
       encoded = types.any? ? Eth::Abi.encode(types, args).unpack1("H*") : ""
       Base.hex_to_bytes(sel + encoded)
     end
@@ -49,11 +49,12 @@ module ChainReader
         return Result.new(success: false, error: "execution reverted")
       end
 
-      types = Array(call.function["outputs"]).map { |o| o["type"] }
-      if types.empty?
+      outputs = Array(call.function["outputs"])
+      if outputs.empty?
         return Result.new(success: true, values: [])
       end
 
+      types = outputs.map { |o| Base.abi_type_string(o) }
       values = Eth::Abi.decode(types, return_data)
       Result.new(success: true, values: values)
     rescue Eth::Abi::DecodingError => e

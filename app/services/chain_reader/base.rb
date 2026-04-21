@@ -36,6 +36,19 @@ module ChainReader
       def hex_to_bytes(hex)
         [hex.to_s.sub(/\A0x/, "")].pack("H*")
       end
+
+      # Recursively builds the canonical ABI type string for an input/output hash.
+      # Handles tuples (with components), tuple arrays (tuple[], tuple[N]), and
+      # regular scalars. Feed this to Eth::Abi.decode/encode.
+      def abi_type_string(io)
+        type = io["type"].to_s
+        return type unless type.start_with?("tuple")
+
+        components = Array(io["components"])
+        inner = "(" + components.map { |c| abi_type_string(c) }.join(",") + ")"
+        suffix = type.sub(/\Atuple/, "")
+        inner + suffix
+      end
     end
   end
 end

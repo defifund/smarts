@@ -26,6 +26,45 @@ class ChainReader::BaseTest < ActiveSupport::TestCase
     assert_equal "name()", ChainReader::Base.function_signature(fn)
   end
 
+  test "abi_type_string returns scalar types unchanged" do
+    assert_equal "uint256", ChainReader::Base.abi_type_string({ "type" => "uint256" })
+    assert_equal "address[]", ChainReader::Base.abi_type_string({ "type" => "address[]" })
+  end
+
+  test "abi_type_string expands tuple using components" do
+    output = {
+      "type" => "tuple",
+      "components" => [
+        { "type" => "uint160" },
+        { "type" => "int24" },
+        { "type" => "bool" }
+      ]
+    }
+    assert_equal "(uint160,int24,bool)", ChainReader::Base.abi_type_string(output)
+  end
+
+  test "abi_type_string expands tuple arrays preserving suffix" do
+    output = {
+      "type" => "tuple[]",
+      "components" => [ { "type" => "uint256" }, { "type" => "address" } ]
+    }
+    assert_equal "(uint256,address)[]", ChainReader::Base.abi_type_string(output)
+  end
+
+  test "abi_type_string handles nested tuples" do
+    output = {
+      "type" => "tuple",
+      "components" => [
+        { "type" => "uint256" },
+        {
+          "type" => "tuple",
+          "components" => [ { "type" => "address" }, { "type" => "uint256" } ]
+        }
+      ]
+    }
+    assert_equal "(uint256,(address,uint256))", ChainReader::Base.abi_type_string(output)
+  end
+
   test "hex_to_bytes strips 0x prefix and packs hex" do
     assert_equal "\x12\x34".b, ChainReader::Base.hex_to_bytes("0x1234")
     assert_equal "\x12\x34".b, ChainReader::Base.hex_to_bytes("1234")

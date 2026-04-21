@@ -10,6 +10,10 @@
     <% end %>
   </div>
 
+  <% if @protocol_adapter %>
+    <%= render @protocol_adapter.template_partial, adapter: @protocol_adapter %>
+  <% end %>
+
   <div role="tablist" class="tabs tabs-lift tabs-lg">
     <input type="radio" name="contract_view" role="tab" class="tab" aria-label="Docs" checked />
     <div role="tabpanel" class="tab-content bg-base-100 border-base-300 p-6">
