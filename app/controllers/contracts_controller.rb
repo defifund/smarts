@@ -14,6 +14,8 @@ class ContractsController < ApplicationController
     @live_values = load_live_values(@contract)
     @protocol_adapter = resolve_protocol_adapter(@contract)
     @classification = classify(@contract)
+
+    enqueue_ai_enrichment_if_needed(@contract)
   rescue EtherscanClient::NotVerifiedError
     render :not_verified, status: :not_found
   rescue EtherscanClient::Error => e
@@ -42,5 +44,14 @@ class ContractsController < ApplicationController
   rescue => e
     Rails.logger.warn("[ContractsController] classify failed: #{e.class}: #{e.message}")
     nil
+  end
+
+  def enqueue_ai_enrichment_if_needed(contract)
+    return if contract.abi.blank? || contract.ai_natspec.present?
+    return if contract.all_functions_have_natspec?
+
+    EnrichContractAiJob.perform_later(contract)
+  rescue => e
+    Rails.logger.warn("[ContractsController] AI enqueue failed: #{e.class}: #{e.message}")
   end
 end

@@ -160,6 +160,18 @@ class ContractsHelperTest < ActionView::TestCase
     assert_equal "transfer(to: address, amount: uint256)", function_signature_with_params(fn)
   end
 
+  test "ai_badge renders only when source is ai" do
+    assert_includes ai_badge("ai").to_s, "✨ AI"
+    assert_nil ai_badge("real")
+    assert_nil ai_badge(nil)
+  end
+
+  test "ai_badge is html_safe and carries a tooltip" do
+    html = ai_badge("ai")
+    assert html.html_safe?
+    assert_match(/title=/, html)
+  end
+
   test "function_signature_with_params omits empty names" do
     fn = {
       "name" => "mixed",

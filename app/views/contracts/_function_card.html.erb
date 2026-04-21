@@ -1,4 +1,5 @@
 <% doc = local_assigns[:natspec] || {} %>
+<% source = doc["source"] || {} %>
 
 <div class="collapse collapse-arrow bg-base-200">
   <input type="checkbox">
@@ -11,13 +12,15 @@
       <% end %>
     </div>
     <% if doc["notice"].present? %>
-      <p class="text-sm mt-2 opacity-80"><%= doc["notice"] %></p>
+      <p class="text-sm mt-2 opacity-80">
+        <%= doc["notice"] %><%= ai_badge(source["notice"]) %>
+      </p>
     <% end %>
   </div>
   <div class="collapse-content">
     <% if doc["dev"].present? %>
       <div class="alert alert-info alert-soft text-xs mb-3">
-        <span class="font-semibold">dev:</span> <%= doc["dev"] %>
+        <span class="font-semibold">dev:</span> <%= doc["dev"] %><%= ai_badge(source["dev"]) %>
       </div>
     <% end %>
 
@@ -33,10 +36,13 @@
         </thead>
         <tbody>
           <% func["inputs"].each do |input| %>
+            <% param_source = source.dig("params", input["name"]) %>
             <tr>
               <td class="font-mono"><%= input["name"].presence || "(unnamed)" %></td>
               <td class="font-mono text-sm"><%= input["type"] %></td>
-              <td class="text-sm opacity-80"><%= doc.dig("params", input["name"]) %></td>
+              <td class="text-sm opacity-80">
+                <%= doc.dig("params", input["name"]) %><%= ai_badge(param_source) %>
+              </td>
             </tr>
           <% end %>
         </tbody>
@@ -55,10 +61,13 @@
         </thead>
         <tbody>
           <% func["outputs"].each_with_index do |output, i| %>
+            <% return_source = Array(source["returns"])[i] %>
             <tr>
               <td class="font-mono"><%= output["name"].presence || "(unnamed)" %></td>
               <td class="font-mono text-sm"><%= output["type"] %></td>
-              <td class="text-sm opacity-80"><%= Array(doc["returns"])[i] %></td>
+              <td class="text-sm opacity-80">
+                <%= Array(doc["returns"])[i] %><%= ai_badge(return_source) %>
+              </td>
             </tr>
           <% end %>
         </tbody>
