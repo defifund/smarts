@@ -29,6 +29,7 @@ class GetContractInfoTool < ApplicationTool
       classification: classification&.protocol_key,
       classification_display: classification&.display_name,
       protocol_adapter: adapter&.class&.type_tag,
+      implementation_address: contract.implementation_address,
       view_function_count: contract.view_functions.size,
       write_function_count: contract.write_functions.size,
       event_count: contract.events.size,

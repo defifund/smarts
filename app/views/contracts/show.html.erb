@@ -12,6 +12,13 @@
       <% end %>
     </div>
     <p class="font-mono text-sm opacity-70"><%= @contract.address %></p>
+    <% if @contract.implementation_address.present? %>
+      <p class="text-sm opacity-70 mt-1">
+        <span class="badge badge-ghost badge-sm">Proxy</span>
+        <span class="opacity-60">implementation:</span>
+        <span class="font-mono"><%= @contract.implementation_address %></span>
+      </p>
+    <% end %>
     <% if @contract.compiler_version.present? %>
       <p class="text-sm opacity-50 mt-1">Solidity <%= @contract.compiler_version %></p>
     <% end %>
