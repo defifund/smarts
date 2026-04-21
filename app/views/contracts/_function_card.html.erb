@@ -1,8 +1,11 @@
 <div class="collapse collapse-arrow bg-base-200">
   <input type="checkbox">
-  <div class="collapse-title font-mono font-medium flex items-center gap-2">
-    <%= func["name"] %>
+  <div class="collapse-title font-mono font-medium flex items-center gap-2 flex-wrap">
+    <span><%= func["name"] %></span>
     <span class="badge badge-sm <%= kind == 'view' ? 'badge-info' : 'badge-warning' %>"><%= func["stateMutability"] %></span>
+    <% if local_assigns[:live_result] %>
+      <%= render_live_result(local_assigns[:live_result], func) %>
+    <% end %>
   </div>
   <div class="collapse-content">
     <%# Inputs %>

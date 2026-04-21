@@ -10,10 +10,21 @@ class ContractsController < ApplicationController
       @contract = Contract.find_or_initialize_by(chain: @chain, address: address)
       @contract.update!(info)
     end
+
+    @live_values = load_live_values(@contract)
   rescue EtherscanClient::NotVerifiedError
     render :not_verified, status: :not_found
   rescue EtherscanClient::Error => e
     flash.now[:alert] = "Failed to fetch contract: #{e.message}"
     render :error, status: :service_unavailable
+  end
+
+  private
+
+  def load_live_values(contract)
+    ChainReader::ViewCaller.call(contract)
+  rescue => e
+    Rails.logger.warn("[ContractsController] live values failed: #{e.class}: #{e.message}")
+    {}
   end
 end

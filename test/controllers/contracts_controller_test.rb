@@ -35,6 +35,33 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  test "show renders live on-chain values inline next to view functions" do
+    contract = contracts(:uni_token)
+    live_values = {
+      "totalSupply()" => ChainReader::Multicall3Client::Result.new(success: true, values: [ 1_000_000_000_000_000_000_000_000_000 ])
+    }
+
+    stub_class_method(ChainReader::ViewCaller, :call, ->(_c) { live_values }) do
+      get contract_path(chain: "eth", address: contract.address)
+    end
+
+    assert_response :success
+    assert_match "1,000,000,000,000,000,000,000,000,000", response.body
+    assert_match "→", response.body
+  end
+
+  test "show tolerates live-value failure and still renders page" do
+    contract = contracts(:uni_token)
+    raising = ->(_c) { raise ChainReader::Base::RpcError, "rpc down" }
+
+    stub_class_method(ChainReader::ViewCaller, :call, raising) do
+      get contract_path(chain: "eth", address: contract.address)
+    end
+
+    assert_response :success
+    assert_select "h1", contract.name
+  end
+
   private
 
   def stub_etherscan_full

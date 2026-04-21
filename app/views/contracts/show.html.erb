@@ -35,10 +35,19 @@
   <%# Read Functions %>
   <% if @contract.view_functions.any? %>
     <section class="mb-8">
-      <h2 class="text-2xl font-semibold mb-4">Read Functions</h2>
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-2xl font-semibold">Read Functions</h2>
+        <% if @live_values.present? %>
+          <span class="text-xs opacity-60">Live from chain · cached 60s</span>
+        <% end %>
+      </div>
       <div class="space-y-3">
         <% @contract.view_functions.each do |func| %>
-          <%= render "contracts/function_card", func: func, kind: "view" %>
+          <% sig = "#{func['name']}(#{Array(func['inputs']).map { |i| i['type'] }.join(',')})" %>
+          <%= render "contracts/function_card",
+                func: func,
+                kind: "view",
+                live_result: @live_values[sig] %>
         <% end %>
       </div>
     </section>
