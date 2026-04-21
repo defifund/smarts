@@ -1,0 +1,185 @@
+require "test_helper"
+
+class ContractsHelperTest < ActionView::TestCase
+  test "format_abi_value formats uint with thousands separators" do
+    assert_equal "1,000,000", format_abi_value(1_000_000, "uint256")
+    assert_equal "18", format_abi_value(18, "uint8")
+    assert_equal "0", format_abi_value(0, "uint256")
+  end
+
+  test "format_abi_value formats int* same as uint" do
+    assert_equal "-1,234,567", format_abi_value(-1_234_567, "int256")
+  end
+
+  test "format_abi_value renders bool" do
+    assert_equal "true", format_abi_value(true, "bool")
+    assert_equal "false", format_abi_value(false, "bool")
+  end
+
+  test "format_abi_value lowercases address" do
+    assert_equal "0xdeadbeef", format_abi_value("0xDeAdBeEf", "address")
+  end
+
+  test "format_abi_value truncates long strings" do
+    short = "hello"
+    assert_equal "hello", format_abi_value(short, "string")
+
+    long = "x" * 100
+    formatted = format_abi_value(long, "string")
+    assert formatted.end_with?("..."), "long strings should be truncated with ellipsis"
+    assert formatted.length <= 80
+  end
+
+  test "format_abi_value converts bytes to hex" do
+    bytes = [ 0xca, 0xfe, 0xba, 0xbe ].pack("C*")
+    assert_equal "0xcafebabe", format_abi_value(bytes, "bytes32")
+    assert_equal "0xcafebabe", format_abi_value(bytes, "bytes")
+  end
+
+  test "format_abi_value renders arrays inline" do
+    assert_equal "[1, 2, 3]", format_abi_value([ 1, 2, 3 ], "uint256[]")
+  end
+
+  test "format_abi_value handles nested arrays" do
+    assert_equal "[[1, 2], [3]]", format_abi_value([ [ 1, 2 ], [ 3 ] ], "uint256[][]")
+  end
+
+  test "format_abi_output renders tuple with component names inline" do
+    tuple_value = [ 1_000_000_000, "0xabc", true ]
+    output = {
+      "type" => "tuple",
+      "components" => [
+        { "name" => "liquidity", "type" => "uint256" },
+        { "name" => "addr",      "type" => "address" },
+        { "name" => "unlocked",  "type" => "bool" }
+      ]
+    }
+
+    assert_equal "(liquidity: 1,000,000,000, addr: 0xabc, unlocked: true)",
+                 format_abi_output(tuple_value, output)
+  end
+
+  test "format_abi_output renders unnamed tuple components without labels" do
+    output = {
+      "type" => "tuple",
+      "components" => [ { "type" => "uint256" }, { "type" => "uint256" } ]
+    }
+    assert_equal "(1,000, 2,000)", format_abi_output([ 1_000, 2_000 ], output)
+  end
+
+  test "format_abi_output handles arrays of tuples" do
+    output = {
+      "type" => "tuple[]",
+      "components" => [
+        { "name" => "a", "type" => "uint256" },
+        { "name" => "b", "type" => "uint256" }
+      ]
+    }
+    assert_equal "[(a: 1, b: 2), (a: 3, b: 4)]",
+                 format_abi_output([ [ 1, 2 ], [ 3, 4 ] ], output)
+  end
+
+  test "format_abi_output passes through scalars to format_abi_value" do
+    assert_equal "1,000,000", format_abi_output(1_000_000, { "type" => "uint256" })
+    assert_equal "true", format_abi_output(true, { "type" => "bool" })
+  end
+
+  test "render_live_result formats tuple return value with component names" do
+    result = ChainReader::Multicall3Client::Result.new(
+      success: true,
+      values: [ [ 7919111111111, -42, true ] ]
+    )
+    fn = {
+      "outputs" => [ {
+        "type" => "tuple",
+        "components" => [
+          { "name" => "sqrtPriceX96", "type" => "uint160" },
+          { "name" => "tick",         "type" => "int24" },
+          { "name" => "unlocked",     "type" => "bool" }
+        ]
+      } ]
+    }
+
+    html = render_live_result(result, fn)
+    assert_includes html, "sqrtPriceX96: 7,919,111,111,111"
+    assert_includes html, "tick: -42"
+    assert_includes html, "unlocked: true"
+  end
+
+  test "render_live_result returns nil when result is nil" do
+    assert_nil render_live_result(nil, { "outputs" => [ { "type" => "uint256" } ] })
+  end
+
+  test "render_live_result renders success value with arrow and success styling" do
+    result = ChainReader::Multicall3Client::Result.new(success: true, values: [ 42 ])
+    fn = { "outputs" => [ { "type" => "uint256" } ] }
+
+    html = render_live_result(result, fn)
+    assert_includes html, "→"
+    assert_includes html, "42"
+    assert_includes html, "text-success"
+  end
+
+  test "render_live_result renders 'reverted' badge on failure" do
+    result = ChainReader::Multicall3Client::Result.new(success: false, error: "execution reverted")
+    fn = { "outputs" => [ { "type" => "uint256" } ] }
+
+    html = render_live_result(result, fn)
+    assert_includes html, "reverted"
+    assert_includes html, "text-error"
+  end
+
+  test "render_live_result returns nil when outputs list is empty" do
+    result = ChainReader::Multicall3Client::Result.new(success: true, values: [])
+    fn = { "outputs" => [] }
+
+    assert_nil render_live_result(result, fn)
+  end
+
+  test "render_live_result joins multi-return values with commas" do
+    result = ChainReader::Multicall3Client::Result.new(success: true, values: [ 1, 2 ])
+    fn = { "outputs" => [ { "type" => "uint256" }, { "type" => "uint256" } ] }
+
+    html = render_live_result(result, fn)
+    assert_includes html, "1, 2"
+  end
+
+  test "function_signature_with_params renders zero-arg as bare parens" do
+    fn = { "name" => "totalSupply", "inputs" => [] }
+    assert_equal "totalSupply()", function_signature_with_params(fn)
+  end
+
+  test "function_signature_with_params includes named parameters" do
+    fn = {
+      "name" => "transfer",
+      "inputs" => [
+        { "name" => "to", "type" => "address" },
+        { "name" => "amount", "type" => "uint256" }
+      ]
+    }
+    assert_equal "transfer(to: address, amount: uint256)", function_signature_with_params(fn)
+  end
+
+  test "ai_badge renders only when source is ai" do
+    assert_includes ai_badge("ai").to_s, "✨ AI"
+    assert_nil ai_badge("real")
+    assert_nil ai_badge(nil)
+  end
+
+  test "ai_badge is html_safe and carries a tooltip" do
+    html = ai_badge("ai")
+    assert html.html_safe?
+    assert_match(/title=/, html)
+  end
+
+  test "function_signature_with_params omits empty names" do
+    fn = {
+      "name" => "mixed",
+      "inputs" => [
+        { "name" => "", "type" => "address" },
+        { "name" => "amount", "type" => "uint256" }
+      ]
+    }
+    assert_equal "mixed(address, amount: uint256)", function_signature_with_params(fn)
+  end
+end

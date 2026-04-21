@@ -42,6 +42,22 @@ gem "thruster", require: false
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 gem "image_processing", "~> 1.2"
 
+# HTTP client for external APIs (Etherscan, etc.)
+gem "faraday"
+gem "faraday-retry"
+
+# Ethereum client: JSON-RPC + ABI encode/decode
+gem "eth", "~> 0.5.17"
+
+# Syntax highlighting for contract source code
+gem "rouge", "~> 4.7"
+
+# AI doc generation via Claude
+gem "ruby_llm", "~> 1.14"
+
+# MCP server for AI-agent access to contract docs
+gem "fast-mcp", "~> 1.6"
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
@@ -65,4 +81,5 @@ group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
   gem "selenium-webdriver"
+  gem "webmock"
 end

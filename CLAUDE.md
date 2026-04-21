@@ -72,9 +72,11 @@ onchain:
 
 ai:
   gem: ruby_llm
-  fast: claude-haiku-4-5-20251001    # 分类、快速描述
-  main: claude-sonnet-4-6            # 主力文档生成
-  heavy: claude-opus-4-7             # 复杂协议分析（少用）
+  fast: gpt-5-mini                   # 分类、快速描述（MVP 默认，成本优先）
+  main: gpt-5                        # 主力文档生成
+  heavy: claude-opus-4-7             # 复杂协议分析（少用，质量优先）
+  # 说明：initializer 同时配置 OpenAI + Anthropic。模型名字符串改一下就切。
+  #       产品成熟、Anthropic API credits 到位后可回切 Claude 以保持品牌统一。
 
 mcp:
   primary: fast-mcp                   # Rack middleware 方式挂到 Rails
