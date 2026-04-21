@@ -66,4 +66,12 @@ class GetContractInfoToolTest < ActiveSupport::TestCase
     result = @tool.call(chain: "eth", address: mixed)
     assert_equal "Uni", result[:name]
   end
+
+  test "surfaces implementation_address for proxy contracts" do
+    contract = contracts(:uni_token)
+    contract.update!(implementation_address: "0x5d4aa78b08bc7c530e21bf7447988b1be7991322")
+
+    result = @tool.call(chain: "eth", address: contract.address)
+    assert_equal "0x5d4aa78b08bc7c530e21bf7447988b1be7991322", result[:implementation_address]
+  end
 end

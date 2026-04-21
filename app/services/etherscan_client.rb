@@ -12,16 +12,32 @@ class EtherscanClient
 
   def fetch_contract_info(address)
     source = fetch_source_code(address)
-    abi = fetch_abi(address)
 
-    {
-      name: source["ContractName"],
-      compiler_version: source["CompilerVersion"],
-      source_code: source["SourceCode"],
-      abi: abi,
-      natspec: NatSpecExtractor.call(source["SourceCode"]),
-      verified_at: Time.current
-    }
+    if source["Proxy"] == "1" && source["Implementation"].present?
+      impl_address = source["Implementation"]
+      impl_source = fetch_source_code(impl_address)
+      impl_abi = fetch_abi(impl_address)
+
+      {
+        name: impl_source["ContractName"],
+        compiler_version: impl_source["CompilerVersion"],
+        source_code: impl_source["SourceCode"],
+        abi: impl_abi,
+        natspec: NatSpecExtractor.call(impl_source["SourceCode"]),
+        implementation_address: impl_address.downcase,
+        verified_at: Time.current
+      }
+    else
+      {
+        name: source["ContractName"],
+        compiler_version: source["CompilerVersion"],
+        source_code: source["SourceCode"],
+        abi: fetch_abi(address),
+        natspec: NatSpecExtractor.call(source["SourceCode"]),
+        implementation_address: nil,
+        verified_at: Time.current
+      }
+    end
   end
 
   private
