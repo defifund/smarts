@@ -1,4 +1,5 @@
 require "test_helper"
+require "ostruct"
 
 class ContractsHelperTest < ActionView::TestCase
   test "format_abi_value formats uint with thousands separators" do
@@ -181,5 +182,83 @@ class ContractsHelperTest < ActionView::TestCase
       ]
     }
     assert_equal "mixed(address, amount: uint256)", function_signature_with_params(fn)
+  end
+
+  # ---------- smart_format_output: ERC-20 decimals scaling ----------
+
+  def erc20_live_values(decimals:, symbol:)
+    {
+      "decimals()" => ChainReader::Multicall3Client::Result.new(success: true, values: [ decimals ]),
+      "symbol()"   => ChainReader::Multicall3Client::Result.new(success: true, values: [ symbol ])
+    }
+  end
+
+  test "smart_format_output scales totalSupply for ERC-20 contracts using decimals() and symbol()" do
+    @classification = OpenStruct.new(protocol_key: "erc20")
+    @live_values = erc20_live_values(decimals: 6, symbol: "USDC")
+    fn = { "name" => "totalSupply", "outputs" => [ { "type" => "uint256" } ] }
+
+    assert_equal "55,046,395,721.80 USDC",
+                 smart_format_output(55_046_395_721_805_492, fn["outputs"][0], fn)
+  end
+
+  test "smart_format_output strips fractional part when scaled value is whole" do
+    @classification = OpenStruct.new(protocol_key: "erc20")
+    @live_values = erc20_live_values(decimals: 18, symbol: "DAI")
+    fn = { "name" => "totalSupply", "outputs" => [ { "type" => "uint256" } ] }
+
+    # 1_000 DAI exactly → 1e21 wei → "1,000 DAI", no trailing .00
+    assert_equal "1,000 DAI", smart_format_output(1_000 * 10**18, fn["outputs"][0], fn)
+  end
+
+  test "smart_format_output falls back to raw when classification is not erc20" do
+    @classification = OpenStruct.new(protocol_key: "uniswap_v3_pool")
+    @live_values = erc20_live_values(decimals: 6, symbol: "USDC")
+    fn = { "name" => "totalSupply", "outputs" => [ { "type" => "uint256" } ] }
+
+    assert_equal "55,046,395,721,805,492",
+                 smart_format_output(55_046_395_721_805_492, fn["outputs"][0], fn)
+  end
+
+  test "smart_format_output falls back to raw for non-totalSupply functions even on ERC-20" do
+    @classification = OpenStruct.new(protocol_key: "erc20")
+    @live_values = erc20_live_values(decimals: 6, symbol: "USDC")
+    fn = { "name" => "nonce", "outputs" => [ { "type" => "uint256" } ] }
+
+    assert_equal "42", smart_format_output(42, fn["outputs"][0], fn)
+  end
+
+  test "smart_format_output falls back to raw when decimals() live value is missing" do
+    @classification = OpenStruct.new(protocol_key: "erc20")
+    @live_values = {
+      "symbol()" => ChainReader::Multicall3Client::Result.new(success: true, values: [ "USDC" ])
+      # no decimals()
+    }
+    fn = { "name" => "totalSupply", "outputs" => [ { "type" => "uint256" } ] }
+
+    assert_equal "55,046,395,721,805,492",
+                 smart_format_output(55_046_395_721_805_492, fn["outputs"][0], fn)
+  end
+
+  test "smart_format_output omits symbol suffix when symbol() live value is missing" do
+    @classification = OpenStruct.new(protocol_key: "erc20")
+    @live_values = {
+      "decimals()" => ChainReader::Multicall3Client::Result.new(success: true, values: [ 6 ])
+    }
+    fn = { "name" => "totalSupply", "outputs" => [ { "type" => "uint256" } ] }
+
+    assert_equal "55,046,395,721.80",
+                 smart_format_output(55_046_395_721_805_492, fn["outputs"][0], fn)
+  end
+
+  test "render_live_result decimals-scales totalSupply for ERC-20 contracts" do
+    @classification = OpenStruct.new(protocol_key: "erc20")
+    @live_values = erc20_live_values(decimals: 6, symbol: "USDC")
+    result = ChainReader::Multicall3Client::Result.new(success: true, values: [ 55_046_395_721_805_492 ])
+    fn = { "name" => "totalSupply", "outputs" => [ { "type" => "uint256" } ] }
+
+    html = render_live_result(result, fn)
+    assert_includes html, "55,046,395,721.80 USDC"
+    refute_includes html, "55,046,395,721,805,492"
   end
 end

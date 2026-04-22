@@ -1,3 +1,6 @@
+require "bigdecimal"
+require "bigdecimal/util"
+
 module ContractsHelper
   # Dispatches by ABI output shape: tuples → (name: val, ...), arrays → [...],
   # scalars → format_abi_value. Prefer this over format_abi_value when you have
@@ -54,7 +57,7 @@ module ContractsHelper
     return nil if outputs.empty? || result.values.empty?
 
     parts = result.values.each_with_index.map do |v, i|
-      format_abi_output(v, outputs[i])
+      smart_format_output(v, outputs[i], fn)
     end
 
     content_tag(:span, "→ #{parts.join(', ')}", class: "text-success text-xs font-mono break-all")
@@ -83,7 +86,54 @@ module ContractsHelper
     "#{fn['name']}(#{parts.join(', ')})"
   end
 
+  # Same as format_abi_output but with protocol awareness: ERC-20 totalSupply()
+  # returns raw uint256 wei, which is unreadable. If @classification marks this
+  # contract as ERC-20 and decimals()/symbol() live values are available, render
+  # "55,046,395,721.81 USDC" instead of "55,046,395,721,805,492".
+  def smart_format_output(value, output, fn)
+    if erc20_amount_function?(fn, output)
+      scaled = scale_erc20_amount(value)
+      return scaled if scaled
+    end
+    format_abi_output(value, output)
+  end
+
   private
+
+  def erc20_amount_function?(fn, output)
+    return false unless @classification&.protocol_key == "erc20"
+    return false unless fn["name"] == "totalSupply"
+
+    output["type"].to_s.match?(/\Auint\d*\z/)
+  end
+
+  def scale_erc20_amount(raw)
+    return nil unless raw.is_a?(Integer)
+    decimals = erc20_decimals
+    return nil unless decimals
+
+    scaled = (raw.to_d / (BigDecimal(10) ** decimals)).round(2, BigDecimal::ROUND_DOWN)
+    whole, frac = scaled.to_s("F").split(".")
+    whole_formatted = whole.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\1,').reverse
+    frac_padded = (frac.to_s + "00")[0, 2]
+    body = frac_padded == "00" ? whole_formatted : "#{whole_formatted}.#{frac_padded}"
+    symbol = erc20_symbol
+    symbol ? "#{body} #{symbol}" : body
+  end
+
+  def erc20_decimals
+    live_value("decimals()").then { |v| v.is_a?(Integer) ? v : nil }
+  end
+
+  def erc20_symbol
+    live_value("symbol()").then { |v| v.is_a?(String) ? v : nil }
+  end
+
+  def live_value(signature)
+    result = @live_values&.dig(signature)
+    return nil unless result&.success && result.values.any?
+    result.values.first
+  end
 
   def format_integer(n)
     return n.to_s unless n.is_a?(Integer)
