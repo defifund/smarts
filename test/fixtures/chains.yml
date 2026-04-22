@@ -9,3 +9,21 @@ base:
   slug: base
   chain_id: 8453
   explorer_api_url: https://api.etherscan.io/v2/api
+
+arbitrum:
+  name: Arbitrum One
+  slug: arbitrum
+  chain_id: 42161
+  explorer_api_url: https://api.etherscan.io/v2/api
+
+optimism:
+  name: Optimism
+  slug: optimism
+  chain_id: 10
+  explorer_api_url: https://api.etherscan.io/v2/api
+
+polygon:
+  name: Polygon PoS
+  slug: polygon
+  chain_id: 137
+  explorer_api_url: https://api.etherscan.io/v2/api

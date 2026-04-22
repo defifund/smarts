@@ -45,15 +45,54 @@ module ProtocolAdapters
 
     ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
 
-    # Issuer whitelist keyed by chain slug → lowercase address.
-    # Keep intentionally small (MVP: mainnet majors). Extend as warranted.
+    # Issuer whitelist keyed by chain slug → lowercase address. Covers the big
+    # blue-chip tokens on each supported chain. L2 variants that are bridged
+    # from mainnet (not issued directly by the named entity) get a "(bridged)"
+    # suffix so the badge stays honest — MakerDAO for example only mints DAI
+    # on Ethereum; L2 DAI is a bridge receipt.
+    CIRCLE   = { name: "Circle",         url: "https://www.circle.com/" }.freeze
+    TETHER   = { name: "Tether",         url: "https://tether.to/" }.freeze
+    MAKER    = { name: "MakerDAO",       url: "https://makerdao.com/" }.freeze
+    MAKER_B  = { name: "MakerDAO (bridged)", url: "https://makerdao.com/" }.freeze
+    WETH_I   = { name: "Wrapped Ether",  url: nil }.freeze
+    WBTC_I   = { name: "BitGo (WBTC)",   url: "https://wbtc.network/" }.freeze
+    WBTC_B   = { name: "BitGo (bridged)", url: "https://wbtc.network/" }.freeze
+    POLY_M   = { name: "Polygon (WMATIC)", url: "https://polygon.technology/" }.freeze
+
     ISSUERS = {
       "eth" => {
-        "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" => { name: "Circle",        url: "https://www.circle.com/" },
-        "0xdac17f958d2ee523a2206206994597c13d831ec7" => { name: "Tether",        url: "https://tether.to/" },
-        "0x6b175474e89094c44da98b954eedeac495271d0f" => { name: "MakerDAO",      url: "https://makerdao.com/" },
-        "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2" => { name: "Wrapped Ether", url: nil },
-        "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599" => { name: "BitGo (WBTC)",  url: "https://wbtc.network/" }
+        "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" => CIRCLE,  # USDC
+        "0xdac17f958d2ee523a2206206994597c13d831ec7" => TETHER,  # USDT
+        "0x6b175474e89094c44da98b954eedeac495271d0f" => MAKER,   # DAI
+        "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2" => WETH_I,  # WETH
+        "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599" => WBTC_I   # WBTC
+      },
+      "base" => {
+        "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913" => CIRCLE,  # USDC (native)
+        "0x50c5725949a6f0c72e6c4a641f24049a917db0cb" => MAKER_B, # DAI  (bridged)
+        "0x4200000000000000000000000000000000000006" => WETH_I   # WETH (canonical)
+      },
+      "arbitrum" => {
+        "0xaf88d065e77c8cc2239327c5edb3a432268e5831" => CIRCLE,  # USDC (native)
+        "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9" => TETHER,  # USDT (native)
+        "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1" => MAKER_B, # DAI  (bridged)
+        "0x82af49447d8a07e3bd95bd0d56f35241523fbab1" => WETH_I,  # WETH
+        "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f" => WBTC_B   # WBTC (bridged)
+      },
+      "optimism" => {
+        "0x0b2c639c533813f4aa9d7837caf62653d097ff85" => CIRCLE,  # USDC (native)
+        "0x94b008aa00579c1307b0ef2c499ad98a8ce58e58" => TETHER,  # USDT (native)
+        "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1" => MAKER_B, # DAI  (bridged)
+        "0x4200000000000000000000000000000000000006" => WETH_I,  # WETH (canonical)
+        "0x68f180fcce6836688e9084f035309e29bf0a2095" => WBTC_B   # WBTC (bridged)
+      },
+      "polygon" => {
+        "0x3c499c542cef5e3811e1192ce70d8cc03d5c3359" => CIRCLE,  # USDC (native)
+        "0xc2132d05d31c914a87c6611c10748aeb04b58e8f" => TETHER,  # USDT (native)
+        "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063" => MAKER_B, # DAI  (bridged)
+        "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619" => WETH_I,  # WETH (bridged)
+        "0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6" => WBTC_B,  # WBTC (bridged)
+        "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270" => POLY_M   # WMATIC
       }
     }.freeze
 

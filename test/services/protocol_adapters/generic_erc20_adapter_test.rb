@@ -148,10 +148,78 @@ class ProtocolAdapters::GenericErc20AdapterTest < ActiveSupport::TestCase
     assert_equal "Circle", issuer[:name]
   end
 
-  test "lookup_issuer returns nil for USDC address on the wrong chain" do
+  test "lookup_issuer returns nil for the Ethereum USDC address on the Base chain (different chain)" do
+    # Note: the real native Base USDC is at a different address, so feeding
+    # the mainnet USDC address to a Base-chain record is a genuine mismatch.
     base_contract = Contract.new(chain: chains(:base), address: USDC_ADDRESS, abi: ERC20_ABI)
     adapter = ProtocolAdapters::GenericErc20Adapter.new(base_contract)
     assert_nil adapter.send(:lookup_issuer)
+  end
+
+  # ---------- multi-chain issuer coverage ----------
+
+  def issuer_for(chain_slug, address)
+    c = Contract.new(chain: Chain.find_by!(slug: chain_slug), address: address, abi: ERC20_ABI)
+    ProtocolAdapters::GenericErc20Adapter.new(c).send(:lookup_issuer)
+  end
+
+  test "native USDC is recognised as Circle on every supported chain" do
+    {
+      "eth"      => "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      "base"     => "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "arbitrum" => "0xaf88d065e77c8cc2239327c5edb3a432268e5831",
+      "optimism" => "0x0b2c639c533813f4aa9d7837caf62653d097ff85",
+      "polygon"  => "0x3c499c542cef5e3811e1192ce70d8cc03d5c3359"
+    }.each do |chain, address|
+      i = issuer_for(chain, address)
+      assert i, "expected issuer lookup to succeed for USDC on #{chain}"
+      assert_equal "Circle", i[:name], "USDC on #{chain} should resolve to Circle"
+    end
+  end
+
+  test "bridged DAI on L2s gets '(bridged)' suffix instead of bare MakerDAO" do
+    %w[base arbitrum optimism polygon].each do |chain|
+      addresses = {
+        "base"     => "0x50c5725949a6f0c72e6c4a641f24049a917db0cb",
+        "arbitrum" => "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1",
+        "optimism" => "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1",
+        "polygon"  => "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063"
+      }
+      i = issuer_for(chain, addresses[chain])
+      assert_equal "MakerDAO (bridged)", i[:name], "bridged DAI on #{chain}"
+    end
+  end
+
+  test "bridged WBTC on L2s gets '(bridged)' suffix" do
+    {
+      "arbitrum" => "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f",
+      "optimism" => "0x68f180fcce6836688e9084f035309e29bf0a2095",
+      "polygon"  => "0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6"
+    }.each do |chain, address|
+      i = issuer_for(chain, address)
+      assert_equal "BitGo (bridged)", i[:name], "bridged WBTC on #{chain}"
+    end
+  end
+
+  test "WMATIC on Polygon is recognised with the Polygon label" do
+    i = issuer_for("polygon", "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270")
+    assert_equal "Polygon (WMATIC)", i[:name]
+  end
+
+  # Structural guards — catch typos / duplicates when the constant is edited.
+
+  test "all ISSUERS addresses are lowercase 0x + 40 hex chars" do
+    ProtocolAdapters::GenericErc20Adapter::ISSUERS.each do |chain, tokens|
+      tokens.each_key do |addr|
+        assert_match(/\A0x[0-9a-f]{40}\z/, addr, "ISSUERS[#{chain}] has malformed address: #{addr}")
+      end
+    end
+  end
+
+  test "no duplicate addresses within a chain (would make one issuer shadow another)" do
+    ProtocolAdapters::GenericErc20Adapter::ISSUERS.each do |chain, tokens|
+      assert_equal tokens.keys.uniq.length, tokens.keys.length, "duplicate addresses in ISSUERS[#{chain}]"
+    end
   end
 
   # ---------- format_supply edge cases ----------
