@@ -17,7 +17,7 @@ default: &default
   encoding: unicode
   # For details on connection pooling, see Rails configuration guide
   # https://guides.rubyonrails.org/configuring.html#database-pooling
-  max_connections: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  max_connections: <%= ENV.fetch("DB_POOL") { ENV.fetch("RAILS_MAX_THREADS", 5) } %>
 
 
 development:
@@ -87,9 +87,10 @@ test:
 production:
   primary: &primary_production
     <<: *default
-    database: smarts_production
-    username: smarts
-    password: <%= ENV["SMARTS_DATABASE_PASSWORD"] %>
+    database: <%= ENV.fetch("POSTGRES_DB", "smarts_production") %>
+    username: <%= ENV.fetch("POSTGRES_USER", "rails") %>
+    password: <%= ENV["POSTGRES_PASSWORD"] %>
+    host: <%= ENV.fetch("DB_HOST", "localhost") %>
   cache:
     <<: *primary_production
     database: smarts_production_cache
