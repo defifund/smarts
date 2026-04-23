@@ -50,6 +50,71 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
     refute_match %r{rel="canonical"}, response.body
   end
 
+  # ---------- MCP info card ----------
+
+  test "contract page shows the MCP info card with slug reference for sluged contracts" do
+    contract = contracts(:uni_token)
+    contract.update!(address: "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984") # uni-eth
+    get "/uni-eth"
+
+    assert_response :success
+    assert_match "Query this contract from your AI", response.body
+    # Reference shows the slug prominently + address as secondary
+    assert_match "uni-eth", response.body
+    assert_match "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984", response.body
+    # Sample prompt uses the slug
+    assert_match "Tell me the current state of uni-eth", response.body
+    # Setup pointer
+    assert_match "mcp.smarts.md", response.body
+  end
+
+  test "contract page shows the MCP info card with chain/address reference for non-sluged contracts" do
+    contract = contracts(:uni_token) # fixture at 0x1111... (no slug)
+    get contract_path(chain: "eth", address: contract.address)
+
+    assert_response :success
+    assert_match "Query this contract from your AI", response.body
+    # Sample prompt falls back to chain/address when no slug exists
+    assert_match "Tell me the current state of eth/0x1111111111111111111111111111111111111111", response.body
+  end
+
+  # Clipboard is driven entirely by `data-copy-text-value`. If someone
+  # refactors the partial and mis-templates the attribute, copy buttons
+  # would silently write the wrong string (or empty). This assert locks
+  # the slug-button's value down.
+  test "copy button for the slug reference carries the correct data-copy-text-value" do
+    contract = contracts(:uni_token)
+    contract.update!(address: "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984")
+    get "/uni-eth"
+
+    assert_match %r{data-copy-text-value="uni-eth"}, response.body
+    assert_match %r{data-copy-text-value="Tell me the current state of uni-eth"}, response.body
+  end
+
+  # The MCP card sits OUTSIDE the `if @protocol_adapter` branch in show.html.erb.
+  # A refactor that moves it inside would make the card disappear from every
+  # adapter-backed page (USDC, Uniswap V3, …) — i.e. exactly the pages where
+  # the AI integration matters most. This test stubs an adapter and asserts
+  # both renders happen.
+  test "MCP card renders alongside the protocol adapter panel (not inside it)" do
+    contract = contracts(:uni_token)
+
+    fake_adapter = ProtocolAdapters::UniswapV3Adapter.allocate
+    fake_adapter.instance_variable_set(:@contract, contract)
+    fake_adapter.instance_variable_set(:@chain, contract.chain)
+    # panel_data returning {error:} drives the partial's error branch —
+    # enough to prove the adapter template rendered without needing live data.
+    fake_adapter.define_singleton_method(:panel_data) { { error: "stubbed for test" } }
+
+    stub_class_method(ProtocolAdapters::Base, :resolve, ->(_) { fake_adapter }) do
+      get contract_path(chain: "eth", address: contract.address)
+    end
+
+    assert_response :success
+    assert_match "Query this contract from your AI", response.body, "MCP card must render"
+    assert_match "stubbed for test", response.body, "adapter panel must render alongside"
+  end
+
   test "show fetches from etherscan when contract not in db" do
     stub_etherscan_full
 
