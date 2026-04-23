@@ -8,6 +8,12 @@ class MarketingControllerTest < ActionDispatch::IntegrationTest
     assert_match "Live docs for every smart contract.", response.body
   end
 
+  test "home surfaces MCP entry link to mcp.smarts.md" do
+    get root_path
+    assert_response :success
+    assert_match %r{<a href="https://mcp\.smarts\.md/"[^>]*>connect your AI agent</a>}, response.body
+  end
+
   test "home renders the curated featured section" do
     get root_path
     assert_response :success
@@ -116,6 +122,19 @@ class MarketingControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_match "Point your AI at smarts.md", response.body
+  end
+
+  # Guards the seo_meta migration from content_for :title. If someone reverts
+  # mcp_docs.html.erb to the old `content_for :title, "..."` form, the layout
+  # will silently fall back to the site-wide default title (since the layout
+  # now reads :page_title, not :title).
+  test "mcp_docs page emits its own title and description via seo_meta" do
+    host! "mcp.smarts.md"
+    get "/"
+
+    assert_match %r{<title>Connect your AI \| smarts.md</title>}, response.body
+    assert_match %r{<meta property="og:title" content="Connect your AI \| smarts.md">}, response.body
+    assert_match %r{<meta name="description" content="One MCP endpoint[^"]+Claude Code[^"]+">}, response.body
   end
 
   test "mcp_docs does NOT render for arbitrary other subdomains" do
