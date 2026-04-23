@@ -34,6 +34,33 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  # ---------- slug aliases (WMATIC → WPOL rebrand) ----------
+
+  test "hex URL for an aliased contract 301s to the canonical (newest) slug, not the legacy alias" do
+    wpol_address = "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270"
+    get contract_path(chain: "polygon", address: wpol_address)
+    assert_redirected_to "/wpol-polygon"
+    assert_equal 301, response.status
+  end
+
+  # Legacy slug must keep resolving so existing inbound links don't 404,
+  # AND the page must emit rel="canonical" pointing at the new slug so Google
+  # consolidates ranking on the current brand without a 301 bounce.
+  test "legacy alias /wmatic-polygon resolves and emits canonical link to /wpol-polygon" do
+    wpol_address = "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270"
+    # Non-empty ABI with no zero-arg view functions → controller skips the
+    # Etherscan fetch AND ViewCaller has nothing to call over the network.
+    Contract.find_or_create_by!(chain: chains(:polygon), address: wpol_address) do |c|
+      c.name = "Wrapped_Polygon_Ecosystem_Token"
+      c.abi = [ { "type" => "event", "name" => "Transfer", "inputs" => [] } ]
+      c.verified_at = 1.hour.ago
+    end
+
+    get "/wmatic-polygon"
+    assert_response :success
+    assert_match %r{<link rel="canonical" href="[^"]*/wpol-polygon">}, response.body
+  end
+
   test "slug-eligible page emits canonical link tag" do
     contract = contracts(:uni_token)
     contract.update!(address: "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984")
