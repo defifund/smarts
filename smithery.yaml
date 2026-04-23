@@ -1,3 +1,37 @@
-startCommand:
-  type: http
-  url: https://smarts.md/mcp/sse
+# Smithery registry metadata for smarts.md.
+#
+# smarts.md is an `external` Smithery deployment — the MCP server is
+# self-hosted at a fixed public URL (see below), so there is no
+# `startCommand` here. Publishing/updating the registry listing is done via
+# the CLI, not from this file:
+#
+#   npx -y @smithery/cli@latest mcp deploy \
+#     --name <namespace>/smarts \
+#     --url https://smarts.md/mcp/sse
+#
+# The fields below are for repo-level discovery and any tooling that reads
+# smithery.yaml for metadata (registry page, badges, docs scanners).
+
+name: smarts
+displayName: Smarts — Live docs for every smart contract
+description: |
+  MCP server exposing live on-chain state of any verified smart contract on
+  Ethereum, Base, Arbitrum, Optimism, and Polygon. Five tools: ERC-20 info,
+  Uniswap V3 pool state, address classification (EOA / contract / EIP-7702),
+  contract metadata, and arbitrary view-function calls.
+homepage: https://smarts.md
+repository: https://github.com/defifund/smarts
+issues: https://github.com/defifund/smarts/issues
+license: MIT
+
+keywords:
+  - ethereum
+  - evm
+  - smart-contracts
+  - defi
+  - uniswap
+  - erc20
+  - onchain
+  - live-docs
+  - multichain
+  - mcp
