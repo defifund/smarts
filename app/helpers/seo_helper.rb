@@ -61,7 +61,7 @@ module SeoHelper
     app["additionalType"]  = classification.display_name if classification&.display_name.present?
     app["description"]     = classification.description  if classification&.description.present?
     app["softwareVersion"] = contract.compiler_version   if contract.compiler_version.present?
-    app["license"]         = contract.license            if contract.respond_to?(:license) && contract.license.present?
+    app["license"]         = contract.license            if contract.license.present?
 
     data = {
       "@context"    => "https://schema.org",
