@@ -10,6 +10,7 @@ proxy:
   ssl: true
   hosts:
     - smarts.md
+    - mcp.smarts.md
   healthcheck:
     timeout: 300
 
