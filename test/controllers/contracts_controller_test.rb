@@ -50,6 +50,73 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
     refute_match %r{rel="canonical"}, response.body
   end
 
+  # ---------- SEO meta tags + JSON-LD ----------
+
+  test "contract page sets OG title with chain and contract name" do
+    contract = contracts(:uni_token)
+    get contract_path(chain: "eth", address: contract.address)
+
+    assert_response :success
+    assert_match %r{<meta property="og:title" content="Uni on Ethereum — live contract docs \| smarts.md">}, response.body
+    assert_match %r{<meta property="og:description"[^>]+Uni}, response.body
+    assert_match %r{<meta property="og:type" content="website">}, response.body
+    assert_match %r{<meta name="twitter:card" content="summary">}, response.body
+  end
+
+  test "contract page emits JSON-LD WebPage + SoftwareApplication block" do
+    contract = contracts(:uni_token)
+    get contract_path(chain: "eth", address: contract.address)
+
+    assert_response :success
+    ld_match = response.body.match(%r{<script type="application/ld\+json">(.+?)</script>}m)
+    assert ld_match, "expected a JSON-LD script tag in the response"
+
+    data = JSON.parse(ld_match[1])
+    assert_equal "WebPage", data["@type"]
+    assert_equal "SoftwareApplication", data["about"]["@type"]
+    assert_equal "SmartContract", data["about"]["applicationCategory"]
+    assert_equal "Ethereum", data["about"]["operatingSystem"]
+    assert_equal contract.address, data["about"]["identifier"]
+    assert_equal "Uni", data["about"]["name"]
+  end
+
+  # show.html.erb picks between two description templates based on whether
+  # the classifier returned anything. Without this test the unclassified
+  # branch would only surface in production on some weird contract.
+  test "contract page description falls back to display-address form when no classification" do
+    contract = contracts(:uni_token)
+
+    stub_class_method(ContractDocument::Classifier, :call, ->(_) { nil }) do
+      get contract_path(chain: "eth", address: contract.address)
+    end
+
+    assert_response :success
+    assert_match %r{<meta property="og:description" content="Live on-chain docs for Uni at #{Regexp.escape(contract.display_address)} on Ethereum\.}, response.body
+    refute_match %r{<meta property="og:description" content="[^"]*\(ERC-20 Token\)}, response.body
+  end
+
+  # The SEO helper runs in the layout, which is shared with error-state views.
+  # If a helper call raises or emits nothing on these pages, a future change
+  # would degrade our 404/500 discoverability without any louder signal.
+  test "not_verified page still renders layout meta tags via the SEO helper" do
+    stub_request(:get, /api\.etherscan\.io.*getsourcecode/).to_return(
+      status: 200,
+      body: { "status" => "1", "message" => "OK", "result" => [ { "ABI" => "Contract source code not verified" } ] }.to_json,
+      headers: { "Content-Type" => "application/json" }
+    )
+
+    stub_class_method(ChainReader::AddressInspector, :call,
+      ->(**_) { ChainReader::AddressInspector::Result.new(is_contract: true, balance_wei: 0, tx_count: 0, ens_name: nil) }) do
+      get contract_path(chain: "eth", address: "0x0000000000000000000000000000000000000001")
+    end
+
+    assert_response :not_found
+    # Falls back to site-wide default title since not_verified.html.erb doesn't set its own.
+    assert_match %r{<title>#{Regexp.escape(SeoHelper::DEFAULT_TITLE)}</title>}, response.body
+    assert_match %r{<meta property="og:site_name" content="Smarts">}, response.body
+    assert_match %r{<meta name="description"}, response.body
+  end
+
   # ---------- MCP info card ----------
 
   test "contract page shows the MCP info card with slug reference for sluged contracts" do

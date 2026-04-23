@@ -1,5 +1,23 @@
 <%= turbo_stream_from @contract %>
 
+<%
+  contract_name = @contract.name.presence || "Unknown Contract"
+  seo_title = "#{contract_name} on #{@chain.name} — live contract docs"
+  seo_desc  =
+    if @classification&.display_name.present?
+      "Live on-chain docs for #{contract_name} (#{@classification.display_name}) on #{@chain.name}. Supply, admin controls, live state, and source — read straight from the chain."
+    else
+      "Live on-chain docs for #{contract_name} at #{@contract.display_address} on #{@chain.name}. View functions, admin controls, source code — current from the chain."
+    end
+  seo_canonical =
+    @canonical_slug ? "#{SeoHelper::SITE_URL}/#{@canonical_slug}" : "#{SeoHelper::SITE_URL}/#{@chain.slug}/#{@contract.address}"
+  seo_meta title: seo_title, description: seo_desc, canonical: seo_canonical
+%>
+
+<% content_for :head do %>
+  <%= contract_json_ld(contract: @contract, chain: @chain, classification: @classification) %>
+<% end %>
+
 <div class="max-w-5xl mx-auto py-8 px-4">
   <div class="mb-8">
     <div class="flex items-center gap-3 mb-2 flex-wrap">
