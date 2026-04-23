@@ -1,0 +1,59 @@
+<%# MCP "query this contract from your AI" card.
+    Rendered between the header and the adapter panel. Shows the preferred
+    MCP reference (slug if curated, else chain/address), a copy-paste sample
+    prompt, and a pointer to mcp.smarts.md for users who haven't wired up
+    an AI yet. %>
+<% reference  = @canonical_slug || "#{@chain.slug}/#{@contract.address}" %>
+<% sample     = %(Tell me the current state of #{reference}) %>
+
+<div class="card bg-base-200 border border-base-300 mb-6">
+  <div class="card-body py-4">
+    <div class="flex items-start gap-3 flex-wrap">
+      <span class="text-xl leading-none mt-1">🤖</span>
+
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-semibold mb-2">Query this contract from your AI</div>
+
+        <div class="flex items-baseline gap-2 flex-wrap mb-2">
+          <span class="text-xs opacity-60">Reference:</span>
+          <% if @canonical_slug %>
+            <span class="font-mono text-base font-semibold"><%= @canonical_slug %></span>
+            <button type="button"
+                    data-controller="copy"
+                    data-copy-text-value="<%= @canonical_slug %>"
+                    data-action="click->copy#write"
+                    class="text-xs px-2 py-0.5 bg-base-300 hover:bg-base-100 rounded transition-colors"
+                    title="Copy reference">Copy</button>
+            <span class="font-mono text-xs opacity-50 break-all ml-2"><%= @contract.address %></span>
+          <% else %>
+            <span class="font-mono text-sm break-all"><%= @contract.address %></span>
+            <button type="button"
+                    data-controller="copy"
+                    data-copy-text-value="<%= @chain.slug %>/<%= @contract.address %>"
+                    data-action="click->copy#write"
+                    class="text-xs px-2 py-0.5 bg-base-300 hover:bg-base-100 rounded transition-colors"
+                    title="Copy reference">Copy</button>
+          <% end %>
+        </div>
+
+        <div class="flex items-baseline gap-2 flex-wrap mb-2">
+          <span class="text-xs opacity-60">Sample prompt:</span>
+          <span class="text-sm italic">“<%= sample %>”</span>
+          <button type="button"
+                  data-controller="copy"
+                  data-copy-text-value="<%= sample %>"
+                  data-action="click->copy#write"
+                  class="text-xs px-2 py-0.5 bg-base-300 hover:bg-base-100 rounded transition-colors"
+                  title="Copy prompt">Copy</button>
+        </div>
+
+        <div class="text-xs opacity-60">
+          No AI wired up yet? →
+          <a href="https://mcp.smarts.md/" target="_blank" rel="noopener" class="underline hover:text-primary">
+            mcp.smarts.md
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

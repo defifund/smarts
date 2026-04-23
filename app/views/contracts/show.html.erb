@@ -27,6 +27,8 @@
     <% end %>
   </div>
 
+  <%= render "contracts/mcp_info" %>
+
   <% if @protocol_adapter %>
     <%= render @protocol_adapter.template_partial, adapter: @protocol_adapter %>
   <% end %>
