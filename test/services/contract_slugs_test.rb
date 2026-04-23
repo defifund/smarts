@@ -56,10 +56,41 @@ class ContractSlugsTest < ActiveSupport::TestCase
     end
   end
 
-  test "no duplicate (chain, address) mappings" do
+  # Duplicate (chain, address) entries are allowed, but only as intentional
+  # rebrand aliases explicitly listed below. An accidental duplicate (copy-
+  # paste typo) causes this test to fail loudly with instructions. Adding a
+  # new rebrand requires updating both MAP and this whitelist — forcing the
+  # author to think about canonical order.
+  ALLOWED_ALIAS_COUNTS = {
+    # Polygon MATIC → POL rebrand (2024). Order in MAP determines canonical.
+    [ "polygon", "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270" ] => 2
+  }.freeze
+
+  test "duplicate (chain, address) mappings exist only as intentional rebrand aliases" do
     pairs = ContractSlugs::MAP.values.map { |chain, addr| [ chain, addr.downcase ] }
-    assert_equal pairs.length, pairs.uniq.length,
-                 "two slugs point at the same contract — ContractSlugs.for would be ambiguous"
+    duplicates = pairs.tally.reject { |_pair, count| count == 1 }
+
+    assert_equal ALLOWED_ALIAS_COUNTS, duplicates,
+      "Unexpected duplicate (chain, address) mappings. Either a typo in ContractSlugs::MAP " \
+      "or a new intentional rebrand — if the latter, add it to ALLOWED_ALIAS_COUNTS here."
+  end
+
+  # ---------- rebrand alias behavior ----------
+
+  test "both WMATIC legacy slug and WPOL canonical slug resolve to the same contract" do
+    legacy    = ContractSlugs.resolve("wmatic-polygon")
+    canonical = ContractSlugs.resolve("wpol-polygon")
+    assert_equal legacy, canonical
+    assert_equal "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270", canonical[1]
+  end
+
+  # `ContractSlugs.for` is used by the controller to redirect hex URLs to the
+  # canonical slug, by the MCP info card, and by the BreadcrumbList. All of
+  # those should land on the current brand (wpol-polygon), not the legacy
+  # alias, regardless of which URL the user arrived on.
+  test "for returns the last-declared (canonical) slug when an address has aliases" do
+    assert_equal "wpol-polygon",
+                 ContractSlugs.for("polygon", "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270")
   end
 
   test "ROUTE_PATTERN matches slug-like strings but not random paths" do

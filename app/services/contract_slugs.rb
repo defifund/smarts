@@ -3,11 +3,20 @@
 # Shape: `{symbol}-{chain}` (e.g. `uni-eth`, `usdc-base`). Only whitelisted
 # entries have slugs — everything else addresses via hex at `/:chain/:address`.
 # Slug is the canonical form; hex URLs 301 to the slug when one exists.
+#
+# Aliases: when a token rebrands on-chain (e.g. Polygon MATIC → POL in 2024),
+# the new slug is added AFTER the old one. Both slugs continue to resolve
+# (so existing links don't break), but REVERSE is built with last-write-wins
+# so the canonical slug used in breadcrumbs, MCP cards, and hex → slug
+# redirects is the *newest* one. Pages served from the legacy slug still
+# emit `<link rel="canonical">` pointing at the new one, so Google converges
+# on the current brand without a 301 hop.
 module ContractSlugs
   CHAIN_SUFFIX = %w[eth base arbitrum optimism polygon].freeze
 
   # Slug → [chain_slug, lowercase_address]. Keep this ordered the way we want
-  # it to appear in any derived iteration (tests, admin tools, etc.).
+  # it to appear in any derived iteration (tests, admin tools, etc.). For
+  # aliased addresses, legacy slug first, current canonical last.
   MAP = {
     # Stablecoins
     "usdc-eth"       => [ "eth",      "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" ],
@@ -31,7 +40,12 @@ module ContractSlugs
     # Multi-chain
     "usdc-base"      => [ "base",     "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913" ],
     "usdc-arbitrum"  => [ "arbitrum", "0xaf88d065e77c8cc2239327c5edb3a432268e5831" ],
-    "wmatic-polygon" => [ "polygon",  "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270" ]
+
+    # Polygon WMATIC → WPOL rebrand (2024). `wmatic-polygon` listed first as
+    # a legacy alias so existing inbound links and AI-agent configs keep
+    # resolving. `wpol-polygon` listed last so REVERSE picks it as canonical.
+    "wmatic-polygon" => [ "polygon",  "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270" ],
+    "wpol-polygon"   => [ "polygon",  "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270" ]
   }.freeze
 
   REVERSE = MAP.each_with_object({}) do |(slug, (chain, addr)), acc|
