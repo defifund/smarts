@@ -3,7 +3,7 @@
 # Policy: smarts.md is public, AI-native documentation. We explicitly welcome
 # AI crawlers and user-agent fetchers — the whole point of the site is to be
 # read and used by AI agents. If a crawler is missing here and you run one,
-# open an issue at https://github.com/defifund/smarts.
+# open an issue at https://github.com/defi-io/smarts.
 
 # --- AI crawlers (explicit allow) ---
 

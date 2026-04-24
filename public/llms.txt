@@ -58,6 +58,6 @@ Supported chains (slug suffix in parentheses): Ethereum (`-eth`), Base (`-base`)
 ## Project
 
 - [Homepage](https://smarts.md/)
-- [Source on GitHub](https://github.com/defifund/smarts)
-- [README](https://github.com/defifund/smarts#readme)
+- [Source on GitHub](https://github.com/defi-io/smarts)
+- [README](https://github.com/defi-io/smarts#readme)
 - License: MIT

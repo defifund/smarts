@@ -31,7 +31,7 @@ Parent todo: `2026-04-23-ai-native-discovery-audit-and-backlog.md` — this is t
 
 Pick one:
 
-- **A. Create a Smithery org/namespace that starts with a letter.** Candidates: `defifund` (matches the GitHub org), `smarts`, `chain-dev` (matches chain.dev parent brand). Needs the Smithery org creation flow (probably `smithery.ai/new-organization` or a CLI command — check `npx @smithery/cli@latest namespace --help`).
+- **A. Create a Smithery org/namespace that starts with a letter.** Candidates: `defi-io` (matches the GitHub org, post-transfer from `defifund`), `smarts`, `chain-dev` (matches chain.dev parent brand). Needs the Smithery org creation flow (probably `smithery.ai/new-organization` or a CLI command — check `npx @smithery/cli@latest namespace --help`).
 - **B. Change personal account handle** if Smithery allows renaming the user slug. Less certain it's possible.
 
 Once unblocked, run the deploy command above, then verify:

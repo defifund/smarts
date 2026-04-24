@@ -20,8 +20,8 @@ description: |
   Uniswap V3 pool state, address classification (EOA / contract / EIP-7702),
   contract metadata, and arbitrary view-function calls.
 homepage: https://smarts.md
-repository: https://github.com/defifund/smarts
-issues: https://github.com/defifund/smarts/issues
+repository: https://github.com/defi-io/smarts
+issues: https://github.com/defi-io/smarts/issues
 license: MIT
 
 keywords:
