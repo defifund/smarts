@@ -4,7 +4,7 @@ deploy_timeout: 320
 
 servers:
   web:
-    - deploy.smarts.md
+    - deploy.smarts
 
 proxy:
   ssl: true
@@ -58,7 +58,7 @@ ssh:
 accessories:
   db:
     image: postgres:17
-    host: deploy.smarts.md
+    host: deploy.smarts
     port: "127.0.0.1:5434:5432"
     env:
       clear:
