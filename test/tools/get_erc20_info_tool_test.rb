@@ -2,7 +2,7 @@ require "test_helper"
 
 class GetErc20InfoToolTest < ActiveSupport::TestCase
   setup do
-    @tool = GetErc20InfoTool.new
+    @tool = GetErc20InfoTool
     @original_cache = Rails.cache
     Rails.cache = ActiveSupport::Cache::MemoryStore.new
   end
@@ -58,7 +58,7 @@ class GetErc20InfoToolTest < ActiveSupport::TestCase
     stub_class_method(ChainReader::Multicall3Client, :call, stub_multicall_for_erc20_with_admin) do
       stub_class_method(DefiLlamaClient, :fetch_prices,
         ->(**_) { { "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" => { "price" => 1.0 } } }) do
-        result = @tool.call(chain: "eth", address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48")
+        result = @tool.payload(chain: "eth", address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48")
 
         assert_equal "USDC", result[:symbol]
         assert_equal "USD Coin", result[:name]
@@ -79,7 +79,7 @@ class GetErc20InfoToolTest < ActiveSupport::TestCase
 
     stub_class_method(ChainReader::Multicall3Client, :call, stub_multicall_for_erc20_with_admin) do
       stub_class_method(DefiLlamaClient, :fetch_prices, ->(**_) { {} }) do
-        result = @tool.call(slug: "usdc-eth")
+        result = @tool.payload(slug: "usdc-eth")
         assert_equal "USDC", result[:symbol]
       end
     end
@@ -90,12 +90,12 @@ class GetErc20InfoToolTest < ActiveSupport::TestCase
                                  address: "0x" + "e" * 40,
                                  name: "Random",
                                  abi: [ { "type" => "function", "name" => "foo", "inputs" => [], "outputs" => [], "stateMutability" => "view" } ])
-    result = @tool.call(chain: "eth", address: non_erc20.address)
+    result = @tool.payload(chain: "eth", address: non_erc20.address)
     assert_match(/not an ERC-20/, result[:error])
   end
 
   test "returns error when contract is not indexed" do
-    result = @tool.call(chain: "eth", address: "0x" + "9" * 40)
+    result = @tool.payload(chain: "eth", address: "0x" + "9" * 40)
     assert_match(/not indexed/, result[:error])
   end
 
@@ -110,7 +110,7 @@ class GetErc20InfoToolTest < ActiveSupport::TestCase
 
     stub_class_method(ChainReader::Multicall3Client, :call, typed_batch) do
       stub_class_method(DefiLlamaClient, :fetch_prices, ->(**_) { {} }) do
-        result = @tool.call(chain: "eth", address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48")
+        result = @tool.payload(chain: "eth", address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48")
 
         assert_equal 24_500_000, result[:block_number]
         assert_kind_of String, result[:fetched_at]
@@ -127,7 +127,7 @@ class GetErc20InfoToolTest < ActiveSupport::TestCase
 
     stub_class_method(ChainReader::Multicall3Client, :call, stub_multicall_for_erc20_with_admin) do
       stub_class_method(DefiLlamaClient, :fetch_prices, priced) do
-        result = @tool.call(chain: "eth", address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48")
+        result = @tool.payload(chain: "eth", address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48")
 
         assert_equal Time.at(price_ts).utc.iso8601, result[:price_observed_at],
                      "AI agents need price freshness independent of on-chain block"
@@ -141,7 +141,7 @@ class GetErc20InfoToolTest < ActiveSupport::TestCase
 
     stub_class_method(ChainReader::Multicall3Client, :call, stub_multicall_for_erc20_with_admin) do
       stub_class_method(DefiLlamaClient, :fetch_prices, no_ts) do
-        result = @tool.call(chain: "eth", address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48")
+        result = @tool.payload(chain: "eth", address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48")
         assert result.key?(:price_observed_at)
         assert_nil result[:price_observed_at]
       end
@@ -158,7 +158,7 @@ class GetErc20InfoToolTest < ActiveSupport::TestCase
 
     stub_class_method(ChainReader::Multicall3Client, :call, all_failed) do
       stub_class_method(DefiLlamaClient, :fetch_prices, ->(**_) { {} }) do
-        result = @tool.call(chain: "eth", address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48")
+        result = @tool.payload(chain: "eth", address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48")
         assert_match(/could not read token metadata/, result[:error])
       end
     end

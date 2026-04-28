@@ -3,7 +3,7 @@
 Live docs for every verified smart contract. Point your AI agent at one URL and ask about any contract on Ethereum, Base, Arbitrum, Optimism, or Polygon.
 
 - Web: <https://smarts.md>
-- MCP endpoint: `https://smarts.md/mcp/sse`
+- MCP endpoint: `https://smarts.md/mcp` (Streamable HTTP, MCP spec 2025-03-26)
 - MCP docs: <https://mcp.smarts.md>
 - Discovery: <https://smarts.md/.well-known/mcp.json>
 
@@ -11,7 +11,7 @@ Live docs for every verified smart contract. Point your AI agent at one URL and 
 
 ```bash
 # Claude Code
-claude mcp add --transport sse smarts https://smarts.md/mcp/sse
+claude mcp add --transport http smarts https://smarts.md/mcp
 ```
 
 Cursor / Windsurf / Cline / Claude Desktop: see <https://mcp.smarts.md> for the per-client config snippet.
@@ -35,7 +35,7 @@ Cursor / Windsurf / Cline / Claude Desktop: see <https://mcp.smarts.md> for the 
 
 ## Stack
 
-Rails 8 + Postgres 17 + Hotwire + Tailwind, deployed via Kamal 2 to Hetzner. No TypeScript, no Node services. MCP server via `fast-mcp`.
+Rails 8 + Postgres 17 + Hotwire + Tailwind, deployed via Kamal 2 to Hetzner. No TypeScript, no Node services. MCP server via the official `mcp` Ruby SDK.
 
 ## License
 

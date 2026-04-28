@@ -41,7 +41,7 @@
           <span class="text-xs text-gray-500">CLI</span>
         </div>
         <p class="text-xs text-gray-400 mb-2">One command:</p>
-        <pre class="bg-gray-950 border border-gray-800 rounded-md px-3 py-2 text-xs overflow-x-auto"><code class="text-gray-200">claude mcp add --transport sse smarts <%= @endpoint_url %></code></pre>
+        <pre class="bg-gray-950 border border-gray-800 rounded-md px-3 py-2 text-xs overflow-x-auto"><code class="text-gray-200">claude mcp add --transport http smarts <%= @endpoint_url %></code></pre>
       </div>
 
       <%# Cursor %>
@@ -73,7 +73,7 @@
     }
   }
 }</code></pre>
-        <p class="text-xs text-gray-500 mt-2">Uses <code class="text-gray-400">mcp-remote</code> to bridge SSE → stdio.</p>
+        <p class="text-xs text-gray-500 mt-2">Uses <code class="text-gray-400">mcp-remote</code> to bridge Streamable HTTP → stdio.</p>
       </div>
 
       <%# Windsurf / Cline / others %>

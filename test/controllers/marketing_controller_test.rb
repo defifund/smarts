@@ -150,7 +150,7 @@ class MarketingControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_match "Point your AI at smarts.md", response.body
-    assert_match "https://smarts.md/mcp/sse", response.body
+    assert_match "https://smarts.md/mcp", response.body
     assert_match "Quick install", response.body
     assert_match "claude mcp add", response.body
     assert_match "Ask your AI", response.body
@@ -226,19 +226,35 @@ class MarketingControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  # Production-critical guard: the new host-constrained root route MUST NOT
-  # shadow fast-mcp middleware at /mcp/*. If it ever does, AI clients hitting
-  # mcp.smarts.md/mcp/sse would get the marketing HTML page instead of an
-  # MCP SSE stream, and nobody would know until agents silently fail to
-  # connect.
-  test "MCP middleware still serves /mcp on the mcp.smarts.md host (not shadowed by marketing)" do
+  # Production-critical guard: the host-constrained root route MUST NOT
+  # shadow the Streamable HTTP MCP transport mounted at /mcp. If it ever
+  # does, AI clients hitting mcp.smarts.md/mcp would get the marketing
+  # HTML page instead of an MCP JSON-RPC response, and nobody would know
+  # until agents silently fail to initialize.
+  #
+  # The transport accepts POST (JSON-RPC requests), GET (optional SSE
+  # stream), and DELETE (session termination). We POST an `initialize`
+  # to prove the mount is live and the route ordering is correct.
+  test "MCP transport still serves /mcp on the mcp.smarts.md host (not shadowed by marketing)" do
     host! "mcp.smarts.md"
-    get "/mcp"
+    payload = {
+      jsonrpc: "2.0",
+      id: 1,
+      method: "initialize",
+      params: {
+        protocolVersion: "2025-03-26",
+        capabilities: {},
+        clientInfo: { name: "rails-test", version: "0" }
+      }
+    }.to_json
+
+    post "/mcp", params: payload,
+                 headers: { "Content-Type" => "application/json", "Accept" => "application/json, text/event-stream" }
 
     refute_match "Point your AI at smarts.md", response.body,
                  "the MCP endpoint path must not render the marketing docs page"
     assert_match(/jsonrpc/, response.body,
-                 "fast-mcp middleware should respond with JSON-RPC, proving it's still in front of the route")
+                 "MCP transport should respond with JSON-RPC, proving it's still mounted ahead of the marketing route")
   end
 
   # ---------- .well-known/mcp.json manifest ----------
@@ -257,14 +273,15 @@ class MarketingControllerTest < ActionDispatch::IntegrationTest
     assert_equal "https://mcp.smarts.md/", body["documentation_url"]
   end
 
-  test "well-known MCP manifest advertises the SSE transport with explicit endpoints" do
+  test "well-known MCP manifest advertises the Streamable HTTP transport with the canonical endpoint" do
     get "/.well-known/mcp.json"
     body = JSON.parse(response.body)
 
-    sse = body["transports"].find { |t| t["type"] == "sse" }
-    assert sse, "expected a transport of type sse"
-    assert_equal "https://smarts.md/mcp/sse",      sse["endpoint"]
-    assert_equal "https://smarts.md/mcp/messages", sse["messages"]
+    streamable = body["transports"].find { |t| t["type"] == "streamable-http" }
+    assert streamable, "expected a transport of type streamable-http"
+    assert_equal "https://smarts.md/mcp", streamable["endpoint"]
+
+    assert_equal "2025-03-26", body["protocol_version"]
   end
 
   test "well-known MCP manifest lists every MCP tool with its description" do
