@@ -1,7 +1,43 @@
 Rails.application.routes.draw do
-  # MCP subdomain root — human-facing docs for AI agent integrators. The
-  # same host still serves /mcp/sse + /mcp/messages via fast-mcp middleware
-  # (mounted elsewhere), so this only intercepts `/`.
+  # ──────────────────────────────────────────────────────────────────────
+  # MCP server (Streamable HTTP transport, MCP spec 2025-03-26).
+  #
+  # `MCP::Server::Transports::StreamableHTTPTransport` is a standard Rack
+  # app that internally dispatches POST (client-to-server JSON-RPC),
+  # GET (optional server-to-client SSE stream), and DELETE (session
+  # termination) per the spec. Mounting at `/mcp` routes all those.
+  #
+  # `stateless: true` skips per-session memory state, which lets us run
+  # Puma with workers > 0 and scale horizontally without sticky sessions.
+  # We have no notification / progress / subscription needs — every tool
+  # call is request/response — so statelessness is the right default.
+  #
+  # Tool classes are eagerly referenced here so Zeitwerk autoloads them
+  # when routes are drawn; constructor takes the array directly.
+  # ──────────────────────────────────────────────────────────────────────
+  mcp_server = MCP::Server.new(
+    name: "smarts",
+    version: "0.1.0",
+    instructions: "Live docs for verified smart contracts on Ethereum, Base, Arbitrum, Optimism, and Polygon. Use these tools to read on-chain state, ERC-20 token info, Uniswap V3 pool state, and to classify any address.",
+    tools: [
+      GetContractInfoTool,
+      GetErc20InfoTool,
+      GetUniswapV3PoolTool,
+      InspectAddressTool,
+      ReadContractStateTool
+    ]
+  )
+
+  mcp_transport = MCP::Server::Transports::StreamableHTTPTransport.new(
+    mcp_server,
+    stateless: true
+  )
+
+  mount mcp_transport => "/mcp"
+
+  # MCP subdomain root — human-facing setup docs for AI-agent integrators.
+  # The `/mcp` mount above already serves the actual MCP protocol on this
+  # host (and on smarts.md). This route only intercepts `/`.
   #
   # Matches prod (`mcp.smarts.md`) and the local-dev alias (`mcp.localhost`).
   # `.localhost` is the RFC 6761 reserved TLD: HSTS from *.smarts.md can't

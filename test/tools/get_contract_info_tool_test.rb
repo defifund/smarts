@@ -2,16 +2,16 @@ require "test_helper"
 
 class GetContractInfoToolTest < ActiveSupport::TestCase
   setup do
-    @tool = GetContractInfoTool.new
+    @tool = GetContractInfoTool
   end
 
   test "returns error for unknown chain slug" do
-    result = @tool.call(chain: "solana", address: "0x0")
+    result = @tool.payload(chain: "solana", address: "0x0")
     assert_equal "unknown chain: solana", result[:error]
   end
 
   test "returns error when contract is not indexed" do
-    result = @tool.call(chain: "eth", address: "0x" + "0" * 40)
+    result = @tool.payload(chain: "eth", address: "0x" + "0" * 40)
     assert_match(/not indexed/, result[:error])
   end
 
@@ -19,25 +19,25 @@ class GetContractInfoToolTest < ActiveSupport::TestCase
     contract = contracts(:uni_token)
     contract.update!(address: "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984") # matches uni-eth slug
 
-    result = @tool.call(slug: "uni-eth")
+    result = @tool.payload(slug: "uni-eth")
     assert_equal "Uni", result[:name]
     assert_equal "eth", result[:chain]
     assert_equal "uni-eth", result[:slug]
   end
 
   test "returns error for unknown slug" do
-    result = @tool.call(slug: "nonexistent-eth")
+    result = @tool.payload(slug: "nonexistent-eth")
     assert_match(/unknown slug/, result[:error])
   end
 
   test "returns error when neither slug nor chain+address is provided" do
-    result = @tool.call
+    result = @tool.payload
     assert_match(/either.*slug.*chain.*address/, result[:error])
   end
 
   test "returns structured metadata for an indexed contract" do
     contract = contracts(:uni_token)
-    result = @tool.call(chain: "eth", address: contract.address)
+    result = @tool.payload(chain: "eth", address: contract.address)
 
     assert_equal "Uni", result[:name]
     assert_equal "eth", result[:chain]
@@ -61,7 +61,7 @@ class GetContractInfoToolTest < ActiveSupport::TestCase
     contract = contracts(:uni_token)
     contract.update!(abi: erc20_abi)
 
-    result = @tool.call(chain: "eth", address: contract.address)
+    result = @tool.payload(chain: "eth", address: contract.address)
     assert_equal "erc20", result[:classification]
     assert_equal "ERC-20 Token", result[:classification_display]
   end
@@ -74,7 +74,7 @@ class GetContractInfoToolTest < ActiveSupport::TestCase
     end.new(contract)
 
     stub_class_method(ProtocolAdapters::Base, :resolve, ->(_c) { fake_adapter }) do
-      result = @tool.call(chain: "eth", address: contract.address)
+      result = @tool.payload(chain: "eth", address: contract.address)
       assert_equal "uniswap_v3_pool", result[:protocol_adapter]
     end
   end
@@ -83,7 +83,7 @@ class GetContractInfoToolTest < ActiveSupport::TestCase
     contract = contracts(:uni_token)
     mixed = contract.address.upcase.sub(/\A0X/, "0x")
 
-    result = @tool.call(chain: "eth", address: mixed)
+    result = @tool.payload(chain: "eth", address: mixed)
     assert_equal "Uni", result[:name]
   end
 
@@ -91,7 +91,7 @@ class GetContractInfoToolTest < ActiveSupport::TestCase
     contract = contracts(:uni_token)
     contract.update!(implementation_address: "0x5d4aa78b08bc7c530e21bf7447988b1be7991322")
 
-    result = @tool.call(chain: "eth", address: contract.address)
+    result = @tool.payload(chain: "eth", address: contract.address)
     assert_equal "0x5d4aa78b08bc7c530e21bf7447988b1be7991322", result[:implementation_address]
   end
 end

@@ -56,7 +56,9 @@ gem "rouge", "~> 4.7"
 gem "ruby_llm", "~> 1.14"
 
 # MCP server for AI-agent access to contract docs
-gem "fast-mcp", "~> 1.6"
+# Official Anthropic Ruby SDK — supports Streamable HTTP transport
+# (MCP spec 2025-03-26), required by Smithery, Claude Code (newer), Cursor.
+gem "mcp"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

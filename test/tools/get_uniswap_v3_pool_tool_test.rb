@@ -2,23 +2,23 @@ require "test_helper"
 
 class GetUniswapV3PoolToolTest < ActiveSupport::TestCase
   setup do
-    @tool = GetUniswapV3PoolTool.new
+    @tool = GetUniswapV3PoolTool
     @contract = contracts(:uni_token)  # not a V3 pool; re-use as non-matching case
   end
 
   test "returns error for unknown chain" do
-    result = @tool.call(chain: "solana", address: "0x0")
+    result = @tool.payload(chain: "solana", address: "0x0")
     assert_equal "unknown chain: solana", result[:error]
   end
 
   test "returns error when contract not indexed" do
-    result = @tool.call(chain: "eth", address: "0x" + "a" * 40)
+    result = @tool.payload(chain: "eth", address: "0x" + "a" * 40)
     assert_match(/not indexed/, result[:error])
   end
 
   test "returns error when the contract isn't a V3 pool" do
     stub_class_method(ProtocolAdapters::Base, :resolve, ->(_c) { nil }) do
-      result = @tool.call(chain: "eth", address: @contract.address)
+      result = @tool.payload(chain: "eth", address: @contract.address)
       assert_equal "not a Uniswap V3 pool", result[:error]
     end
   end
@@ -27,7 +27,7 @@ class GetUniswapV3PoolToolTest < ActiveSupport::TestCase
     fake_adapter = FakeV3Adapter.new(canned_panel_data)
 
     stub_class_method(ProtocolAdapters::Base, :resolve, ->(_c) { fake_adapter }) do
-      result = @tool.call(chain: "eth", address: @contract.address)
+      result = @tool.payload(chain: "eth", address: @contract.address)
 
       assert_equal "Uniswap V3",    result[:protocol]
       assert_equal "USDC/WETH",     result[:pair]
@@ -46,7 +46,7 @@ class GetUniswapV3PoolToolTest < ActiveSupport::TestCase
     fake_adapter = FakeV3Adapter.new(panel)
 
     stub_class_method(ProtocolAdapters::Base, :resolve, ->(_c) { fake_adapter }) do
-      result = @tool.call(chain: "eth", address: @contract.address)
+      result = @tool.payload(chain: "eth", address: @contract.address)
       assert_equal 24_500_000, result[:block_number],
                    "AI agents need the block anchor to verify state on-chain"
       assert_equal "2026-04-25T14:30:00Z", result[:fetched_at],
@@ -58,7 +58,7 @@ class GetUniswapV3PoolToolTest < ActiveSupport::TestCase
     fake_adapter = FakeV3Adapter.new(canned_panel_data)
 
     stub_class_method(ProtocolAdapters::Base, :resolve, ->(_c) { fake_adapter }) do
-      result = @tool.call(chain: "eth", address: @contract.address)
+      result = @tool.payload(chain: "eth", address: @contract.address)
       assert result.key?(:liquidity_note),
              "AI consumers will misread `liquidity` as USD without this note"
       assert_match(/not a USD amount|not the depth/i, result[:liquidity_note])
@@ -70,7 +70,7 @@ class GetUniswapV3PoolToolTest < ActiveSupport::TestCase
     fake_adapter = FakeV3Adapter.new(panel)
 
     stub_class_method(ProtocolAdapters::Base, :resolve, ->(_c) { fake_adapter }) do
-      result = @tool.call(chain: "eth", address: @contract.address)
+      result = @tool.payload(chain: "eth", address: @contract.address)
       assert_equal "2026-04-25T14:28:00Z", result[:price_observed_at],
                    "AI agents must be able to see the TVL price's freshness independently"
     end
@@ -80,7 +80,7 @@ class GetUniswapV3PoolToolTest < ActiveSupport::TestCase
     fake_adapter = FakeV3Adapter.new(canned_panel_data)  # no price_observed_at
 
     stub_class_method(ProtocolAdapters::Base, :resolve, ->(_c) { fake_adapter }) do
-      result = @tool.call(chain: "eth", address: @contract.address)
+      result = @tool.payload(chain: "eth", address: @contract.address)
       assert result.key?(:price_observed_at),
              "schema must be stable; nil-vs-missing matters for AI consumers"
       assert_nil result[:price_observed_at]
@@ -91,7 +91,7 @@ class GetUniswapV3PoolToolTest < ActiveSupport::TestCase
     fake_adapter = FakeV3Adapter.new({ error: "pool state unreadable" })
 
     stub_class_method(ProtocolAdapters::Base, :resolve, ->(_c) { fake_adapter }) do
-      result = @tool.call(chain: "eth", address: @contract.address)
+      result = @tool.payload(chain: "eth", address: @contract.address)
       assert_equal "pool state unreadable", result[:error]
     end
   end
@@ -104,14 +104,14 @@ class GetUniswapV3PoolToolTest < ActiveSupport::TestCase
     fake_adapter = FakeV3Adapter.new(canned_panel_data)
 
     stub_class_method(ProtocolAdapters::Base, :resolve, ->(_c) { fake_adapter }) do
-      result = @tool.call(slug: "univ3-usdc-weth-eth")
+      result = @tool.payload(slug: "univ3-usdc-weth-eth")
       assert_equal "Uniswap V3", result[:protocol]
       assert_equal "USDC/WETH", result[:pair]
     end
   end
 
   test "returns error for unknown slug" do
-    result = @tool.call(slug: "nonexistent-eth")
+    result = @tool.payload(slug: "nonexistent-eth")
     assert_match(/unknown slug/, result[:error])
   end
 

@@ -48,7 +48,7 @@ class MarketingController < ApplicationController
     "eth" => "Ethereum", "base" => "Base", "arbitrum" => "Arbitrum", "optimism" => "Optimism", "polygon" => "Polygon"
   }.freeze
 
-  MCP_ENDPOINT_URL = "https://smarts.md/mcp/sse".freeze
+  MCP_ENDPOINT_URL = "https://smarts.md/mcp".freeze
 
   # Tools exposed over MCP. Kept in sync with app/tools/*.
   MCP_TOOLS = [
@@ -95,12 +95,11 @@ class MarketingController < ApplicationController
       description: "Live docs for every verified smart contract. MCP access to on-chain state, prices, issuer, and admin controls.",
       homepage_url: "https://smarts.md/",
       documentation_url: "https://mcp.smarts.md/",
-      protocol_version: "2024-11-05",
+      protocol_version: "2025-03-26",
       transports: [
         {
-          type: "sse",
-          endpoint: "https://smarts.md/mcp/sse",
-          messages: "https://smarts.md/mcp/messages"
+          type: "streamable-http",
+          endpoint: MCP_ENDPOINT_URL
         }
       ],
       capabilities: {

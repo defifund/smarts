@@ -7,7 +7,7 @@
 #
 #   npx -y @smithery/cli@latest mcp deploy \
 #     --name <namespace>/smarts \
-#     --url https://smarts.md/mcp/sse
+#     --url https://smarts.md/mcp
 #
 # The fields below are for repo-level discovery and any tooling that reads
 # smithery.yaml for metadata (registry page, badges, docs scanners).

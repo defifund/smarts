@@ -8,14 +8,14 @@ Smarts is an AI-native documentation platform for smart contracts. Unlike static
 
 The fastest path: connect our MCP server once, then query any contract by chain+address or by a curated slug.
 
-- [MCP endpoint](https://smarts.md/mcp/sse): SSE transport, 5 tools, no auth
+- [MCP endpoint](https://smarts.md/mcp): Streamable HTTP transport (MCP spec 2025-03-26), 5 tools, no auth
 - [MCP setup docs](https://mcp.smarts.md/): per-client config for Claude Code, Claude Desktop, Cursor, Windsurf, Cline
 - [Discovery manifest](https://smarts.md/.well-known/mcp.json): forward-looking JSON describing endpoint, transport, and tools
 
 One-line Claude Code setup:
 
 ```
-claude mcp add --transport sse smarts https://smarts.md/mcp/sse
+claude mcp add --transport http smarts https://smarts.md/mcp
 ```
 
 ## URL patterns
