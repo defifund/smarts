@@ -1,6 +1,37 @@
 require "test_helper"
 
 class ArticlesControllerTest < ActionDispatch::IntegrationTest
+  test "index lists published articles" do
+    Article.create!(
+      slug: "1a",
+      user: users(:one),
+      category: "company",
+      subcategory: "updates",
+      title: { "en" => "First article" },
+      summary: { "en" => "First summary" },
+      content: { "en" => "First body" },
+      published_at: 2.days.ago
+    )
+
+    Article.create!(
+      slug: "1b",
+      user: users(:one),
+      category: "company",
+      subcategory: "roadmap",
+      title: { "en" => "Draft article" },
+      summary: { "en" => "Draft summary" },
+      content: { "en" => "Draft body" },
+      published_at: nil
+    )
+
+    get "/articles"
+
+    assert_response :success
+    assert_match "Published articles", response.body
+    assert_match "First article", response.body
+    refute_match "Draft article", response.body
+  end
+
   test "renders default English article at short slug" do
     Article.create!(
       slug: "7g",

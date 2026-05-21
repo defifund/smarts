@@ -3,7 +3,7 @@ class Auth::XController < ApplicationController
     locale = params[:locale].presence
     raise ActionController::BadRequest, "locale is required" unless Article::SUPPORTED_LOCALES.include?(locale)
 
-    request_token = oauth_consumer.get_request_token(oauth_callback: auth_x_callback_url)
+    request_token = oauth_consumer.get_request_token(oauth_callback: oauth_callback_url)
     session[:x_oauth_locale] = locale
     session[:x_request_token] = request_token.token
     session[:x_request_token_secret] = request_token.secret
@@ -44,5 +44,12 @@ class Auth::XController < ApplicationController
       authorize_path: "/oauth/authorize",
       access_token_path: "/oauth/access_token"
     )
+  end
+
+  def oauth_callback_url
+    return ENV["X_OAUTH_CALLBACK_URL"] if ENV["X_OAUTH_CALLBACK_URL"].present?
+    return auth_x_callback_url(host: "localhost", protocol: "http", port: 3000) if Rails.env.development?
+
+    auth_x_callback_url
   end
 end

@@ -42,5 +42,8 @@
 # Session recording notes (transient, for article material)
 docs/notes/
 
+# Draft documents
+docs/drafts/
+
 # Claude Code runtime locks
 .claude/scheduled_tasks.lock

@@ -7,6 +7,9 @@ Rails.application.routes.draw do
     get "x", to: "x#authorize", as: :x
     get "x/callback", to: "x#callback", as: :x_callback
   end
+
+  mount MissionControl::Jobs::Engine, at: "/jobs"
+
   # ──────────────────────────────────────────────────────────────────────
   # MCP server (Streamable HTTP transport, MCP spec 2025-03-26).
   #
@@ -67,6 +70,7 @@ Rails.application.routes.draw do
   root "marketing#home"
 
   get "polymarket", to: "marketing#polymarket"
+  resources :articles, only: :index
 
   # Health check. Keep this explicit route before the two-character article
   # route so `/up` never becomes a publishable article URL.

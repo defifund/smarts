@@ -43,6 +43,7 @@
           smarts<span class="text-gray-500 font-normal">.md</span>
         </a>
         <div class="flex items-center gap-4 text-sm font-medium text-gray-600">
+          <%= link_to "Articles", articles_path, class: "hover:text-gray-950" %>
           <% if authenticated? %>
             <%= link_to "Accounts", accounts_path, class: "hover:text-gray-950" %>
             <%= button_to "Sign out", session_path, method: :delete, class: "hover:text-gray-950" %>

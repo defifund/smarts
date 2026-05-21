@@ -3,6 +3,10 @@
 class ArticlesController < ApplicationController
   allow_unauthenticated_access
 
+  def index
+    @articles = Article.published.order(published_at: :desc, slug: :desc)
+  end
+
   def show
     @article = Article.published.find_by!(slug: params[:slug])
     requested_locale = Article.locale_from_route(params[:locale])
