@@ -133,11 +133,14 @@ module Articles
     end
 
     # Like `read_markdown_files` but skips reading the body — only records
-    # which locales are present, and reports emptiness via cheap stat.
+    # which locales are present, and reports emptiness via cheap stat. The
+    # placeholder value satisfies `validate_locale_presence` without paying
+    # the cost of reading and heading-stripping each file.
     def scan_locale_files
       each_markdown_file do |path, locale, hash|
-        @errors << "#{path.basename} has empty content" if path.size.zero?
-        hash[locale] = nil
+        empty = path.size.zero?
+        @errors << "#{path.basename} has empty content" if empty
+        hash[locale] = empty ? "" : "present"
       end
     end
 
