@@ -20,7 +20,7 @@ gem "tailwindcss-rails"
 gem "jbuilder"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
-# gem "bcrypt", "~> 3.1.7"
+gem "bcrypt", "~> 3.1.7"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
@@ -51,6 +51,9 @@ gem "eth", "~> 0.5.17"
 
 # Syntax highlighting for contract source code
 gem "rouge", "~> 4.7"
+
+# Markdown rendering for articles
+gem "redcarpet", "~> 3.6"
 
 # AI doc generation via Claude
 gem "ruby_llm", "~> 1.15"

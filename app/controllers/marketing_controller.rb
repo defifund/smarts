@@ -1,6 +1,8 @@
 require "set"
 
 class MarketingController < ApplicationController
+  allow_unauthenticated_access
+
   # Curated showcase for the landing page. A flat list grouped by category in
   # display order. Static on purpose: curation is the product thesis, and
   # "trending" lists would pollute the blue-chip signal with short-lived
@@ -64,6 +66,9 @@ class MarketingController < ApplicationController
     { name: "get_recent_events",    blurb: "Most recent events emitted by a contract, decoded against its ABI. Filter by event name; unknown topics return raw." },
     { name: "get_uniswap_v3_pool",  blurb: "Live pool state: token pair, fee, both-direction price, liquidity, tick, TVL." },
     { name: "inspect_address",      blurb: "Classifies any address as EOA / contract / EIP-7702 wallet, plus balance, nonce, and reverse ENS." },
+    { name: "list_article_drafts",  blurb: "Authenticated publishing workflow: list multilingual article drafts under docs/drafts." },
+    { name: "publish_article",      blurb: "Authenticated publishing workflow: validate and publish a multilingual draft into article pages." },
+    { name: "validate_article_draft", blurb: "Authenticated publishing workflow: validate one multilingual article draft without saving." },
     { name: "read_contract_state",  blurb: "Read any view/pure function by name, with positional args. Returns decoded output." }
   ].freeze
 

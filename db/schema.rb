@@ -10,9 +10,38 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_18_221905) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_21_034201) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "accounts", force: :cascade do |t|
+    t.string "access_token", null: false
+    t.string "access_token_secret", null: false
+    t.datetime "created_at", null: false
+    t.string "handle", null: false
+    t.string "locale", null: false
+    t.string "provider", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id", "provider", "locale"], name: "index_accounts_on_user_id_and_provider_and_locale", unique: true
+  end
+
+  create_table "articles", force: :cascade do |t|
+    t.string "category", null: false
+    t.jsonb "content", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "published_at"
+    t.string "slug", null: false
+    t.string "subcategory"
+    t.jsonb "summary", default: {}, null: false
+    t.jsonb "title", default: {}, null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["category", "subcategory"], name: "index_articles_on_category_and_subcategory"
+    t.index ["published_at"], name: "index_articles_on_published_at"
+    t.index ["slug"], name: "index_articles_on_slug", unique: true
+    t.index ["user_id"], name: "index_articles_on_user_id"
+  end
 
   create_table "chains", force: :cascade do |t|
     t.integer "chain_id", null: false
@@ -76,6 +105,30 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_18_221905) do
     t.index ["protocol_key"], name: "index_protocol_templates_on_protocol_key", unique: true
   end
 
+  create_table "sessions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "ip_address"
+    t.datetime "updated_at", null: false
+    t.string "user_agent"
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_sessions_on_user_id"
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.string "api_token_digest", null: false
+    t.string "api_token_prefix", null: false
+    t.datetime "created_at", null: false
+    t.string "email_address", null: false
+    t.string "name", null: false
+    t.string "password_digest", null: false
+    t.datetime "updated_at", null: false
+    t.index ["api_token_prefix"], name: "index_users_on_api_token_prefix"
+    t.index ["email_address"], name: "index_users_on_email_address", unique: true
+  end
+
+  add_foreign_key "accounts", "users"
+  add_foreign_key "articles", "users"
   add_foreign_key "contracts", "chains"
   add_foreign_key "governance_events", "contracts"
+  add_foreign_key "sessions", "users"
 end

@@ -1,4 +1,6 @@
 class ContractsController < ApplicationController
+  allow_unauthenticated_access
+
   def show
     chain_slug, address = resolve_chain_and_address
     @chain = Chain.find_by!(slug: chain_slug)

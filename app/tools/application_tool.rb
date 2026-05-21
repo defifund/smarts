@@ -63,5 +63,13 @@ class ApplicationTool < MCP::Tool
 
       [ chain_record, contract ]
     end
+
+    # Authenticates an MCP article-publishing token. Returns the User on
+    # success, or the standard error Hash on failure — callers short-circuit
+    # when the result is a Hash, mirroring `resolve_contract`.
+    def authenticate_publisher(token)
+      user = Articles::Authorization.authenticate(token)
+      user || Articles::Authorization.error_payload
+    end
   end
 end
