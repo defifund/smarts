@@ -2,6 +2,11 @@ Rails.application.routes.draw do
   resources :users, only: %i[new create]
   resource :session
   resources :passwords, param: :token
+  resources :accounts, only: :index
+  namespace :auth do
+    get "x", to: "x#authorize", as: :x
+    get "x/callback", to: "x#callback", as: :x_callback
+  end
   # ──────────────────────────────────────────────────────────────────────
   # MCP server (Streamable HTTP transport, MCP spec 2025-03-26).
   #

@@ -55,6 +55,9 @@ gem "rouge", "~> 4.7"
 # Markdown rendering for articles
 gem "redcarpet", "~> 3.6"
 
+# X OAuth 1.0a authorization for publishing accounts
+gem "oauth", "~> 1.1"
+
 # AI doc generation via Claude
 gem "ruby_llm", "~> 1.15"
 
