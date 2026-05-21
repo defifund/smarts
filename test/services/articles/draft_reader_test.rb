@@ -40,6 +40,42 @@ class Articles::DraftReaderTest < ActiveSupport::TestCase
     end
   end
 
+  test "from_payload builds a valid result without touching the filesystem" do
+    result = Articles::DraftReader.from_payload(
+      slug: "7g",
+      meta: {
+        "category" => "stablecoins",
+        "subcategory" => "infrastructure",
+        "title" => { "en" => "Title", "zh-CN" => "标题" },
+        "summary" => { "en" => "Summary" }
+      },
+      content: {
+        "en" => "# Title\n\nEnglish body",
+        "zh-CN" => "# 标题\n\n简体正文"
+      }
+    )
+
+    assert result.valid?, result.errors.inspect
+    assert_nil result.path
+    assert_equal "stablecoins", result.category
+    assert_equal "infrastructure", result.subcategory
+    assert_equal %w[en zh-CN], result.locales
+    assert_equal "English body", result.content["en"]
+    assert_equal "简体正文", result.content["zh-CN"]
+  end
+
+  test "from_payload reports unsupported locale and empty content" do
+    result = Articles::DraftReader.from_payload(
+      slug: "7g",
+      meta: { "category" => "stablecoins", "title" => { "en" => "Title" } },
+      content: { "fr" => "ignored", "en" => "" }
+    )
+
+    refute result.valid?
+    assert_includes result.errors, "unsupported locale: fr"
+    assert_includes result.errors, "en content is empty"
+  end
+
   test "reports unsupported locale in meta and invalid json" do
     Dir.mktmpdir do |dir|
       draft_dir = Pathname(dir).join("7g")

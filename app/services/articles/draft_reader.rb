@@ -29,6 +29,13 @@ module Articles
         new(slug: slug, drafts_root: drafts_root).call
       end
 
+      # Build a Result from in-memory meta/content hashes — the MCP path for
+      # clients that author drafts locally and send them inline rather than
+      # relying on `docs/drafts/` existing on the server filesystem.
+      def from_payload(slug:, meta:, content:)
+        new(slug: slug, drafts_root: nil).from_payload(meta: meta, content: content)
+      end
+
       def list(drafts_root: Rails.root.join("docs/drafts"))
         each_draft(drafts_root) { |slug, root| call(slug: slug, drafts_root: root) }
       end
@@ -54,24 +61,30 @@ module Articles
 
     def initialize(slug:, drafts_root:)
       @slug = slug.to_s.strip
-      @drafts_root = Pathname(drafts_root)
+      @drafts_root = drafts_root.nil? ? nil : Pathname(drafts_root)
       @errors = []
     end
 
     def call
-      build_result(read_markdown_files)
+      build_result(read_markdown_files, meta: read_meta, path: draft_path)
     end
 
     def summary
-      build_result(scan_locale_files)
+      build_result(scan_locale_files, meta: read_meta, path: draft_path)
+    end
+
+    def from_payload(meta:, content:)
+      meta_hash = meta.is_a?(Hash) ? meta.transform_keys(&:to_s) : {}
+      content_hash = stripped_payload_content(content)
+
+      build_result(content_hash, meta: meta_hash, path: nil, skip_path_check: true)
     end
 
     private
 
-    def build_result(content)
+    def build_result(content, meta:, path:, skip_path_check: false)
       validate_slug
-      validate_path
-      meta = read_meta
+      validate_path unless skip_path_check
 
       category = meta["category"].to_s.strip
       subcategory = meta["subcategory"].to_s.strip.presence
@@ -85,7 +98,7 @@ module Articles
 
       Result.new(
         slug: @slug,
-        path: draft_path,
+        path: path,
         title: title,
         summary: summary,
         content: content,
@@ -96,7 +109,24 @@ module Articles
       )
     end
 
+    def stripped_payload_content(content)
+      return {} unless content.is_a?(Hash)
+
+      content.transform_keys(&:to_s).each_with_object({}) do |(locale, body), hash|
+        unless Article::SUPPORTED_LOCALES.include?(locale)
+          @errors << "unsupported locale: #{locale}"
+          next
+        end
+
+        stripped = strip_first_heading(body.to_s)
+        @errors << "#{locale} content is empty" if stripped.blank?
+        hash[locale] = stripped
+      end
+    end
+
     def draft_path
+      return nil if @drafts_root.nil?
+
       @drafts_root.join(@slug)
     end
 

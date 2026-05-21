@@ -2,11 +2,19 @@
 
 class PublishArticleTool < ApplicationTool
   tool_name "publish_article"
-  description "Publish a validated multilingual article draft from docs/drafts/:slug into Smarts article pages. Optionally schedule X posts via x_queue. Requires the MCP connection to carry an Authorization: Bearer <publish_token> header."
+  description "Publish a multilingual article into Smarts article pages. Pass meta (category/subcategory/title/summary) and content (locale -> markdown body) inline; falls back to docs/drafts/:slug on the server if not provided. Optionally schedule X posts via x_queue. Requires the MCP connection to carry an Authorization: Bearer <publish_token> header."
 
   input_schema(
     properties: {
-      slug: { type: "string", description: "Two-character draft slug, lowercase letters and digits only." },
+      slug: { type: "string", description: "Two-character article slug, lowercase letters and digits only." },
+      meta: {
+        type: "object",
+        description: "Article metadata: { category, subcategory, title: {locale: ...}, summary: {locale: ...} }."
+      },
+      content: {
+        type: "object",
+        description: "Locale-to-markdown mapping, e.g. {\"en\": \"# Title\\n\\nbody\", \"zh-CN\": \"...\"}."
+      },
       published_at: { type: "string", description: "Optional ISO-8601 publish time. Defaults to now." },
       dry_run: { type: "boolean", description: "Validate and return URLs without saving. Defaults to false." },
       thread: { type: "boolean", description: "When tweets are provided, schedule each locale as a thread. Defaults to true." },
@@ -19,13 +27,15 @@ class PublishArticleTool < ApplicationTool
   )
 
   class << self
-    def payload(slug:, published_at: nil, dry_run: false, thread: true, tweets: {})
+    def payload(slug:, meta: nil, content: nil, published_at: nil, dry_run: false, thread: true, tweets: {})
       user = current_publisher
       return user if user.is_a?(Hash)
 
       Articles::Publisher.call(
         slug: slug,
         user: user,
+        meta: meta,
+        content: content,
         published_at: parse_published_at(published_at),
         dry_run: dry_run,
         thread: thread,

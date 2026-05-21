@@ -24,15 +24,17 @@ module Articles
     end
 
     class << self
-      def call(slug:, user:, drafts_root: Rails.root.join("docs/drafts"), published_at: Time.current, dry_run: false, tweets: {}, thread: true)
-        new(slug: slug, user: user, drafts_root: drafts_root, published_at: published_at, dry_run: dry_run, tweets: tweets, thread: thread).call
+      def call(slug:, user:, drafts_root: Rails.root.join("docs/drafts"), meta: nil, content: nil, published_at: Time.current, dry_run: false, tweets: {}, thread: true)
+        new(slug: slug, user: user, drafts_root: drafts_root, meta: meta, content: content, published_at: published_at, dry_run: dry_run, tweets: tweets, thread: thread).call
       end
     end
 
-    def initialize(slug:, user:, drafts_root:, published_at:, dry_run:, tweets:, thread:)
+    def initialize(slug:, user:, drafts_root:, meta:, content:, published_at:, dry_run:, tweets:, thread:)
       @slug = slug
       @user = user
       @drafts_root = drafts_root
+      @meta = meta
+      @content = content
       @published_at = published_at
       @dry_run = dry_run
       @tweets = tweets.is_a?(Hash) ? tweets : {}
@@ -40,7 +42,7 @@ module Articles
     end
 
     def call
-      draft = DraftReader.call(slug: @slug, drafts_root: @drafts_root)
+      draft = read_draft
       return Result.new(draft: draft, urls: {}, errors: draft.errors, dry_run: @dry_run, tweets_scheduled: {}, tweet_errors: {}) unless draft.valid?
 
       article = Article.find_or_initialize_by(slug: draft.slug)
@@ -73,6 +75,14 @@ module Articles
     end
 
     private
+
+    def read_draft
+      if @meta.present? || @content.present?
+        DraftReader.from_payload(slug: @slug, meta: @meta || {}, content: @content || {})
+      else
+        DraftReader.call(slug: @slug, drafts_root: @drafts_root)
+      end
+    end
 
     def urls_for(article, locales)
       locales.index_with { |locale| "#{SeoHelper::SITE_URL}#{article.public_path(locale)}" }

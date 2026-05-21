@@ -69,6 +69,31 @@ class Articles::PublisherTest < ActiveSupport::TestCase
     end
   end
 
+  test "publishes from inline meta and content without touching the filesystem" do
+    result = Articles::Publisher.call(
+      slug: "2c",
+      user: users(:one),
+      meta: {
+        "category" => "company",
+        "subcategory" => "positioning",
+        "title" => { "en" => "Inline Title", "zh-CN" => "内联标题" },
+        "summary" => { "en" => "Inline summary" }
+      },
+      content: {
+        "en" => "# Inline Title\n\nInline English body",
+        "zh-CN" => "# 内联标题\n\n内联中文正文"
+      },
+      published_at: Time.utc(2026, 5, 21, 12, 0, 0)
+    )
+
+    assert result.valid?, result.errors.inspect
+    article = Article.find_by!(slug: "2c")
+    assert_equal "company", article.category
+    assert_equal "Inline English body", article.content["en"]
+    assert_equal "https://smarts.md/2c", result.urls["en"]
+    assert_equal "https://smarts.md/cn/2c", result.urls["zh-CN"]
+  end
+
   test "dry run with tweets does not schedule x queue posts" do
     Dir.mktmpdir do |dir|
       write_draft(dir, slug: "1b")
