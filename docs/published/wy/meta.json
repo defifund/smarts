@@ -1,0 +1,14 @@
+{
+  "category": "company",
+  "subcategory": "positioning",
+  "title": {
+    "en": "Why I'm building Smarts.md",
+    "zh-CN": "为什么我做 Smarts.md",
+    "zh-TW": "為什麼我做 Smarts.md"
+  },
+  "summary": {
+    "en": "A contract's real state doesn't live in git — it lives on-chain. Smarts.md is the live projection.",
+    "zh-CN": "合约的真实状态不在 git 里，在链上。Smarts.md 想让文档变成它的实时投影。",
+    "zh-TW": "合約的真實狀態不在 git 裡，在鏈上。Smarts.md 想讓文件變成它的即時投影。"
+  }
+}
