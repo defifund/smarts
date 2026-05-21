@@ -65,6 +65,42 @@
     <% end %>
   </section>
 
+  <% if @recent_articles.any? %>
+    <section class="w-full max-w-6xl px-6 pb-20 border-t border-gray-800 pt-12">
+      <div class="text-xs uppercase tracking-widest text-gray-500 mb-6 text-center">
+        Latest articles
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <% @recent_articles.each do |article| %>
+          <% locale = "en" %>
+          <% title = article.title_for(locale) %>
+          <% summary = article.summary_for(locale) %>
+          <% article_url = article_path(article.slug) %>
+          <a href="<%= article_url %>"
+             class="group block p-4 bg-gray-900/60 border border-gray-800 hover:border-blue-500/60 hover:bg-gray-900 rounded-xl transition-all">
+            <div class="flex items-baseline justify-between gap-2 mb-2">
+              <span class="text-sm font-semibold text-gray-400 uppercase tracking-wider"><%= article.category %></span>
+              <% if article.published_at.present? %>
+                <time datetime="<%= article.published_at.utc.iso8601 %>" class="text-[10px] text-gray-600">
+                  <%= article.published_at.to_date.to_fs(:short) %>
+                </time>
+              <% end %>
+            </div>
+            <h3 class="text-base font-bold text-white group-hover:text-blue-400 transition-colors mb-2"><%= title %></h3>
+            <% if summary.present? %>
+              <p class="text-xs text-gray-400 leading-relaxed"><%= summary %></p>
+            <% end %>
+          </a>
+        <% end %>
+      </div>
+
+      <div class="text-center mt-8">
+        <%= link_to "Browse all articles", articles_path, class: "text-sm text-blue-400 hover:text-blue-300 underline underline-offset-2" %>
+      </div>
+    </section>
+  <% end %>
+
   <footer class="pb-8">
     <p class="text-xs text-gray-600">Built by <a href="https://chain.dev" class="text-gray-500 hover:text-gray-400 underline">chain.dev</a></p>
   </footer>

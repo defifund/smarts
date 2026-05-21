@@ -104,6 +104,7 @@ class MarketingController < ApplicationController
     end
 
     @featured_groups = FEATURED.group_by { |f| f[:category] }
+    @recent_articles = Article.published.order(published_at: :desc).limit(3)
   end
 
   def mcp_docs
