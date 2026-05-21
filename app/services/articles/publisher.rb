@@ -2,7 +2,7 @@
 
 module Articles
   class Publisher
-    Result = Struct.new(:article, :draft, :urls, :errors, :dry_run, keyword_init: true) do
+    Result = Struct.new(:article, :draft, :urls, :errors, :dry_run, :tweets_scheduled, :tweet_errors, keyword_init: true) do
       def valid?
         errors.empty?
       end
@@ -16,28 +16,32 @@ module Articles
           subcategory: draft.subcategory,
           locales: draft.locales,
           urls: urls,
-          errors: errors
+          errors: errors,
+          tweets_scheduled: tweets_scheduled || {},
+          tweet_errors: tweet_errors || {}
         }
       end
     end
 
     class << self
-      def call(slug:, user:, drafts_root: Rails.root.join("docs/drafts"), published_at: Time.current, dry_run: false)
-        new(slug: slug, user: user, drafts_root: drafts_root, published_at: published_at, dry_run: dry_run).call
+      def call(slug:, user:, drafts_root: Rails.root.join("docs/drafts"), published_at: Time.current, dry_run: false, tweets: {}, thread: true)
+        new(slug: slug, user: user, drafts_root: drafts_root, published_at: published_at, dry_run: dry_run, tweets: tweets, thread: thread).call
       end
     end
 
-    def initialize(slug:, user:, drafts_root:, published_at:, dry_run:)
+    def initialize(slug:, user:, drafts_root:, published_at:, dry_run:, tweets:, thread:)
       @slug = slug
       @user = user
       @drafts_root = drafts_root
       @published_at = published_at
       @dry_run = dry_run
+      @tweets = tweets.is_a?(Hash) ? tweets : {}
+      @thread = thread
     end
 
     def call
       draft = DraftReader.call(slug: @slug, drafts_root: @drafts_root)
-      return Result.new(draft: draft, urls: {}, errors: draft.errors, dry_run: @dry_run) unless draft.valid?
+      return Result.new(draft: draft, urls: {}, errors: draft.errors, dry_run: @dry_run, tweets_scheduled: {}, tweet_errors: {}) unless draft.valid?
 
       article = Article.find_or_initialize_by(slug: draft.slug)
       article.assign_attributes(
@@ -51,17 +55,33 @@ module Articles
       )
 
       unless article.valid?
-        return Result.new(article: article, draft: draft, urls: {}, errors: article.errors.full_messages, dry_run: @dry_run)
+        return Result.new(article: article, draft: draft, urls: {}, errors: article.errors.full_messages, dry_run: @dry_run, tweets_scheduled: {}, tweet_errors: {})
       end
 
       article.save! unless @dry_run
-      Result.new(article: article, draft: draft, urls: urls_for(article, draft.locales), errors: [], dry_run: @dry_run)
+
+      tweet_result = schedule_tweets(article)
+      Result.new(
+        article: article,
+        draft: draft,
+        urls: urls_for(article, draft.locales),
+        errors: [],
+        dry_run: @dry_run,
+        tweets_scheduled: tweet_result.scheduled,
+        tweet_errors: tweet_result.errors
+      )
     end
 
     private
 
     def urls_for(article, locales)
       locales.index_with { |locale| "#{SeoHelper::SITE_URL}#{article.public_path(locale)}" }
+    end
+
+    def schedule_tweets(article)
+      return TweetScheduler::Result.new(scheduled: {}, errors: {}) if @dry_run || @tweets.blank?
+
+      TweetScheduler.call(article: article, user: @user, tweets: @tweets, thread: @thread)
     end
   end
 end

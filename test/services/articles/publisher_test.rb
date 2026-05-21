@@ -29,7 +29,78 @@ class Articles::PublisherTest < ActiveSupport::TestCase
     end
   end
 
+  test "publishing without tweets does not schedule x queue posts" do
+    Dir.mktmpdir do |dir|
+      write_draft(dir, slug: "9g")
+
+      assert_no_difference "XQueue::Tweet.count" do
+        result = Articles::Publisher.call(slug: "9g", user: users(:one), drafts_root: dir)
+
+        assert result.valid?, result.errors.inspect
+        assert_equal({}, result.tweets_scheduled)
+        assert_equal({}, result.tweet_errors)
+      end
+    end
+  end
+
+  test "publishing with tweets schedules no earlier than published_at" do
+    Dir.mktmpdir do |dir|
+      write_draft(dir, slug: "1a")
+      account = create_x_account(users(:one), locale: "en")
+      published_at = 3.days.from_now.change(usec: 0)
+
+      assert_difference "XQueue::Tweet.count", 2 do
+        result = Articles::Publisher.call(
+          slug: "1a",
+          user: users(:one),
+          drafts_root: dir,
+          published_at: published_at,
+          tweets: { "en" => [ "First post", "Second post" ] }
+        )
+
+        assert result.valid?, result.errors.inspect
+        assert_equal({ "en" => 2 }, result.tweets_scheduled)
+        assert_equal({}, result.tweet_errors)
+      end
+
+      tweets = XQueue::Tweet.where(account: account).order(:thread_position)
+      assert_equal [ "First post", "Second post" ], tweets.pluck(:content)
+      assert tweets.all? { |tweet| tweet.scheduled_at >= published_at }
+    end
+  end
+
+  test "dry run with tweets does not schedule x queue posts" do
+    Dir.mktmpdir do |dir|
+      write_draft(dir, slug: "1b")
+      create_x_account(users(:one), locale: "en")
+
+      assert_no_difference "XQueue::Tweet.count" do
+        result = Articles::Publisher.call(
+          slug: "1b",
+          user: users(:one),
+          drafts_root: dir,
+          dry_run: true,
+          tweets: { "en" => [ "Draft tweet" ] }
+        )
+
+        assert result.valid?, result.errors.inspect
+        assert_equal({}, result.tweets_scheduled)
+      end
+    end
+  end
+
   private
+
+  def create_x_account(user, locale:)
+    Account.create!(
+      user: user,
+      provider: "x",
+      handle: "smarts_#{locale.downcase.delete("-")}",
+      locale: locale,
+      access_token: "token-#{locale}",
+      access_token_secret: "secret-#{locale}"
+    )
+  end
 
   def write_draft(root, slug:)
     draft_dir = Pathname(root).join(slug)

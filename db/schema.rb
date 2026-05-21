@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_21_034201) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_21_150000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -124,6 +124,28 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_21_034201) do
     t.datetime "updated_at", null: false
     t.index ["api_token_prefix"], name: "index_users_on_api_token_prefix"
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
+  end
+
+  create_table "x_queue_tweets", force: :cascade do |t|
+    t.bigint "account_id"
+    t.string "account_type"
+    t.text "content", null: false
+    t.datetime "created_at", null: false
+    t.datetime "posted_at"
+    t.datetime "scheduled_at"
+    t.bigint "source_id"
+    t.string "source_type"
+    t.integer "status", default: 0, null: false
+    t.string "thread_id"
+    t.integer "thread_position"
+    t.datetime "updated_at", null: false
+    t.string "x_tweet_id"
+    t.index ["account_type", "account_id"], name: "index_x_queue_tweets_on_account"
+    t.index ["scheduled_at"], name: "index_x_queue_tweets_on_scheduled_at"
+    t.index ["source_type", "source_id"], name: "index_x_queue_tweets_on_source"
+    t.index ["status"], name: "index_x_queue_tweets_on_status"
+    t.index ["thread_id"], name: "index_x_queue_tweets_on_thread_id"
+    t.index ["x_tweet_id"], name: "index_x_queue_tweets_on_x_tweet_id", unique: true, where: "(x_tweet_id IS NOT NULL)"
   end
 
   add_foreign_key "accounts", "users"

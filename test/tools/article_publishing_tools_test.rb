@@ -56,6 +56,9 @@ class ArticlePublishingToolsTest < ActiveSupport::TestCase
 
     stub_class_method(Articles::Publisher, :call, ->(**kwargs) {
       assert_equal users(:one), kwargs[:user]
+      assert_equal false, kwargs[:dry_run]
+      assert_equal true, kwargs[:thread]
+      assert_equal({}, kwargs[:tweets])
       result
     }) do
       payload = PublishArticleTool.payload(publish_token: "sma_test_token_one", slug: "7g")
@@ -63,6 +66,48 @@ class ArticlePublishingToolsTest < ActiveSupport::TestCase
       assert payload[:valid]
       assert_equal "https://smarts.md/7g", payload[:urls]["en"]
     end
+  end
+
+  test "publish tool passes scheduling options to publisher" do
+    draft = Articles::DraftReader::Result.new(slug: "7g", category: "product", subcategory: "mcp", locales: [ "en" ], errors: [])
+    result = Articles::Publisher::Result.new(
+      draft: draft,
+      errors: [],
+      urls: { "en" => "https://smarts.md/7g" },
+      dry_run: false,
+      tweets_scheduled: { "en" => 1 },
+      tweet_errors: {}
+    )
+
+    stub_class_method(Articles::Publisher, :call, ->(**kwargs) {
+      assert_equal users(:one), kwargs[:user]
+      assert_equal Time.zone.parse("2026-06-01T09:00:00Z"), kwargs[:published_at]
+      assert_equal false, kwargs[:thread]
+      assert_equal({ "en" => [ "Tweet" ] }, kwargs[:tweets])
+      result
+    }) do
+      payload = PublishArticleTool.payload(
+        publish_token: "sma_test_token_one",
+        slug: "7g",
+        published_at: "2026-06-01T09:00:00Z",
+        thread: false,
+        tweets: { "en" => [ "Tweet" ] }
+      )
+
+      assert payload[:valid]
+      assert_equal({ "en" => 1 }, payload[:tweets_scheduled])
+    end
+  end
+
+  test "publish tool returns validation error for invalid published_at" do
+    payload = PublishArticleTool.payload(
+      publish_token: "sma_test_token_one",
+      slug: "7g",
+      published_at: "not a time"
+    )
+
+    assert_equal false, payload[:valid]
+    assert_equal [ "published_at is invalid" ], payload[:errors]
   end
 
   test "publish tool integration creates article from draft for authenticated user" do
