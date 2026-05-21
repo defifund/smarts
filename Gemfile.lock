@@ -1,5 +1,6 @@
-PATH
-  remote: ../x_queue
+GIT
+  remote: https://github.com/defifund/x_queue.git
+  revision: 6d0f30521e6511d8d131c21806aa05eec0f85bde
   specs:
     x_queue (0.1.0)
       rails (>= 7.1)
