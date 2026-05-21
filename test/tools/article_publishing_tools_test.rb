@@ -2,26 +2,39 @@ require "test_helper"
 require "tmpdir"
 
 class ArticlePublishingToolsTest < ActiveSupport::TestCase
-  test "publishing tools require token" do
-    assert_equal "article publishing token is missing or invalid", ListArticleDraftsTool.payload(publish_token: "bad")[:error]
-    assert_equal "article publishing token is missing or invalid", ValidateArticleDraftTool.payload(publish_token: "bad", slug: "7g")[:error]
-    assert_equal "article publishing token is missing or invalid", PublishArticleTool.payload(publish_token: "bad", slug: "7g")[:error]
+  setup do
+    Current.mcp_user = users(:one)
   end
 
-  test "invalid token does not read drafts or publish" do
+  teardown do
+    Current.mcp_user = nil
+  end
+
+  test "publishing tools require an authenticated publisher on Current" do
+    Current.mcp_user = nil
+
+    expected = "Authorization: Bearer <publish_token> header is missing or invalid"
+
+    assert_equal expected, ListArticleDraftsTool.payload[:error]
+    assert_equal expected, ValidateArticleDraftTool.payload(slug: "7g")[:error]
+    assert_equal expected, PublishArticleTool.payload(slug: "7g")[:error]
+  end
+
+  test "unauthenticated requests never reach readers or publisher" do
+    Current.mcp_user = nil
+    expected = "Authorization: Bearer <publish_token> header is missing or invalid"
+
     stub_class_method(Articles::DraftReader, :call, ->(**) { raise "draft reader should not be called" }) do
-      payload = ValidateArticleDraftTool.payload(publish_token: "bad", slug: "7g")
-      assert_equal "article publishing token is missing or invalid", payload[:error]
+      assert_equal expected, ValidateArticleDraftTool.payload(slug: "7g")[:error]
     end
 
     stub_class_method(Articles::Publisher, :call, ->(**) { raise "publisher should not be called" }) do
-      payload = PublishArticleTool.payload(publish_token: "bad", slug: "7g")
-      assert_equal "article publishing token is missing or invalid", payload[:error]
+      assert_equal expected, PublishArticleTool.payload(slug: "7g")[:error]
     end
   end
 
   test "list drafts returns authorized draft payload" do
-    payload = ListArticleDraftsTool.payload(publish_token: "sma_test_token_one")
+    payload = ListArticleDraftsTool.payload
     draft = payload[:drafts].find { |item| item[:slug] == "ms" }
 
     assert_operator payload[:count], :>=, 1
@@ -42,7 +55,7 @@ class ArticlePublishingToolsTest < ActiveSupport::TestCase
     )
 
     stub_class_method(Articles::DraftReader, :call, ->(**) { draft }) do
-      payload = ValidateArticleDraftTool.payload(publish_token: "sma_test_token_one", slug: "7g")
+      payload = ValidateArticleDraftTool.payload(slug: "7g")
 
       assert_equal "7g", payload[:slug]
       assert payload[:valid]
@@ -61,7 +74,7 @@ class ArticlePublishingToolsTest < ActiveSupport::TestCase
       assert_equal({}, kwargs[:tweets])
       result
     }) do
-      payload = PublishArticleTool.payload(publish_token: "sma_test_token_one", slug: "7g")
+      payload = PublishArticleTool.payload(slug: "7g")
 
       assert payload[:valid]
       assert_equal "https://smarts.md/7g", payload[:urls]["en"]
@@ -87,7 +100,6 @@ class ArticlePublishingToolsTest < ActiveSupport::TestCase
       result
     }) do
       payload = PublishArticleTool.payload(
-        publish_token: "sma_test_token_one",
         slug: "7g",
         published_at: "2026-06-01T09:00:00Z",
         thread: false,
@@ -101,7 +113,6 @@ class ArticlePublishingToolsTest < ActiveSupport::TestCase
 
   test "publish tool returns validation error for invalid published_at" do
     payload = PublishArticleTool.payload(
-      publish_token: "sma_test_token_one",
       slug: "7g",
       published_at: "not a time"
     )
@@ -126,7 +137,7 @@ class ArticlePublishingToolsTest < ActiveSupport::TestCase
         Articles::DraftReader.new(slug: slug, drafts_root: dir).call
       }) do
         assert_difference "Article.count", 1 do
-          payload = PublishArticleTool.payload(publish_token: "sma_test_token_one", slug: "7g")
+          payload = PublishArticleTool.payload(slug: "7g")
 
           assert payload[:valid], payload[:errors].inspect
           assert_equal "https://smarts.md/7g", payload[:urls]["en"]

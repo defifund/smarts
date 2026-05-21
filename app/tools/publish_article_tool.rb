@@ -2,11 +2,10 @@
 
 class PublishArticleTool < ApplicationTool
   tool_name "publish_article"
-  description "Publish a validated multilingual article draft from docs/drafts/:slug into Smarts article pages. Optionally schedule X posts via x_queue. Requires publish_token."
+  description "Publish a validated multilingual article draft from docs/drafts/:slug into Smarts article pages. Optionally schedule X posts via x_queue. Requires the MCP connection to carry an Authorization: Bearer <publish_token> header."
 
   input_schema(
     properties: {
-      publish_token: { type: "string", description: "Article publishing token." },
       slug: { type: "string", description: "Two-character draft slug, lowercase letters and digits only." },
       published_at: { type: "string", description: "Optional ISO-8601 publish time. Defaults to now." },
       dry_run: { type: "boolean", description: "Validate and return URLs without saving. Defaults to false." },
@@ -16,12 +15,12 @@ class PublishArticleTool < ApplicationTool
         description: "Optional locale-to-array mapping of X posts, e.g. {\"zh-CN\":[\"tweet 1\", \"tweet 2\"]}."
       }
     },
-    required: [ "publish_token", "slug" ]
+    required: [ "slug" ]
   )
 
   class << self
-    def payload(publish_token:, slug:, published_at: nil, dry_run: false, thread: true, tweets: {})
-      user = authenticate_publisher(publish_token)
+    def payload(slug:, published_at: nil, dry_run: false, thread: true, tweets: {})
+      user = current_publisher
       return user if user.is_a?(Hash)
 
       Articles::Publisher.call(

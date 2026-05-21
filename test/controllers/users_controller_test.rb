@@ -23,13 +23,25 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     assert_response :created
     assert cookies[:session_id]
     assert_match(/sma_/, response.body)
-    assert_match "claude mcp add --transport http smarts https://smarts.md/mcp", response.body
-    assert_match "[mcp_servers.smarts]", response.body
-    assert_match "amp mcp add smarts https://smarts.md/mcp", response.body
 
     user = User.find_by!(email_address: "publisher@example.com")
+    token = response.body[/sma_[A-Za-z0-9_-]+/]
     refute_match user.api_token_digest, response.body
-    assert_equal user, User.authenticate_api_token(response.body[/sma_[A-Za-z0-9_-]+/])
+    assert_equal user, User.authenticate_api_token(token)
+
+    # Each Connect MCP card embeds the publishing token directly into the
+    # client setup command, so users don't have to pass `publish_token` to
+    # every tool call afterward.
+    assert_match "claude mcp add --scope user --transport http smarts", response.body
+    assert_match "https://smarts.md/mcp", response.body
+    assert_match %(--header &quot;Authorization: Bearer #{token}&quot;), response.body
+
+    assert_match "export SMARTS_PUBLISH_TOKEN=#{token}", response.body
+    assert_match "codex mcp add smarts", response.body
+    assert_match "--bearer-token-env-var SMARTS_PUBLISH_TOKEN", response.body
+
+    assert_match "amp mcp add smarts", response.body
+    assert_match %(--header &quot;Authorization=Bearer #{token}&quot;), response.body
   end
 
   test "create re-renders form for invalid input" do

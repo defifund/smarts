@@ -53,7 +53,15 @@ Rails.application.routes.draw do
     stateless: true
   )
 
-  mount mcp_transport => "/mcp"
+  # Wrap the transport so each request authenticates an optional
+  # `Authorization: Bearer <publish_token>` and surfaces the user on
+  # `Current.mcp_user` for downstream tools.
+  mcp_app = Rack::Builder.new do
+    use McpBearerAuth
+    run mcp_transport
+  end.to_app
+
+  mount mcp_app => "/mcp"
 
   # MCP subdomain root — human-facing setup docs for AI-agent integrators.
   # The `/mcp` mount above already serves the actual MCP protocol on this

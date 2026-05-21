@@ -2,19 +2,18 @@
 
 class ValidateArticleDraftTool < ApplicationTool
   tool_name "validate_article_draft"
-  description "Validate one multilingual article draft under docs/drafts/:slug without publishing it."
+  description "Validate one multilingual article draft under docs/drafts/:slug without publishing it. Requires the MCP connection to carry an Authorization: Bearer <publish_token> header."
 
   input_schema(
     properties: {
-      publish_token: { type: "string", description: "Article publishing token." },
       slug: { type: "string", description: "Two-character draft slug, lowercase letters and digits only." }
     },
-    required: [ "publish_token", "slug" ]
+    required: [ "slug" ]
   )
 
   class << self
-    def payload(publish_token:, slug:)
-      user = authenticate_publisher(publish_token)
+    def payload(slug:)
+      user = current_publisher
       return user if user.is_a?(Hash)
 
       draft = Articles::DraftReader.call(slug: slug)

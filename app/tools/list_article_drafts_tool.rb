@@ -2,18 +2,13 @@
 
 class ListArticleDraftsTool < ApplicationTool
   tool_name "list_article_drafts"
-  description "List multilingual article drafts under docs/drafts, including slug, category, locales, and validation errors."
+  description "List multilingual article drafts under docs/drafts, including slug, category, locales, and validation errors. Requires the MCP connection to carry an Authorization: Bearer <publish_token> header."
 
-  input_schema(
-    properties: {
-      publish_token: { type: "string", description: "Article publishing token." }
-    },
-    required: [ "publish_token" ]
-  )
+  input_schema(properties: {})
 
   class << self
-    def payload(publish_token:)
-      user = authenticate_publisher(publish_token)
+    def payload
+      user = current_publisher
       return user if user.is_a?(Hash)
 
       drafts = Articles::DraftReader.list_summaries
