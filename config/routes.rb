@@ -78,6 +78,10 @@ Rails.application.routes.draw do
   root "marketing#home"
 
   get "polymarket", to: "marketing#polymarket"
+
+  # Articles list with optional locale prefix
+  get ":locale/articles", to: "articles#index", as: :localized_articles,
+    constraints: { locale: Regexp.union(Article::LOCALE_ROUTE_MAP.keys) }
   resources :articles, only: :index
 
   # Health check. Keep this explicit route before the two-character article

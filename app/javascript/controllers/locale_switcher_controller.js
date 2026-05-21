@@ -39,16 +39,26 @@ export default class extends Controller {
     // Check if we're on an article (with or without locale prefix)
     const articleMatch = path.match(/^\/?(?:cn|tw)?\/?([a-z0-9]{2})$/) || path.match(/^\/([a-z0-9]{2})$/);
 
+    // Check if we're on /articles or /cn/articles or /tw/articles
+    const articlesMatch = path.match(/^\/?(?:cn|tw)?\/?(articles)$/);
+
     if (articleMatch) {
-      // Article route: just adjust locale prefix
+      // Article route: adjust locale prefix
       const slug = articleMatch[1];
       if (locale === "en") {
         newPath = `/${slug}`;
       } else {
         newPath = `/${locale}/${slug}`;
       }
+    } else if (articlesMatch) {
+      // Articles list route: adjust locale prefix
+      if (locale === "en") {
+        newPath = "/articles";
+      } else {
+        newPath = `/${locale}/articles`;
+      }
     } else {
-      // Non-article route (contracts, etc.): don't add locale prefix (for now)
+      // Other routes (contracts, home, etc.): don't add locale prefix
       newPath = path;
     }
 

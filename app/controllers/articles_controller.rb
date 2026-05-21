@@ -5,6 +5,9 @@ class ArticlesController < ApplicationController
 
   def index
     @articles = Article.published.order(published_at: :desc, slug: :desc)
+    # Locale is parsed from route but currently not used for filtering
+    # (all articles display regardless of available locales)
+    Article.locale_from_route(params[:locale])
   end
 
   def show
