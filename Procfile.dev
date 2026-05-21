@@ -1,3 +1,4 @@
 web: bin/rails server
 css: bin/rails tailwindcss:watch
+jobs: bin/jobs
 tunnel: cloudflared tunnel --config ~/.cloudflared/smarts-dev.yml run smarts-dev

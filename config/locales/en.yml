@@ -29,3 +29,43 @@
 
 en:
   hello: "Hello world"
+  article_categories:
+    product: "Product"
+    stablecoins: "Stablecoins"
+    risk: "Risk"
+    markets: "Markets"
+    guides: "Guides"
+    company: "Company"
+  article_subcategories:
+    product:
+      mcp: "MCP"
+      tools: "Tools"
+      workflows: "Workflows"
+      releases: "Releases"
+    stablecoins:
+      issuers: "Issuers"
+      reserves: "Reserves"
+      payments: "Payments"
+      regulation: "Regulation"
+      infrastructure: "Infrastructure"
+    risk:
+      admin-controls: "Admin controls"
+      upgrades: "Upgrades"
+      governance: "Governance"
+      incidents: "Incidents"
+      compliance: "Compliance"
+    markets:
+      polymarket: "Polymarket"
+      prediction-markets: "Prediction markets"
+      liquidity: "Liquidity"
+      resolution: "Resolution"
+      odds: "Odds"
+    guides:
+      setup: "Setup"
+      integrations: "Integrations"
+      examples: "Examples"
+      playbooks: "Playbooks"
+    company:
+      positioning: "Positioning"
+      updates: "Updates"
+      roadmap: "Roadmap"

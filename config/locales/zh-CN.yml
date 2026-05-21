@@ -1,0 +1,41 @@
+"zh-CN":
+  article_categories:
+    product: "产品"
+    stablecoins: "稳定币"
+    risk: "风险"
+    markets: "市场"
+    guides: "指南"
+    company: "公司"
+  article_subcategories:
+    product:
+      mcp: "MCP"
+      tools: "工具"
+      workflows: "工作流"
+      releases: "发布"
+    stablecoins:
+      issuers: "发行方"
+      reserves: "储备"
+      payments: "支付"
+      regulation: "监管"
+      infrastructure: "基础设施"
+    risk:
+      admin-controls: "管理权限"
+      upgrades: "升级"
+      governance: "治理"
+      incidents: "事件"
+      compliance: "合规"
+    markets:
+      polymarket: "Polymarket"
+      prediction-markets: "预测市场"
+      liquidity: "流动性"
+      resolution: "结算"
+      odds: "赔率"
+    guides:
+      setup: "配置"
+      integrations: "集成"
+      examples: "示例"
+      playbooks: "操作手册"
+    company:
+      positioning: "定位"
+      updates: "更新"
+      roadmap: "路线图"

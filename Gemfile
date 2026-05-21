@@ -20,7 +20,10 @@ gem "tailwindcss-rails"
 gem "jbuilder"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
-# gem "bcrypt", "~> 3.1.7"
+gem "bcrypt", "~> 3.1.7"
+
+# Jobs dashboard for Solid Queue
+gem "mission_control-jobs"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
@@ -52,6 +55,12 @@ gem "eth", "~> 0.5.17"
 # Syntax highlighting for contract source code
 gem "rouge", "~> 4.7"
 
+# Markdown rendering for articles
+gem "redcarpet", "~> 3.6"
+
+# X OAuth 1.0a authorization for publishing accounts
+gem "oauth", "~> 1.1"
+
 # AI doc generation via Claude
 gem "ruby_llm", "~> 1.15"
 
@@ -59,6 +68,9 @@ gem "ruby_llm", "~> 1.15"
 # Official Anthropic Ruby SDK — supports Streamable HTTP transport
 # (MCP spec 2025-03-26), required by Smithery, Claude Code (newer), Cursor.
 gem "mcp"
+
+# X/Twitter scheduling engine. Local path while developing the not_before API;
+gem "x_queue", github: "defifund/x_queue"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

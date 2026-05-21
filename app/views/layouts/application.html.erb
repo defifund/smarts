@@ -42,6 +42,28 @@
         <a href="/" class="text-xl font-bold text-gray-900 hover:text-gray-700">
           smarts<span class="text-gray-500 font-normal">.md</span>
         </a>
+        <div class="flex items-center gap-4 text-sm font-medium text-gray-600">
+          <%= link_to "Articles", articles_path, class: "hover:text-gray-950" %>
+          <% if authenticated? %>
+            <%= link_to "Accounts", accounts_path, class: "hover:text-gray-950" %>
+            <%= button_to "Sign out", session_path, method: :delete, class: "hover:text-gray-950" %>
+          <% else %>
+            <%= link_to "Sign in", new_session_path, class: "hover:text-gray-950" %>
+          <% end %>
+          <div class="relative" data-controller="locale-switcher">
+            <button data-action="click->locale-switcher#toggle" class="hover:text-gray-950 flex items-center gap-1">
+              <span data-locale-switcher-target="label">EN</span>
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </button>
+            <div data-locale-switcher-target="menu" class="hidden absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded shadow-lg z-50">
+              <button data-action="click->locale-switcher#select" data-locale="en" class="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-900">English</button>
+              <button data-action="click->locale-switcher#select" data-locale="cn" class="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-900">简体中文</button>
+              <button data-action="click->locale-switcher#select" data-locale="tw" class="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-900">繁體中文</button>
+            </div>
+          </div>
+        </div>
       </div>
     </nav>
     <%# Block, not flex — flex items get min-width:auto which lets unbreakable

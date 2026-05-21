@@ -63,5 +63,14 @@ class ApplicationTool < MCP::Tool
 
       [ chain_record, contract ]
     end
+
+    # Returns the publisher User resolved from the current MCP request's
+    # `Authorization: Bearer <token>` header (set by `McpBearerAuth` on
+    # `Current.mcp_user`), or the standard error Hash if no valid token was
+    # presented. Callers short-circuit when the result is a Hash, mirroring
+    # `resolve_contract`.
+    def current_publisher
+      Current.mcp_user || { error: "Authorization: Bearer <publish_token> header is missing or invalid" }
+    end
   end
 end
