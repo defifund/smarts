@@ -60,6 +60,26 @@ class Articles::TweetSchedulerTest < ActiveSupport::TestCase
     assert_equal "unsupported locale", result.errors["fr"]
   end
 
+  test "with explicit at: schedules tweets at that exact time even when account queue has later items" do
+    article = create_article(slug: "2e", published_at: 1.day.from_now)
+    account = create_x_account(users(:one), locale: "en")
+    later = 2.days.from_now.change(usec: 0)
+    XQueue::Tweet.create!(content: "later", account: account, status: :scheduled, scheduled_at: later)
+
+    target = 6.hours.from_now.change(usec: 0)
+    result = Articles::TweetScheduler.call(
+      article: article,
+      user: users(:one),
+      tweets: { "en" => [ "T1", "T2" ] },
+      at: target
+    )
+
+    assert result.valid?, result.errors.inspect
+    new_tweets = XQueue::Tweet.where(account: account, content: [ "T1", "T2" ])
+    assert_equal 2, new_tweets.size
+    assert new_tweets.all? { |t| t.scheduled_at == target }, new_tweets.map(&:scheduled_at).inspect
+  end
+
   test "ignores blank tweets and non-hash tweet payloads" do
     article = create_article(slug: "2d")
     create_x_account(users(:one), locale: "en")

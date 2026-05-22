@@ -50,7 +50,7 @@ class PublishArticleTool < ApplicationTool
     private
 
     def parse_published_at(value)
-      return Time.current if value.blank?
+      return nil if value.blank?
 
       Time.zone.parse(value.to_s) || raise(ArgumentError, "published_at is invalid")
     end

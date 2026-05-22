@@ -16,16 +16,17 @@ module Articles
     end
 
     class << self
-      def call(article:, user:, tweets:, thread: true)
-        new(article: article, user: user, tweets: tweets, thread: thread).call
+      def call(article:, user:, tweets:, thread: true, at: nil)
+        new(article: article, user: user, tweets: tweets, thread: thread, at: at).call
       end
     end
 
-    def initialize(article:, user:, tweets:, thread:)
+    def initialize(article:, user:, tweets:, thread:, at: nil)
       @article = article
       @user = user
       @tweets = tweets.is_a?(Hash) ? tweets : {}
       @thread = thread
+      @at = at
       @scheduled = {}
       @errors = {}
     end
@@ -62,10 +63,18 @@ module Articles
         texts: texts,
         account: account,
         source: @article,
-        not_before: @article.published_at
+        **scheduling_kwargs
       )
     rescue StandardError => e
       @errors[locale] = e.message
+    end
+
+    # When the caller passed an explicit publish time, honor it as the exact
+    # schedule time (XQueue's `at:`). Otherwise fall back to the article's
+    # `published_at` as a floor (`not_before:`) — preserves the historical
+    # behavior of appending after the account's existing queue.
+    def scheduling_kwargs
+      @at ? { at: @at } : { not_before: @article.published_at }
     end
   end
 end
