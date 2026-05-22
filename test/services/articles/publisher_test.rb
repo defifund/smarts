@@ -69,6 +69,48 @@ class Articles::PublisherTest < ActiveSupport::TestCase
     end
   end
 
+  test "with explicit published_at, lands tweets at that exact time ignoring account queue tail" do
+    Dir.mktmpdir do |dir|
+      write_draft(dir, slug: "1c")
+      account = create_x_account(users(:one), locale: "en")
+      later = 2.days.from_now.change(usec: 0)
+      XQueue::Tweet.create!(content: "existing", account: account, status: :scheduled, scheduled_at: later)
+
+      target = 6.hours.from_now.change(usec: 0)
+      result = Articles::Publisher.call(
+        slug: "1c",
+        user: users(:one),
+        drafts_root: dir,
+        published_at: target,
+        tweets: { "en" => [ "At target" ] }
+      )
+
+      assert result.valid?, result.errors.inspect
+      new_tweet = XQueue::Tweet.where(account: account, content: "At target").sole
+      assert_equal target, new_tweet.scheduled_at
+    end
+  end
+
+  test "without explicit published_at, queues tweets after existing account tail" do
+    Dir.mktmpdir do |dir|
+      write_draft(dir, slug: "1d")
+      account = create_x_account(users(:one), locale: "en")
+      later = 2.days.from_now.change(usec: 0)
+      XQueue::Tweet.create!(content: "existing", account: account, status: :scheduled, scheduled_at: later)
+
+      result = Articles::Publisher.call(
+        slug: "1d",
+        user: users(:one),
+        drafts_root: dir,
+        tweets: { "en" => [ "After existing" ] }
+      )
+
+      assert result.valid?, result.errors.inspect
+      new_tweet = XQueue::Tweet.where(account: account, content: "After existing").sole
+      assert new_tweet.scheduled_at > later, "expected scheduled_at > #{later}, got #{new_tweet.scheduled_at}"
+    end
+  end
+
   test "publishes from inline meta and content without touching the filesystem" do
     result = Articles::Publisher.call(
       slug: "2c",

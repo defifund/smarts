@@ -137,6 +137,18 @@ class ArticlePublishingToolsTest < ActiveSupport::TestCase
     end
   end
 
+  test "publish tool passes nil published_at when caller does not provide one" do
+    draft = Articles::DraftReader::Result.new(slug: "7g", category: "product", subcategory: "mcp", locales: [ "en" ], errors: [])
+    result = Articles::Publisher::Result.new(draft: draft, errors: [], urls: { "en" => "https://smarts.md/7g" }, dry_run: false)
+
+    stub_class_method(Articles::Publisher, :call, ->(**kwargs) {
+      assert_nil kwargs[:published_at]
+      result
+    }) do
+      PublishArticleTool.payload(slug: "7g")
+    end
+  end
+
   test "publish tool returns validation error for invalid published_at" do
     payload = PublishArticleTool.payload(
       slug: "7g",

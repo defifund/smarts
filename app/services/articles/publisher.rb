@@ -24,7 +24,7 @@ module Articles
     end
 
     class << self
-      def call(slug:, user:, drafts_root: Rails.root.join("docs/drafts"), meta: nil, content: nil, published_at: Time.current, dry_run: false, tweets: {}, thread: true)
+      def call(slug:, user:, drafts_root: Rails.root.join("docs/drafts"), meta: nil, content: nil, published_at: nil, dry_run: false, tweets: {}, thread: true)
         new(slug: slug, user: user, drafts_root: drafts_root, meta: meta, content: content, published_at: published_at, dry_run: dry_run, tweets: tweets, thread: thread).call
       end
     end
@@ -35,7 +35,8 @@ module Articles
       @drafts_root = drafts_root
       @meta = meta
       @content = content
-      @published_at = published_at
+      @explicit_published_at = published_at
+      @published_at = published_at || Time.current
       @dry_run = dry_run
       @tweets = tweets.is_a?(Hash) ? tweets : {}
       @thread = thread
@@ -91,7 +92,13 @@ module Articles
     def schedule_tweets(article)
       return TweetScheduler::Result.new(scheduled: {}, errors: {}) if @dry_run || @tweets.blank?
 
-      TweetScheduler.call(article: article, user: @user, tweets: @tweets, thread: @thread)
+      TweetScheduler.call(
+        article: article,
+        user: @user,
+        tweets: @tweets,
+        thread: @thread,
+        at: @explicit_published_at
+      )
     end
   end
 end
