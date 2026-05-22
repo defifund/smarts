@@ -9,7 +9,7 @@ class McpBearerAuthTest < ActiveSupport::TestCase
     captured = nil
     downstream = ->(_env) {
       captured = Current.mcp_user
-      [200, {}, []]
+      [ 200, {}, [] ]
     }
 
     middleware = McpBearerAuth.new(downstream)
@@ -20,7 +20,7 @@ class McpBearerAuthTest < ActiveSupport::TestCase
   end
 
   test "missing header leaves Current.mcp_user nil" do
-    downstream = ->(_env) { [200, {}, []] }
+    downstream = ->(_env) { [ 200, {}, [] ] }
 
     McpBearerAuth.new(downstream).call(env_with(nil))
 
@@ -28,7 +28,7 @@ class McpBearerAuthTest < ActiveSupport::TestCase
   end
 
   test "invalid token leaves Current.mcp_user nil without raising" do
-    downstream = ->(_env) { [200, {}, []] }
+    downstream = ->(_env) { [ 200, {}, [] ] }
 
     McpBearerAuth.new(downstream).call(env_with("Bearer bogus"))
 
@@ -36,7 +36,7 @@ class McpBearerAuthTest < ActiveSupport::TestCase
   end
 
   test "non-bearer authorization schemes are ignored" do
-    downstream = ->(_env) { [200, {}, []] }
+    downstream = ->(_env) { [ 200, {}, [] ] }
 
     McpBearerAuth.new(downstream).call(env_with("Basic foo:bar"))
 
@@ -44,7 +44,7 @@ class McpBearerAuthTest < ActiveSupport::TestCase
   end
 
   test "bearer scheme parsing is case-insensitive" do
-    downstream = ->(_env) { [200, {}, []] }
+    downstream = ->(_env) { [ 200, {}, [] ] }
 
     McpBearerAuth.new(downstream).call(env_with("bearer sma_test_token_one"))
 
