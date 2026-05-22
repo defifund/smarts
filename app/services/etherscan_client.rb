@@ -1,5 +1,4 @@
 class EtherscanClient
-  BASE_URL = "https://api.etherscan.io/v2/api"
   TIMEOUT = 10
 
   # Etherscan free tier caps at 5 req/sec; some accounts see 3/sec. Be
@@ -32,7 +31,6 @@ class EtherscanClient
 
   def initialize(chain)
     @chain = chain
-    @api_key = Rails.application.credentials.dig(:etherscan, :api_key) || ENV["ETHERSCAN_API_KEY"]
   end
 
   def fetch_contract_info(address)
@@ -110,8 +108,8 @@ class EtherscanClient
 
   def request_logs(params)
     self.class.throttle!
-    response = connection.get do |req|
-      req.params = params.merge(chainid: @chain.chain_id, apikey: @api_key)
+    response = logs_connection.get do |req|
+      req.params = request_params(params, for_logs: true)
     end
     body = JSON.parse(response.body)
 
@@ -125,7 +123,7 @@ class EtherscanClient
   def request(params)
     self.class.throttle!
     response = connection.get do |req|
-      req.params = params.merge(chainid: @chain.chain_id, apikey: @api_key)
+      req.params = request_params(params)
     end
 
     body = JSON.parse(response.body)
@@ -136,10 +134,37 @@ class EtherscanClient
   end
 
   def connection
-    @connection ||= Faraday.new(url: BASE_URL) do |f|
+    @connection ||= Faraday.new(url: @chain.explorer_api_url) do |f|
       f.request :retry, max: 2, interval: 0.5, backoff_factor: 2
       f.options.timeout = TIMEOUT
       f.options.open_timeout = TIMEOUT
     end
+  end
+
+  def logs_connection
+    @logs_connection ||= Faraday.new(url: @chain.explorer_api_url) do |f|
+      f.request :retry, max: 2, interval: 0.5, backoff_factor: 2
+      f.options.timeout = TIMEOUT
+      f.options.open_timeout = TIMEOUT
+    end
+  end
+
+  def request_params(params, for_logs: false)
+    params = params.dup
+    params[:apikey] = api_key if api_key.present?
+    params[:chainid] = @chain.chain_id if etherscan_v2?
+    params.compact
+  end
+
+  def api_key
+    @api_key ||= default_api_key
+  end
+
+  def default_api_key
+    Rails.application.credentials.dig(:etherscan, :api_key) || ENV["ETHERSCAN_API_KEY"]
+  end
+
+  def etherscan_v2?
+    @chain.explorer_api_url.to_s.include?("/v2/api")
   end
 end

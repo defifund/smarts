@@ -60,11 +60,12 @@ module ContractEvents
       latest = ChainReader::Base.eth_block_number(@contract.chain)
       from = [ latest - RECENT_BLOCK_WINDOW, 0 ].max
       raw_logs = fetch_logs(from, latest)
+      from = @effective_from_block || from
 
       events = raw_logs.reverse.first(@limit).map { |log| build_event(log) }
       result(latest_block: latest, from_block: from, count: events.size, events: events)
     rescue EtherscanClient::Error, ChainReader::Base::RpcError => e
-      error_result("#{e.message}")
+      error_result("Recent activity on #{@contract.chain.name} failed: #{e.message}")
     end
 
     private
@@ -80,15 +81,32 @@ module ContractEvents
         to_block: latest,
         offset: ETHERSCAN_MAX_OFFSET
       )
-    rescue EtherscanClient::Error => e
-      Rails.logger.info("[RecentFetcher] Etherscan logs failed (#{e.message}), falling back to RPC")
-      ChainReader::Base.eth_get_logs(
-        @contract.chain,
-        address: @contract.address,
-        topic0: topic0,
-        from_block: from,
-        to_block: latest
-      )
+    rescue EtherscanClient::Error => etherscan_error
+      Rails.logger.info("[RecentFetcher] Etherscan logs failed (#{etherscan_error.message}), falling back to RPC")
+      begin
+        rpc_get_logs_with_adaptive_window(from, latest)
+      rescue ChainReader::Base::RpcError => rpc_error
+        raise ChainReader::Base::RpcError,
+          "Etherscan logs failed on #{@contract.chain.name}: #{etherscan_error.message}; RPC fallback failed: #{rpc_error.message}"
+      end
+    end
+
+    def rpc_get_logs_with_adaptive_window(from, latest)
+      current_from = from
+      loop do
+        @effective_from_block = current_from
+        return ChainReader::Base.eth_get_logs(
+          @contract.chain,
+          address: @contract.address,
+          topic0: topic0,
+          from_block: current_from,
+          to_block: latest
+        )
+      rescue ChainReader::Base::RpcError => e
+        raise unless shrinkable_rpc_error?(e) && current_from < latest
+
+        current_from = latest - ((latest - current_from) / 2)
+      end
     end
 
     def events_abi
@@ -101,6 +119,10 @@ module ContractEvents
 
     def topic0
       target_event && ChainReader::EventDecoder.event_topic0(target_event)
+    end
+
+    def shrinkable_rpc_error?(error)
+      error.message.match?(/exceeds max results|too many results|response size|query timeout|limit exceeded/i)
     end
 
     def build_event(raw_log)

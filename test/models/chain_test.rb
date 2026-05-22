@@ -43,4 +43,10 @@ class ChainTest < ActiveSupport::TestCase
   test "native_symbol falls back to ETH for unknown slugs" do
     assert_equal "ETH", Chain.new(slug: "solana").native_symbol
   end
+
+  test "etherscan_url returns the chain-specific explorer api url" do
+    chain = Chain.new(explorer_api_url: "https://api.basescan.org/api")
+
+    assert_equal "https://api.basescan.org/api", chain.etherscan_url
+  end
 end

@@ -164,7 +164,14 @@ class ChainReader::SingleCallerTest < ActiveSupport::TestCase
   test "safe_block_number swallows StandardError (e.g. nil rpc_url)" do
     # Chain with no rpc_url configured — Eth::Client.create blows up. The
     # whole point of safe_block_number is the read still returns successfully.
-    contract = build_contract(abi_totalSupply)
+    chain = Chain.create!(
+      name: "No RPC",
+      slug: "no-rpc",
+      chain_id: 99_999,
+      explorer_api_url: "https://api.etherscan.io/v2/api",
+      rpc_url: nil
+    )
+    contract = Contract.create!(chain: chain, address: "0x" + SecureRandom.hex(20), abi: abi_totalSupply)
     hex = "0x" + Eth::Abi.encode([ "uint256" ], [ 1 ]).unpack1("H*")
 
     stub_class_method(ChainReader::Base, :eth_call_hex, ->(_c, **_) { hex }) do

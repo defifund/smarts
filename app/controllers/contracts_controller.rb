@@ -87,7 +87,7 @@ class ContractsController < ApplicationController
   def load_recent_events(contract)
     ContractEvents::RecentFetcher.call(
       contract: contract,
-      event_name: params[:event_name],
+      event_name: recent_event_filter(contract),
       limit: ContractEvents::RecentFetcher::DEFAULT_LIMIT
     )
   rescue => e
@@ -95,11 +95,20 @@ class ContractsController < ApplicationController
     ContractEvents::RecentFetcher::Result.new(
       contract: contract.address,
       chain: contract.chain.slug,
-      event_filter: params[:event_name].presence,
+      event_filter: recent_event_filter(contract),
       count: 0,
       events: [],
       error: e.message
     )
+  end
+
+  def recent_event_filter(contract)
+    return nil if params[:event_name] == "all"
+    return params[:event_name].presence if params[:event_name].present?
+
+    return "Transfer" if contract.events.any? { |event| event["name"] == "Transfer" }
+
+    nil
   end
 
   def load_governance_timeline(contract)

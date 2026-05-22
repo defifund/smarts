@@ -5,8 +5,6 @@ class Chain < ApplicationRecord
   validates :slug, uniqueness: true
   validates :chain_id, uniqueness: true
 
-  ETHERSCAN_V2_BASE = "https://api.etherscan.io/v2/api"
-
   # Gas-token symbol for each chain's native currency (shown in balance displays).
   NATIVE_SYMBOLS = {
     "eth"      => "ETH",
@@ -18,7 +16,7 @@ class Chain < ApplicationRecord
   }.freeze
 
   def etherscan_url
-    ETHERSCAN_V2_BASE
+    explorer_api_url
   end
 
   def native_symbol

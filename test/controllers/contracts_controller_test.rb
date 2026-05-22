@@ -1,6 +1,10 @@
 require "test_helper"
 
 class ContractsControllerTest < ActionDispatch::IntegrationTest
+  setup do
+    stub_empty_etherscan_logs
+  end
+
   test "show renders existing contract" do
     contract = contracts(:uni_token)
     get contract_path(chain: "eth", address: contract.address)
@@ -989,6 +993,43 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
     assert_no_match 'aria-label="Docs" checked', response.body
   end
 
+  test "show defaults ERC-20 recent activity to Transfer events" do
+    contract = contracts(:uni_token)
+    seen_event_name = nil
+    activity = activity_result(contract, event_filter: "Transfer")
+
+    stub_class_method(ChainReader::ViewCaller, :call, ->(_c) { {} }) do
+      stub_class_method(ContractEvents::RecentFetcher, :call, ->(**kwargs) {
+        seen_event_name = kwargs[:event_name]
+        activity
+      }) do
+        get contract_path(chain: "eth", address: contract.address)
+      end
+    end
+
+    assert_response :success
+    assert_equal "Transfer", seen_event_name
+  end
+
+  test "show preserves explicit all-events recent activity filter" do
+    contract = contracts(:uni_token)
+    seen_event_name = :unset
+    activity = activity_result(contract, event_filter: nil)
+
+    stub_class_method(ChainReader::ViewCaller, :call, ->(_c) { {} }) do
+      stub_class_method(ContractEvents::RecentFetcher, :call, ->(**kwargs) {
+        seen_event_name = kwargs[:event_name]
+        activity
+      }) do
+        get contract_path(chain: "eth", address: contract.address), params: { event_name: "all" }
+      end
+    end
+
+    assert_response :success
+    assert_nil seen_event_name
+    assert_match 'href="/eth/0x1111111111111111111111111111111111111111?event_name=all"', response.body
+  end
+
   test "activity filters target the Turbo Frame instead of full-page tab reloads" do
     contract = contracts(:uni_token)
     activity = activity_result(contract)
@@ -1003,6 +1044,7 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
     assert_match 'data-controller="contract-tabs"', response.body
     assert_match '<turbo-frame data-turbo-action="advance" id="contract_activity">', response.body
     assert_match 'data-turbo-frame="contract_activity"', response.body
+    assert_match 'href="/eth/0x1111111111111111111111111111111111111111?event_name=all"', response.body
     assert_match 'href="/eth/0x1111111111111111111111111111111111111111?event_name=Transfer"', response.body
   end
 
@@ -1116,8 +1158,8 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_response :success
-    assert_match "Fetching the latest governance events in the background", response.body
-    assert_match "Backfilling the timeline now", response.body
+    assert_match "Loading the governance timeline in the background", response.body
+    refute_match "No governance events recorded in the recent window", response.body
   end
 
   # ---------- Admin & Risk section ----------

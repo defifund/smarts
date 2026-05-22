@@ -379,7 +379,7 @@ module ContractsHelper
 
   def activity_filter_path(event_name)
     query = request.query_parameters.except("event_name")
-    query["event_name"] = event_name if event_name.present?
+    query["event_name"] = event_name.presence || "all"
     qs = query.to_query
     qs.present? ? "#{request.path}?#{qs}" : request.path
   end

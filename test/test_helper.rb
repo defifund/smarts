@@ -60,5 +60,13 @@ module ActiveSupport
     def batch_of(results, block_number: 19_000_000)
       ChainReader::Multicall3Client::Batch.new(block_number: block_number, results: results)
     end
+
+    def stub_empty_etherscan_logs
+      stub_request(:get, %r{api\.etherscan\.io/v2/api.*action=getLogs}).to_return(
+        status: 200,
+        body: { status: "0", message: "No records found", result: [] }.to_json,
+        headers: { "Content-Type" => "application/json" }
+      )
+    end
   end
 end

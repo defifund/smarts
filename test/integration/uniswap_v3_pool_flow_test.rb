@@ -13,6 +13,7 @@ class UniswapV3PoolFlowTest < ActionDispatch::IntegrationTest
   setup do
     @original_cache = Rails.cache
     Rails.cache = ActiveSupport::Cache::MemoryStore.new
+    stub_empty_etherscan_logs
   end
 
   teardown do

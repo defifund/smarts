@@ -67,7 +67,10 @@ class ContractEvents::RecentFetcherTest < ActiveSupport::TestCase
       end
 
       refute result.success?
-      assert_match(/rpc down/, result.error)
+      assert_match(/Recent activity on Ethereum failed:/, result.error)
+      assert_match(/Etherscan logs failed on Ethereum:/, result.error)
+      assert_match(/Invalid API Key/, result.error)
+      assert_match(/RPC fallback failed: rpc down/, result.error)
     end
   end
 
@@ -93,6 +96,94 @@ class ContractEvents::RecentFetcherTest < ActiveSupport::TestCase
       # newest-first ordering preserved on the RPC path
       assert_equal [ 19_000_002, 19_000_001 ], result.events.map(&:block_number)
     end
+  end
+
+  test "shrinks RPC fallback window when the node reports too many logs" do
+    stub_etherscan_error
+    calls = []
+    rpc_logs = [ sample_transfer_log(block_number: @latest_block - 1, tx_hash: "0xrpc_recent") ]
+
+    rpc_call = ->(_chain, from_block:, **_) do
+      calls << from_block
+      raise ChainReader::Base::RpcError, "query exceeds max results 20000" if calls.length == 1
+
+      rpc_logs
+    end
+
+    stub_class_method(ChainReader::Base, :eth_get_logs, rpc_call) do
+      result = with_eth_block_number do
+        ContractEvents::RecentFetcher.call(contract: @contract, limit: 1)
+      end
+
+      assert result.success?, result.error
+      assert_equal 2, calls.length
+      assert_equal @latest_block - ContractEvents::RecentFetcher::RECENT_BLOCK_WINDOW, calls.first
+      assert_equal @latest_block - (ContractEvents::RecentFetcher::RECENT_BLOCK_WINDOW / 2), calls.second
+      assert_equal calls.second, result.from_block
+      assert_equal [ @latest_block - 1 ], result.events.map(&:block_number)
+    end
+  end
+
+  test "surfaces Base Etherscan V2 errors with fallback context" do
+    base_contract = Contract.new(
+      chain: chains(:base),
+      address: "0x" + "1" * 40,
+      abi: [
+        { "type" => "event", "name" => "Transfer", "inputs" => [
+          { "name" => "from", "type" => "address", "indexed" => true },
+          { "name" => "to", "type" => "address", "indexed" => true },
+          { "name" => "amount", "type" => "uint256", "indexed" => false }
+        ] }
+      ]
+    )
+
+    stub_class_method(ChainReader::Base, :eth_block_number, ->(_chain) { @latest_block }) do
+      stub_request(:get, %r{api\.etherscan\.io}).to_return(
+        status: 200,
+        body: { status: "0", message: "NOTOK", result: "Invalid params" }.to_json,
+        headers: { "Content-Type" => "application/json" }
+      )
+
+      stub_class_method(ChainReader::Base, :eth_get_logs,
+        ->(_chain, **_) { raise ChainReader::Base::RpcError, "rpc down" }) do
+        result = ContractEvents::RecentFetcher.call(contract: base_contract)
+
+        refute result.success?
+        assert_match(/Recent activity on Base failed:/, result.error)
+        assert_match(/Etherscan logs failed on Base:/, result.error)
+        assert_match(/Etherscan API error: NOTOK - Invalid params/, result.error)
+        assert_match(/RPC fallback failed: rpc down/, result.error)
+      end
+    end
+  end
+
+  test "uses Etherscan V2 logs directly for Base recent activity" do
+    base_contract = Contract.new(
+      chain: chains(:base),
+      address: "0x" + "1" * 40,
+      abi: [
+        { "type" => "event", "name" => "Transfer", "inputs" => [
+          { "name" => "from", "type" => "address", "indexed" => true },
+          { "name" => "to", "type" => "address", "indexed" => true },
+          { "name" => "amount", "type" => "uint256", "indexed" => false }
+        ] }
+      ]
+    )
+    rpc_logs = [ sample_transfer_log(block_number: 20_000_001, tx_hash: "0xbase1") ]
+
+    stub_request(:get, %r{api\.etherscan\.io}).to_return(
+      status: 200,
+      body: logs_response(rpc_logs),
+      headers: { "Content-Type" => "application/json" }
+    )
+
+    result = stub_class_method(ChainReader::Base, :eth_block_number, ->(_chain) { @latest_block }) do
+      ContractEvents::RecentFetcher.call(contract: base_contract, limit: 1)
+    end
+
+    assert result.success?, result.error
+    assert_equal "base", result.chain
+    assert_equal [ 20_000_001 ], result.events.map(&:block_number)
   end
 
   private
@@ -155,5 +246,13 @@ class ContractEvents::RecentFetcherTest < ActiveSupport::TestCase
       body: { status: "0", message: "NOTOK", result: "Invalid API Key" }.to_json,
       headers: { "Content-Type" => "application/json" }
     )
+  end
+
+  def logs_response(logs)
+    {
+      status: logs.empty? ? "0" : "1",
+      message: logs.empty? ? "No records found" : "OK",
+      result: logs
+    }.to_json
   end
 end

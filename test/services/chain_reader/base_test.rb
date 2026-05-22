@@ -96,6 +96,17 @@ class ChainReader::BaseTest < ActiveSupport::TestCase
     end
   end
 
+  test "eth_call_hex wraps Eth::Client::RpcError as ChainReader::Base::RpcError" do
+    fake = FakeRpcClient.new(->(*) { raise Eth::Client::RpcError.new("invalid params", nil, -32602) })
+    stub_class_method(ChainReader::Base, :client_for, ->(_chain) { fake }) do
+      err = assert_raises(ChainReader::Base::RpcError) do
+        ChainReader::Base.eth_call_hex(@chain, to: "0xabc", data: "0x123")
+      end
+      assert_match(/-32602/, err.message)
+      assert_match(/invalid params/, err.message)
+    end
+  end
+
   # ---------- retag_string_encoding ----------
 
   test "retag_string_encoding promotes ASCII-8BIT UTF-8 bytes to UTF-8 for string outputs" do
@@ -155,6 +166,17 @@ class ChainReader::BaseTest < ActiveSupport::TestCase
     end
   end
 
+  test "eth_block_number wraps Eth::Client::RpcError as ChainReader::Base::RpcError" do
+    fake = FakeRpcClient.new(->(*) { raise Eth::Client::RpcError.new("invalid params", nil, -32602) })
+    stub_class_method(ChainReader::Base, :client_for, ->(_chain) { fake }) do
+      err = assert_raises(ChainReader::Base::RpcError) do
+        ChainReader::Base.eth_block_number(@chain)
+      end
+      assert_match(/-32602/, err.message)
+      assert_match(/invalid params/, err.message)
+    end
+  end
+
   # ---------- eth_get_logs ----------
 
   test "eth_get_logs hex-encodes integer from/to blocks and forwards address" do
@@ -172,8 +194,8 @@ class ChainReader::BaseTest < ActiveSupport::TestCase
     end
 
     assert_equal "0xabc",  seen_filter[:address]
-    assert_equal "0x64",   seen_filter[:fromBlock]
-    assert_equal "0xc8",   seen_filter[:toBlock]
+    assert_equal "0x64",   seen_filter[:from_block]
+    assert_equal "0xc8",   seen_filter[:to_block]
     assert_equal [ "0xdead" ], seen_filter[:topics]
   end
 
@@ -206,7 +228,7 @@ class ChainReader::BaseTest < ActiveSupport::TestCase
       ChainReader::Base.eth_get_logs(@chain, address: "0xabc", to_block: "latest")
     end
 
-    assert_equal "latest", seen_filter[:toBlock]
+    assert_equal "latest", seen_filter[:to_block]
   end
 
   test "eth_get_logs extracts log array from JSON-RPC response hash" do
@@ -239,21 +261,39 @@ class ChainReader::BaseTest < ActiveSupport::TestCase
     end
   end
 
+  test "eth_get_logs wraps Eth::Client::RpcError as ChainReader::Base::RpcError" do
+    fake = FakeRpcClient.new(->(*) { raise Eth::Client::RpcError.new("invalid params", nil, -32602) })
+
+    stub_class_method(ChainReader::Base, :client_for, ->(_chain) { fake }) do
+      err = assert_raises(ChainReader::Base::RpcError) do
+        ChainReader::Base.eth_get_logs(@chain, address: "0xabc")
+      end
+      assert_match(/-32602/, err.message)
+      assert_match(/invalid params/, err.message)
+    end
+  end
+
   class FakeRpcClient
     def initialize(response)
       @response = response
     end
 
     def eth_call(_params)
-      @response
+      call_response
     end
 
     def eth_block_number
-      @response
+      call_response
     end
 
     def eth_get_logs(_filter)
-      @response
+      call_response
+    end
+
+    private
+
+    def call_response
+      @response.respond_to?(:call) ? @response.call : @response
     end
   end
 end
