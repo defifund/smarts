@@ -1,0 +1,14 @@
+{
+  "category": "stablecoins",
+  "subcategory": "regulation",
+  "title": {
+    "en": "34 Blacklists, 66 Unblacklists: What USDC's Blacklist Is Actually Doing",
+    "zh-CN": "34 次封禁、66 次解封：USDC 黑名单到底在做什么",
+    "zh-TW": "34 次封禁、66 次解封：USDC 黑名單到底在做什麼"
+  },
+  "summary": {
+    "en": "A live-event analysis of USDC blacklist and unblacklist activity: what recent risk-action events reveal about stablecoin operations, role stability, and monitoring signals.",
+    "zh-CN": "基于 USDC 近期 Blacklisted 和 UnBlacklisted 事件，分析稳定币风控操作、角色稳定性和可监控信号。",
+    "zh-TW": "基於 USDC 近期 Blacklisted 和 UnBlacklisted 事件，分析穩定幣風控操作、角色穩定性和可監控信號。"
+  }
+}

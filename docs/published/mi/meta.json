@@ -1,0 +1,14 @@
+{
+  "category": "stablecoins",
+  "subcategory": "issuers",
+  "title": {
+    "en": "How USDC Issuance Limits Change",
+    "zh-CN": "USDC 的发行额度到底在怎么调",
+    "zh-TW": "USDC 的發行額度到底在怎麼調"
+  },
+  "summary": {
+    "en": "A live-event analysis of USDC minter configuration activity: what recent allowance changes reveal about issuance cadence, active minters, and operational control.",
+    "zh-CN": "基于 USDC 近期 MinterConfigured 事件，分析发行额度调整节奏、活跃 minter 和实时运营控制。",
+    "zh-TW": "基於 USDC 近期 MinterConfigured 事件，分析發行額度調整節奏、活躍 minter 和即時營運控制。"
+  }
+}

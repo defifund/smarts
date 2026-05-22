@@ -1,0 +1,14 @@
+{
+  "category": "guides",
+  "subcategory": "integrations",
+  "title": {
+    "en": "What Etherscan's Pricing and Coverage Mean for Base Analytics",
+    "zh-CN": "Etherscan 的套餐和覆盖范围，意味着什么",
+    "zh-TW": "Etherscan 的方案和覆蓋範圍，意味著什麼"
+  },
+  "summary": {
+    "en": "A practical read on Etherscan's current pricing, chain coverage, and endpoint tiers, with a focus on what it means for Base analytics and USDC event research.",
+    "zh-CN": "从 Etherscan 当前套餐、链覆盖和接口分层出发，解释它对 Base 数据分析和 USDC 事件研究意味着什么。",
+    "zh-TW": "從 Etherscan 當前方案、鏈覆蓋和接口分層出發，解釋它對 Base 資料分析和 USDC 事件研究意味著什麼。"
+  }
+}
