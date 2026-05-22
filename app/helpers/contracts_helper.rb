@@ -185,6 +185,7 @@ module ContractsHelper
     "base"     => "https://basescan.org",
     "arbitrum" => "https://arbiscan.io",
     "optimism" => "https://optimistic.etherscan.io",
+    "bnb"      => "https://bscscan.com",
     "polygon"  => "https://polygonscan.com"
   }.freeze
 
@@ -208,6 +209,7 @@ module ContractsHelper
     when "base"     then "Basescan"
     when "arbitrum" then "Arbiscan"
     when "optimism" then "Etherscan"
+    when "bnb"      then "BscScan"
     when "polygon"  then "Polygonscan"
     else "explorer"
     end

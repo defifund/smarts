@@ -1,0 +1,14 @@
+{
+  "category": "stablecoins",
+  "subcategory": "issuers",
+  "title": {
+    "en": "Reading the USDC Contract: Why It Is Not a Plain ERC-20",
+    "zh-CN": "读懂 USDC 合约：为什么它不是普通 ERC-20",
+    "zh-TW": "讀懂 USDC 合約：為什麼它不是普通 ERC-20"
+  },
+  "summary": {
+    "en": "A source-grounded deep dive into Ethereum USDC's FiatTokenV2_2 contract: roles, minting controls, blacklist and pause powers, signed payment flows, event monitoring, and current live state.",
+    "zh-CN": "基于 verified source 和链上实时读取，拆解 Ethereum USDC 的 FiatTokenV2_2 合约：角色权限、发行控制、黑名单与暂停能力、签名支付流程、事件监控和当前 live state。",
+    "zh-TW": "基於 verified source 和鏈上即時讀取，拆解 Ethereum USDC 的 FiatTokenV2_2 合約：角色權限、發行控制、黑名單與暫停能力、簽名支付流程、事件監控和當前 live state。"
+  }
+}

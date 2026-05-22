@@ -73,6 +73,5 @@ module Polymarket
         raw_args: args
       )
     end
-
   end
 end

@@ -41,6 +41,12 @@ class MarketingController < ApplicationController
       symbol: "USDC", name: "USD Coin (Base)",     blurb: "Native Circle-issued USDC on Base." },
     { category: "Multi-chain", chain: "arbitrum", address: "0xaf88d065e77c8cc2239327c5edb3a432268e5831",
       symbol: "USDC", name: "USD Coin (Arbitrum)", blurb: "Native Circle-issued USDC on Arbitrum One." },
+    { category: "Multi-chain", chain: "bnb",      address: "0x55d398326f99059ff775485246999027b3197955",
+      symbol: "USDT", name: "Tether USD (BNB)",    blurb: "The most-traded dollar stablecoin on BNB Smart Chain." },
+    { category: "Multi-chain", chain: "bnb",      address: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
+      symbol: "WBNB", name: "Wrapped BNB",         blurb: "The canonical wrapped gas token on BNB Smart Chain." },
+    { category: "Multi-chain", chain: "bnb",      address: "0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82",
+      symbol: "CAKE", name: "PancakeSwap",         blurb: "The flagship DEX token for BNB Smart Chain's biggest venue." },
     # Polygon rebranded MATIC → POL in 2024 and updated this contract's on-chain
     # name()/symbol() accordingly. Card now matches on-chain truth; blurb
     # preserves the WMATIC tie-in for users arriving on legacy mental models.
@@ -49,7 +55,7 @@ class MarketingController < ApplicationController
   ].freeze
 
   CHAIN_LABELS = {
-    "eth" => "Ethereum", "base" => "Base", "arbitrum" => "Arbitrum", "optimism" => "Optimism", "polygon" => "Polygon"
+    "eth" => "Ethereum", "base" => "Base", "arbitrum" => "Arbitrum", "optimism" => "Optimism", "bnb" => "BNB Smart Chain", "polygon" => "Polygon"
   }.freeze
 
   MCP_ENDPOINT_URL = "https://smarts.md/mcp".freeze

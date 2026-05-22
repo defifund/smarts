@@ -10,6 +10,7 @@ class DefiLlamaClient
     "base"     => "base",
     "arbitrum" => "arbitrum",
     "optimism" => "optimism",
+    "bnb"      => "bsc",
     "polygon"  => "polygon"
   }.freeze
 
