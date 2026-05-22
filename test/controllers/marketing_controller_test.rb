@@ -98,6 +98,7 @@ class MarketingControllerTest < ActionDispatch::IntegrationTest
       assert_match heading, response.body, "expected category heading #{heading.inspect}"
     end
     assert_match "DEX", response.body # matches "DEX & Wrapped"
+    assert_match "BNB Smart Chain", response.body
 
     # Spot-check a few featured items render as clickable links. Items with
     # a slug link via `/{slug}`, items without link via `/{chain}/{address}`.

@@ -351,12 +351,14 @@ class ContractsHelperTest < ActionView::TestCase
     base     = OpenStruct.new(slug: "base")
     arbitrum = OpenStruct.new(slug: "arbitrum")
     optimism = OpenStruct.new(slug: "optimism")
+    bnb      = OpenStruct.new(slug: "bnb")
     polygon  = OpenStruct.new(slug: "polygon")
 
     assert_equal "https://etherscan.io/address/0xabc",            explorer_address_url(eth,      "0xabc")
     assert_equal "https://basescan.org/address/0xabc",            explorer_address_url(base,     "0xabc")
     assert_equal "https://arbiscan.io/address/0xabc",             explorer_address_url(arbitrum, "0xabc")
     assert_equal "https://optimistic.etherscan.io/address/0xabc", explorer_address_url(optimism, "0xabc")
+    assert_equal "https://bscscan.com/address/0xabc",             explorer_address_url(bnb,      "0xabc")
     assert_equal "https://polygonscan.com/address/0xabc",         explorer_address_url(polygon,  "0xabc")
   end
 
@@ -369,6 +371,7 @@ class ContractsHelperTest < ActionView::TestCase
     assert_equal "Basescan",    explorer_name(OpenStruct.new(slug: "base"))
     assert_equal "Arbiscan",    explorer_name(OpenStruct.new(slug: "arbitrum"))
     assert_equal "Etherscan",   explorer_name(OpenStruct.new(slug: "optimism"))
+    assert_equal "BscScan",     explorer_name(OpenStruct.new(slug: "bnb"))
     assert_equal "Polygonscan", explorer_name(OpenStruct.new(slug: "polygon"))
     assert_equal "explorer",    explorer_name(OpenStruct.new(slug: "zzz"))
   end

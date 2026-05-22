@@ -7,7 +7,7 @@ class ReadContractStateTool < ApplicationTool
   input_schema(
     properties: {
       slug:          { type: "string", description: "Curated slug like 'uni-eth'. Alternative to chain+address." },
-      chain:         { type: "string", description: "Chain slug: eth, base, arbitrum, optimism, or polygon. Required unless `slug` is given." },
+      chain:         { type: "string", description: "Chain slug: eth, base, arbitrum, optimism, bnb, or polygon. Required unless `slug` is given." },
       address:       { type: "string", description: "The 0x-prefixed contract address. Required unless `slug` is given." },
       function_name: { type: "string", description: "ABI function name, e.g. 'totalSupply' or 'balanceOf'." },
       args:          { type: "array",  description: "Positional arguments for the function, in ABI order. Addresses as 0x hex strings, integers as integers. Default: []" }

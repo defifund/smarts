@@ -32,6 +32,10 @@ class ChainTest < ActiveSupport::TestCase
     end
   end
 
+  test "native_symbol returns BNB for bnb" do
+    assert_equal "BNB", Chain.new(slug: "bnb").native_symbol
+  end
+
   test "native_symbol returns MATIC for polygon" do
     assert_equal "MATIC", Chain.new(slug: "polygon").native_symbol
   end

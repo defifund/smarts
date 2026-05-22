@@ -13,6 +13,7 @@ class Chain < ApplicationRecord
     "base"     => "ETH",
     "arbitrum" => "ETH",
     "optimism" => "ETH",
+    "bnb"      => "BNB",
     "polygon"  => "MATIC"
   }.freeze
 

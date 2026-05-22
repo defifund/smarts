@@ -12,7 +12,7 @@
 # emit `<link rel="canonical">` pointing at the new one, so Google converges
 # on the current brand without a 301 hop.
 module ContractSlugs
-  CHAIN_SUFFIX = %w[eth base arbitrum optimism polygon].freeze
+  CHAIN_SUFFIX = %w[eth base arbitrum optimism bnb polygon].freeze
 
   # Slug → [chain_slug, lowercase_address]. Keep this ordered the way we want
   # it to appear in any derived iteration (tests, admin tools, etc.). For
@@ -36,6 +36,9 @@ module ContractSlugs
     "usdc-base"      => [ "base",     "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913" ],
     "usdc-arbitrum"  => [ "arbitrum", "0xaf88d065e77c8cc2239327c5edb3a432268e5831" ],
     "usdc-optimism"  => [ "optimism", "0x0b2c639c533813f4aa9d7837caf62653d097ff85" ],
+    "usdt-bnb"       => [ "bnb",      "0x55d398326f99059ff775485246999027b3197955" ],
+    "wbnb-bnb"       => [ "bnb",      "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c" ],
+    "cake-bnb"       => [ "bnb",      "0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82" ],
     "usdc-polygon"   => [ "polygon",  "0x3c499c542cef5e3811e1192ce70d8cc03d5c3359" ],
     "usdt-arbitrum"  => [ "arbitrum", "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9" ],
     "usdt-optimism"  => [ "optimism", "0x94b008aa00579c1307b0ef2c499ad98a8ce58e58" ],

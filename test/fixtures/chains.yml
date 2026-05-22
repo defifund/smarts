@@ -22,6 +22,12 @@ optimism:
   chain_id: 10
   explorer_api_url: https://api.etherscan.io/v2/api
 
+bnb:
+  name: BNB Smart Chain
+  slug: bnb
+  chain_id: 56
+  explorer_api_url: https://api.etherscan.io/v2/api
+
 polygon:
   name: Polygon PoS
   slug: polygon
