@@ -10,6 +10,20 @@ class ArticlePublishingToolsTest < ActiveSupport::TestCase
     Current.mcp_user = nil
   end
 
+  # Redirect Articles::DraftReader.list_summaries to a tmpdir for the
+  # duration of the block. Tests populate the tmpdir with fixture drafts
+  # instead of relying on docs/drafts/ existing on disk.
+  def with_drafts_root
+    Dir.mktmpdir do |dir|
+      original = Articles::DraftReader.method(:list_summaries)
+      stub_class_method(Articles::DraftReader, :list_summaries, ->(**) {
+        original.call(drafts_root: dir)
+      }) do
+        yield dir
+      end
+    end
+  end
+
   test "publishing tools require an authenticated publisher on Current" do
     Current.mcp_user = nil
 
@@ -34,14 +48,26 @@ class ArticlePublishingToolsTest < ActiveSupport::TestCase
   end
 
   test "list drafts returns authorized draft payload" do
-    payload = ListArticleDraftsTool.payload
-    draft = payload[:drafts].find { |item| item[:slug] == "ms" }
+    with_drafts_root do |dir|
+      draft_dir = Pathname(dir).join("ms")
+      FileUtils.mkdir_p(draft_dir)
+      draft_dir.join("meta.json").write({
+        category: "company",
+        subcategory: "positioning",
+        title: { "zh-CN" => "Smarts.md 增长战略" },
+        summary: { "zh-CN" => "我们如何在市场中定位和增长 Smarts.md" }
+      }.to_json)
+      draft_dir.join("zh-CN.md").write("# Smarts.md 增长战略\n\nBody")
 
-    assert_operator payload[:count], :>=, 1
-    assert draft, "expected docs/drafts/ms to be listed"
-    assert_equal "company", draft[:category]
-    assert_equal [ "zh-CN" ], draft[:locales]
-    assert_kind_of Array, draft[:errors]
+      payload = ListArticleDraftsTool.payload
+      draft = payload[:drafts].find { |item| item[:slug] == "ms" }
+
+      assert_operator payload[:count], :>=, 1
+      assert draft, "expected ms draft to be listed"
+      assert_equal "company", draft[:category]
+      assert_equal [ "zh-CN" ], draft[:locales]
+      assert_kind_of Array, draft[:errors]
+    end
   end
 
   test "validate tool returns draft payload when authorized" do
