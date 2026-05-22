@@ -41,10 +41,10 @@
         after the configured interval it sets this frame's src to the current
         URL, triggering a frame swap that picks up the fresh partial. %>
     <div data-controller="governance-poll"
-         data-governance-poll-interval-value="4000"
+         data-governance-poll-interval-value="1500"
          class="alert alert-info alert-soft mb-3">
       <span class="loading loading-spinner loading-xs"></span>
-      <span>Fetching the latest governance events in the background — this page updates automatically when ready.</span>
+      <span>Loading the governance timeline in the background. This section refreshes automatically.</span>
     </div>
   <% end %>
 
@@ -58,17 +58,17 @@
   <% events = events.select { |e| e.category == selected_category } if selected_category.present? %>
 
   <% if events.blank? %>
-    <div class="alert">
-      <% if selected_category.present? %>
-        <span>No <%= governance_category_label(selected_category).downcase %> events in the timeline yet.</span>
-      <% elsif @governance&.refreshing? %>
-        <span>Backfilling the timeline now — refresh in a few seconds, or wait for the page to update automatically.</span>
-      <% elsif @governance&.error.present? %>
-        <span>No governance events loaded yet — see the warning above. The timeline will populate on retry.</span>
-      <% else %>
-        <span>No governance events recorded in the recent window. This contract may be fully autonomous, or no admin actions have occurred recently.</span>
-      <% end %>
-    </div>
+    <% unless @governance&.refreshing? %>
+      <div class="alert">
+        <% if selected_category.present? %>
+          <span>No <%= governance_category_label(selected_category).downcase %> events in the timeline yet.</span>
+        <% elsif @governance&.error.present? %>
+          <span>No governance events loaded yet — see the warning above. The timeline will populate on retry.</span>
+        <% else %>
+          <span>No governance events recorded in the recent window. This contract may be fully autonomous, or no admin actions have occurred recently.</span>
+        <% end %>
+      </div>
+    <% end %>
   <% else %>
     <ol class="relative border-l-2 border-base-300 ml-3 space-y-4">
       <% events.each do |event| %>

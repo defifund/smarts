@@ -17,6 +17,6 @@ class AddBnbChain < ActiveRecord::Migration[8.1]
   end
 
   def down
-    Chain.where(slug: "bnb").delete_all
+    raise ActiveRecord::IrreversibleMigration, "BNB chain data migration is not safely reversible"
   end
 end

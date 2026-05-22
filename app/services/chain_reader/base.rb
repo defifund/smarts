@@ -22,6 +22,8 @@ module ChainReader
         else
           raw
         end
+      rescue ::Eth::Client::RpcError => e
+        raise RpcError, rpc_error_message(e)
       end
 
       # Returns the chain's current block height as an Integer. Used by the
@@ -37,6 +39,8 @@ module ChainReader
             raw
           end
         result.to_s.sub(/\A0x/, "").to_i(16)
+      rescue ::Eth::Client::RpcError => e
+        raise RpcError, rpc_error_message(e)
       end
 
       def selector(signature)
@@ -56,8 +60,8 @@ module ChainReader
       def eth_get_logs(chain, address:, topic0: nil, from_block: 0, to_block: "latest")
         filter = {
           address: address,
-          fromBlock: "0x#{from_block.to_i.to_s(16)}",
-          toBlock: to_block.is_a?(Integer) ? "0x#{to_block.to_s(16)}" : to_block
+          from_block: "0x#{from_block.to_i.to_s(16)}",
+          to_block: to_block.is_a?(Integer) ? "0x#{to_block.to_s(16)}" : to_block
         }
         filter[:topics] = [ topic0 ] if topic0
 
@@ -66,6 +70,8 @@ module ChainReader
         raise RpcError, raw.dig("error", "message") || "eth_getLogs failed" if raw.is_a?(Hash) && raw["error"]
 
         Array(result)
+      rescue ::Eth::Client::RpcError => e
+        raise RpcError, rpc_error_message(e)
       end
 
       def hex_to_bytes(hex)
@@ -97,6 +103,12 @@ module ChainReader
         inner = "(" + components.map { |c| abi_type_string(c) }.join(",") + ")"
         suffix = type.sub(/\Atuple/, "")
         inner + suffix
+      end
+
+      def rpc_error_message(error)
+        message = error.message.to_s
+        code = error.respond_to?(:code) ? error.code : nil
+        code.present? ? "#{code}: #{message}" : message
       end
     end
   end

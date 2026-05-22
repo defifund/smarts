@@ -130,6 +130,36 @@ class EtherscanClientTest < ActiveSupport::TestCase
     assert_requested stub, times: 2, times_msg: "different addresses must miss the cache independently"
   end
 
+  test "base chain uses Etherscan V2 for logs with chainid" do
+    base_client = EtherscanClient.new(chains(:base))
+    seen_query = nil
+
+    stub_request(:get, %r{api\.etherscan\.io}).to_return do |req|
+      seen_query = req.uri.query
+      { status: 200, body: empty_logs_body, headers: { "Content-Type" => "application/json" } }
+    end
+
+    base_client.get_logs(address: "0x" + "1" * 40, from_block: 1, to_block: 100)
+
+    assert_includes seen_query.to_s, "address=0x#{'1' * 40}"
+    assert_includes seen_query.to_s, "chainid=8453"
+  end
+
+  test "bnb chain uses Etherscan V2 for logs with chainid" do
+    bnb_client = EtherscanClient.new(chains(:bnb))
+    seen_query = nil
+
+    stub_request(:get, %r{api\.etherscan\.io}).to_return do |req|
+      seen_query = req.uri.query
+      { status: 200, body: empty_logs_body, headers: { "Content-Type" => "application/json" } }
+    end
+
+    bnb_client.get_logs(address: "0x" + "1" * 40, from_block: 1, to_block: 100)
+
+    assert_includes seen_query.to_s, "address=0x#{'1' * 40}"
+    assert_includes seen_query.to_s, "chainid=56"
+  end
+
   test "fetch_contract_info resolves proxy to implementation" do
     proxy_addr = "0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9"
     impl_addr  = "0x5d4aa78b08bc7c530e21bf7447988b1be7991322"
