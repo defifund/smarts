@@ -1,0 +1,14 @@
+{
+  "category": "markets",
+  "subcategory": "polymarket",
+  "title": {
+    "en": "Polymarket Contract Architecture",
+    "zh-CN": "Polymarket 合约整体架构",
+    "zh-TW": "Polymarket 合約整體架構"
+  },
+  "summary": {
+    "en": "A full deconstruction of Polymarket's 13 production contracts on Polygon: pUSD user-layer stablecoin, NegRiskAdapter capital efficiency, UMA oracle integration, and the immutable Gnosis CTF settlement ledger. Every claim grounded in verified source + live on-chain reads.",
+    "zh-CN": "拆解 Polymarket 在 Polygon 上的 13 份生产合约：pUSD 用户层稳定币、NegRiskAdapter 资本效率层、UMA 预言机接入，以及不可变的 Gnosis CTF 结算账本。所有论断基于 verified source + 链上实时读取。",
+    "zh-TW": "拆解 Polymarket 在 Polygon 上的 13 份生產合約：pUSD 使用者層穩定幣、NegRiskAdapter 資本效率層、UMA 預言機接入，以及不可變的 Gnosis CTF 結算帳本。所有論斷基於 verified source + 鏈上即時讀取。"
+  }
+}

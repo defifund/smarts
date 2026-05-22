@@ -6,18 +6,33 @@ require "test_helper"
 # Rails middleware → McpBearerAuth → MCP transport → tool dispatch.
 class McpBearerAuthFlowTest < ActionDispatch::IntegrationTest
   test "list_article_drafts succeeds with valid Bearer token" do
-    body = post_mcp(
-      method: "tools/call",
-      params: { name: "list_article_drafts", arguments: {} },
-      bearer: "sma_test_token_one"
-    )
+    Dir.mktmpdir do |dir|
+      draft_dir = Pathname(dir).join("ms")
+      FileUtils.mkdir_p(draft_dir)
+      draft_dir.join("meta.json").write({
+        category: "company",
+        title: { "zh-CN" => "Test draft" }
+      }.to_json)
+      draft_dir.join("zh-CN.md").write("# Test draft\n\nBody")
 
-    assert_response :success
+      original = Articles::DraftReader.method(:list_summaries)
+      stub_class_method(Articles::DraftReader, :list_summaries, ->(**) {
+        original.call(drafts_root: dir)
+      }) do
+        body = post_mcp(
+          method: "tools/call",
+          params: { name: "list_article_drafts", arguments: {} },
+          bearer: "sma_test_token_one"
+        )
 
-    payload = JSON.parse(body.dig("result", "content", 0, "text"))
-    assert_kind_of Integer, payload["count"]
-    assert_operator payload["count"], :>=, 1
-    assert(payload["drafts"].any? { |d| d["slug"] == "ms" })
+        assert_response :success
+
+        payload = JSON.parse(body.dig("result", "content", 0, "text"))
+        assert_kind_of Integer, payload["count"]
+        assert_operator payload["count"], :>=, 1
+        assert(payload["drafts"].any? { |d| d["slug"] == "ms" })
+      end
+    end
   end
 
   test "list_article_drafts returns auth error without Bearer token" do

@@ -28,12 +28,14 @@ combinable, e.g. "发布 wy 到 smarts s c"):
 
 | Flag | Meaning |
 |---|---|
+| `l` | Publish to smarts_local instead of smarts.md. |
 | `a` | Article only — skip tweets entirely. |
 | `s` | Single tweet per locale (hook + URL), not a thread. |
 | `c` | Restrict tweets to zh-CN only. |
 | `e` | Restrict tweets to en only. |
 
 Notes:
+- `l` selects the target MCP endpoint: `mcp__smarts_local__publish_article` (with `l`) vs `mcp__smarts__publish_article` (default).
 - `a` overrides `s` / `c` / `e` (no tweets means locale/form don't matter).
 - `c` and `e` together = both locales = same as no flag.
 - Article always publishes in every locale present in `meta.json` regardless
@@ -55,10 +57,17 @@ Flow:
    For `s` (single), collapse to one line: hook + URL.
 4. Show the tweet draft to the user before sending. One confirmation covers
    both the article and the tweets — don't ask twice.
-5. Call `mcp__smarts__publish_article` with `slug`, `meta`, `content`, and
+5. Call the appropriate publish tool with `slug`, `meta`, `content`, and
    (when tweeting) `tweets: { "<locale>": [...] }` + `thread: true` (omit or
-   set `false` for `s`).
-6. Report per-locale URLs and `tweets_scheduled` / `tweet_errors`.
+   set `false` for `s`):
+   - If `l` is set: `mcp__smarts_local__publish_article`
+   - Otherwise: `mcp__smarts__publish_article`
+6. **On success, move the draft out of `docs/drafts/`**:
+   `mv docs/drafts/<slug> docs/published/<slug>` (create `docs/published/`
+   first if it doesn't exist). Skip the move if the publish call returned
+   any error. Skip the move when `l` (smarts_local) — local publishes are
+   for testing and shouldn't archive the draft.
+7. Report per-locale URLs and `tweets_scheduled` / `tweet_errors`.
 
 Why pass `meta` + `content` inline: the server only sees its own
 `docs/drafts/` directory, which won't contain a draft that lives only in this
@@ -69,9 +78,12 @@ Each tweet ≤ 280 characters. URL counts as ~23 chars in X's algorithm.
 ## Stage 2 — Schedule X after the fact
 
 When the article was published with `a` and the user later says "发X" /
-"发推" / "send X posts": run step 3-6 from Stage 1 with the same `slug` /
-`meta` / `content`. The same `s` / `c` / `e` flags apply here. The tool is
-idempotent on content — only `tweets_scheduled` changes.
+"发推" / "send X posts": run step 3-7 from Stage 1 with the same `slug` /
+`meta` / `content`. Source files now live at `docs/published/<slug>/`
+(Stage 1 moved them there on success) — read from there, not `docs/drafts/`.
+The same `s` / `c` / `e` flags apply. The tool is idempotent on content —
+only `tweets_scheduled` changes. Step 6 (move draft) is a no-op the second
+time since the directory is already under `docs/published/`.
 
 ## Style rules
 

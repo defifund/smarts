@@ -45,5 +45,9 @@ docs/notes/
 # Draft documents
 docs/drafts/
 
+# Planning + templates (local-only working dirs)
+docs/planning/
+docs/templates/
+
 # Claude Code runtime locks
 .claude/scheduled_tasks.lock
