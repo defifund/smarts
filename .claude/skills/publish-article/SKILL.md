@@ -46,15 +46,21 @@ Flow:
 2. Validate inline with `mcp__smarts__validate_article_draft` — pass `slug`,
    `meta`, and `content` (locale → markdown body).
 3. Unless `a` is set, draft tweets for the locales selected by `c` / `e`
-   (default: both zh-CN and en). Default shape per locale is a 4-tweet
-   thread:
-   - T1: the pain (concrete, no jargon)
-   - T2: how the existing answer falls short
-   - T3: what Smarts.md does instead
-   - T4: who it's for + the article URL (`https://smarts.md/<slug>` for en,
+   (default: both zh-CN and en). Thread length scales with article depth:
+   - **Shallow articles** (< 5KB, simple topic): 3-4 tweets
+   - **Medium articles** (5-10KB, moderate depth): 5-6 tweets  
+   - **Deep articles** (> 10KB, multiple concepts, code/data): 7-8 tweets
+   
+   Default structure per tweet:
+   - T1: concrete pain point (no jargon)
+   - T2: why existing approach falls short
+   - T3+: key insights, data, code patterns (varies by depth)
+   - T(n): who should read + article URL (`https://smarts.md/<slug>` for en,
      `https://smarts.md/cn/<slug>` for zh-CN, `https://smarts.md/tw/<slug>`
      for zh-TW)
-   For `s` (single), collapse to one line: hook + URL.
+   
+   Goal: each tweet adds value, no filler. Show user the draft before sending.
+   For `s` (single), collapse to: hook + URL.
 4. Show the tweet draft to the user before sending. One confirmation covers
    both the article and the tweets — don't ask twice.
 5. Call the appropriate publish tool with `slug`, `meta`, `content`, and
