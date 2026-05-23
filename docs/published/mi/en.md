@@ -4,7 +4,7 @@ source: https://smarts.md/ MCP (get_governance_timeline / read_contract_state)
 contract: 0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48 (FiatTokenV2_2)
 verified_block: 25150204
 tags: [stablecoin, usdc, issuers, allowance, smarts]
-status: draft
+status: published
 ---
 
 # How USDC Issuance Limits Change: Reading the `MinterConfigured` Pattern

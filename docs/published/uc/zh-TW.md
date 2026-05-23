@@ -4,7 +4,7 @@ source: https://smarts.md/ MCP (get_contract_info / get_erc20_info / read_contra
 contract: 0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48 (FiatTokenV2_2)
 verified_block: 25138692
 tags: [stablecoin, usdc, smart-contract, audit, smarts]
-status: draft
+status: published
 ---
 
 # 讀懂 USDC 合約：為什麼它不是普通 ERC-20
