@@ -18,4 +18,10 @@ class UserTest < ActiveSupport::TestCase
     assert_equal users(:one), User.authenticate_api_token(token)
     assert_nil User.authenticate_api_token("sma_test_token_one")
   end
+
+  test "first user becomes admin in development" do
+    assert_equal "admin", User.default_role_for_new_user(environment: ActiveSupport::StringInquirer.new("development"), existing_users_count: 0)
+    assert_equal "user", User.default_role_for_new_user(environment: ActiveSupport::StringInquirer.new("test"), existing_users_count: 0)
+    assert_equal "user", User.default_role_for_new_user(environment: ActiveSupport::StringInquirer.new("development"), existing_users_count: 1)
+  end
 end

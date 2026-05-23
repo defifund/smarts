@@ -8,6 +8,7 @@ one:
   password_digest: <%= password_digest %>
   api_token_prefix: <%= one_api_token.first(User::API_TOKEN_PREFIX_LENGTH) %>
   api_token_digest: <%= BCrypt::Password.create(one_api_token) %>
+  role: admin
 
 two:
   name: Two
@@ -15,3 +16,4 @@ two:
   password_digest: <%= password_digest %>
   api_token_prefix: <%= two_api_token.first(User::API_TOKEN_PREFIX_LENGTH) %>
   api_token_digest: <%= BCrypt::Password.create(two_api_token) %>
+  role: user

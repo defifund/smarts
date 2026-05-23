@@ -76,6 +76,17 @@ class Article < ApplicationRecord
     published_at.present? && published_at <= Time.current
   end
 
+  def scheduled?
+    published_at.present? && published_at > Time.current
+  end
+
+  def publication_status
+    return "draft" if published_at.blank?
+    return "scheduled" if scheduled?
+
+    "published"
+  end
+
   def available_locales
     content.to_h.select { |_locale, value| value.to_s.strip.present? }.keys
   end
