@@ -54,12 +54,16 @@ module ArticlesHelper
   def render_table_of_contents
     return "" unless @article_headers.present?
 
-    toc_html = "<nav class=\"space-y-2 text-sm\">"
+    toc_html = "<nav class=\"space-y-1.5\">"
     @article_headers.each do |header|
-      indent = (header[:level] - 2) * 4
-      toc_html += "<div style=\"margin-left: #{indent}px\">"
-      toc_html += "<a href=\"##{header[:slug]}\" class=\"text-blue-700 hover:underline\">#{header[:text]}</a>"
-      toc_html += "</div>"
+      margin_class = case header[:level]
+                     when 2 then "ml-0"
+                     when 3 then "ml-4"
+                     else "ml-8"
+                     end
+      toc_html += "<a href=\"##{header[:slug]}\" "
+      toc_html += "class=\"block text-sm text-gray-600 hover:text-blue-700 hover:font-medium transition #{margin_class}\">"
+      toc_html += "#{header[:text]}</a>"
     end
     toc_html += "</nav>"
 

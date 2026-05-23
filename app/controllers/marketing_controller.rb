@@ -58,8 +58,6 @@ class MarketingController < ApplicationController
     "eth" => "Ethereum", "base" => "Base", "arbitrum" => "Arbitrum", "optimism" => "Optimism", "bnb" => "BNB Smart Chain", "polygon" => "Polygon"
   }.freeze
 
-  MCP_ENDPOINT_URL = "https://smarts.md/mcp".freeze
-
   # Tools exposed over MCP. Kept in sync with app/tools/*.
   MCP_TOOLS = [
     { name: "get_contract_info",    blurb: "Metadata about a verified contract: name, classification, adapter, function counts." },
@@ -114,7 +112,7 @@ class MarketingController < ApplicationController
   end
 
   def mcp_docs
-    @endpoint_url   = MCP_ENDPOINT_URL
+    @endpoint_url   = mcp_endpoint_url
     @tools          = MCP_TOOLS
     @example_queries = MCP_EXAMPLE_QUERIES
     @shortcuts      = MCP_SHORTCUTS
@@ -148,7 +146,7 @@ class MarketingController < ApplicationController
       transports: [
         {
           type: "streamable-http",
-          endpoint: MCP_ENDPOINT_URL
+          endpoint: mcp_endpoint_url
         }
       ],
       capabilities: {
