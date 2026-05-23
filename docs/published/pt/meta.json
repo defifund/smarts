@@ -1,0 +1,14 @@
+{
+  "category": "markets",
+  "subcategory": "polymarket",
+  "title": {
+    "en": "Why COMPLEMENTARY Matches Are Cheaper on Polymarket",
+    "zh-CN": "为什么 Polymarket 的 COMPLEMENTARY 匹配更便宜",
+    "zh-TW": "為什麼 Polymarket 的 COMPLEMENTARY 匹配更便宜"
+  },
+  "summary": {
+    "en": "An analysis of CTFExchange V2's three settlement paths (COMPLEMENTARY, MINT, MERGE) and how the gas-cost gap affects Polymarket's liquidity distribution.",
+    "zh-CN": "Polymarket CTFExchange V2 的三种订单匹配策略（complementary、mint、merge）拆解，及其如何直接决定链上流动性的成本结构。",
+    "zh-TW": "Polymarket CTFExchange V2 的三種訂單匹配策略（complementary、mint、merge）拆解，及其如何直接決定鏈上流動性的成本結構。"
+  }
+}
