@@ -1,6 +1,7 @@
 <% seo_meta title: @title, description: @summary, canonical: "#{SeoHelper::SITE_URL}#{@canonical_path}", og_type: "article" %>
 
-<article class="mx-auto max-w-3xl py-14 sm:py-20">
+<div class="flex gap-8">
+  <article class="mx-auto max-w-3xl flex-1 py-14 sm:py-20">
   <header class="mb-12">
     <div class="mb-5 flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">
       <span><%= article_category_label(@article) %></span>
@@ -33,4 +34,14 @@
               [&_ol]:list-decimal [&_ol]:pl-6">
     <%= render_article_markdown(@content) %>
   </div>
-</article>
+  </article>
+
+  <% if @article_headers.present? %>
+    <aside class="hidden xl:block w-64 py-14 pl-8">
+      <div class="sticky top-8">
+        <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">On this page</h3>
+        <%= render_table_of_contents %>
+      </div>
+    </aside>
+  <% end %>
+</div>

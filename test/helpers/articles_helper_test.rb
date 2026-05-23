@@ -10,7 +10,7 @@ class ArticlesHelperTest < ActionView::TestCase
       | X | 5/5 |
     MARKDOWN
 
-    assert_includes html, "<h2>Heading</h2>"
+    assert_includes html, "<h2 id=\"heading\">Heading</h2>"
     assert_includes html, "<table>"
     assert_includes html, "<th>渠道</th>"
     assert_includes html, "<td>5/5</td>"
