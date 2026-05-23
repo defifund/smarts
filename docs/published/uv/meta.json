@@ -1,0 +1,14 @@
+{
+  "category": "guides",
+  "subcategory": "examples",
+  "title": {
+    "en": "Inside a DEX's Second-by-Second Flow: Ask Claude to Read Uniswap V3",
+    "zh-CN": "DEX 内部的秒级交易流：问 Claude，看透 Uniswap V3",
+    "zh-TW": "DEX 內部的秒級交易流：問 Claude，看透 Uniswap V3"
+  },
+  "summary": {
+    "en": "A practical walkthrough of using smarts.md and Claude to inspect recent Uniswap V3 Swap events, infer participant patterns, and read liquidity depth from live onchain data.",
+    "zh-CN": "一篇实战分析：用 smarts.md 和 Claude 读取 Uniswap V3 最近 Swap 事件，从链上原始交易流推断参与者模式、交易规模和池子深度。",
+    "zh-TW": "一篇實戰分析：用 smarts.md 和 Claude 讀取 Uniswap V3 最近 Swap 事件，從鏈上原始交易流推斷參與者模式、交易規模和池子深度。"
+  }
+}

@@ -10,6 +10,12 @@ Rails.application.routes.draw do
 
   mount MissionControl::Jobs::Engine, at: "/jobs"
 
+  namespace :admin do
+    resources :articles, only: %i[index edit update]
+  end
+
+  get "my", to: "my#show"
+
   # ──────────────────────────────────────────────────────────────────────
   # MCP server (Streamable HTTP transport, MCP spec 2025-03-26).
   #

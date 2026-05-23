@@ -2,7 +2,7 @@
 date: 2026-05-22
 source: https://docs.etherscan.io/supported-chains, https://docs.etherscan.io/resources/rate-limits, https://etherscan.io/apis, https://docs.etherscan.io/api-reference/endpoint/getlogs, https://docs.etherscan.io/api-pro/api-pro
 tags: [etherscan, api, base, analytics]
-status: draft
+status: published
 ---
 
 # What Etherscan's Pricing and Coverage Mean for Base Analytics

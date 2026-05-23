@@ -4,7 +4,7 @@ source: https://smarts.md/ MCP (get_governance_timeline / read_contract_state / 
 contract: 0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48 (FiatTokenV2_2)
 verified_block: 25148291
 tags: [stablecoin, usdc, blacklist, risk, smarts]
-status: draft
+status: published
 ---
 
 # 34 次封禁、66 次解封：USDC 黑名單到底在做什麼

@@ -1,0 +1,53 @@
+<% seo_meta title: "Article admin", description: "Manage Smarts articles." %>
+
+<section class="py-10 sm:py-14">
+  <div class="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <p class="text-sm font-semibold uppercase tracking-[0.2em] text-gray-500">Admin</p>
+      <h1 class="mt-2 text-4xl font-extrabold tracking-tight text-gray-950">Articles</h1>
+      <p class="mt-3 text-gray-600">All article records, including drafts, scheduled posts, and published posts.</p>
+    </div>
+  </div>
+
+  <% if notice.present? %>
+    <div class="mb-6 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-800"><%= notice %></div>
+  <% end %>
+
+  <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white">
+    <table class="min-w-full divide-y divide-gray-200 text-sm">
+      <thead class="bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+        <tr>
+          <th class="px-4 py-3">Slug</th>
+          <th class="px-4 py-3">Title</th>
+          <th class="px-4 py-3">Status</th>
+          <th class="px-4 py-3">Category</th>
+          <th class="px-4 py-3">Published at</th>
+          <th class="px-4 py-3">Updated</th>
+          <th class="px-4 py-3"></th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        <% @articles.each do |article| %>
+          <tr class="align-top">
+            <td class="px-4 py-4 font-mono text-gray-900"><%= article.slug %></td>
+            <td class="px-4 py-4">
+              <div class="font-semibold text-gray-950"><%= article.title_for("en") || article.title.values.first %></div>
+              <div class="mt-1 text-xs text-gray-500"><%= article.available_locales.join(", ") %></div>
+            </td>
+            <td class="px-4 py-4">
+              <span class="rounded-full px-2.5 py-1 text-xs font-semibold <%= article.publication_status == "published" ? "bg-green-100 text-green-800" : article.publication_status == "scheduled" ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-700" %>">
+                <%= article.publication_status %>
+              </span>
+            </td>
+            <td class="px-4 py-4 text-gray-700"><%= [article.category, article.subcategory].compact.join(" / ") %></td>
+            <td class="px-4 py-4 text-gray-700"><%= article.published_at&.to_fs(:db) || "—" %></td>
+            <td class="px-4 py-4 text-gray-500"><%= article.updated_at.to_fs(:db) %></td>
+            <td class="px-4 py-4 text-right">
+              <%= link_to "Edit", edit_admin_article_path(article), class: "font-semibold text-gray-900 underline underline-offset-4 hover:text-gray-600" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>
