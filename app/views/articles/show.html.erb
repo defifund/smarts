@@ -18,6 +18,17 @@
     <% end %>
   </header>
 
+  <% if @article_headers.present? %>
+    <details class="xl:hidden mb-8 border border-gray-200 rounded-lg p-4 cursor-pointer">
+      <summary class="font-semibold text-gray-900 select-none hover:text-blue-700">
+        📑 本页目录
+      </summary>
+      <div class="mt-4 pl-4 border-l border-gray-200 space-y-1.5">
+        <%= render_table_of_contents %>
+      </div>
+    </details>
+  <% end %>
+
   <div class="space-y-6 text-lg leading-8 text-gray-700
               [&_a]:font-medium [&_a]:text-blue-700 [&_a]:underline [&_a]:underline-offset-4
               [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-5 [&_blockquote]:italic [&_blockquote]:text-gray-600
