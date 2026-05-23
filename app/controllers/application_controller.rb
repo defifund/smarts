@@ -3,6 +3,8 @@ class ApplicationController < ActionController::Base
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   allow_browser versions: :modern
 
+  MCP_ENDPOINT_URL = "https://smarts.md/mcp".freeze
+
   # Changes to the importmap will invalidate the etag for HTML responses
   stale_when_importmap_changes
 
@@ -11,6 +13,12 @@ class ApplicationController < ActionController::Base
   private
 
   def mcp_endpoint_url
-    "#{request.base_url}/mcp"
+    return "#{request.base_url}/mcp" if local_mcp_host?
+
+    MCP_ENDPOINT_URL
+  end
+
+  def local_mcp_host?
+    Rails.env.development? || request.host == "127.0.0.1" || request.host == "localhost" || request.host.ends_with?(".localhost")
   end
 end

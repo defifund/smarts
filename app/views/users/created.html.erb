@@ -1,6 +1,6 @@
 <% seo_meta title: "Account created", description: "Your Smarts publishing token has been created." %>
 
-<% endpoint_url = MarketingController::MCP_ENDPOINT_URL %>
+<% endpoint_url = mcp_endpoint_url %>
 <% claude_code_cmd = <<~CMD.strip
   claude mcp add --scope user --transport http smarts \\
     #{endpoint_url} \\
