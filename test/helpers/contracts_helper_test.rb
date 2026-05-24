@@ -264,21 +264,21 @@ class ContractsHelperTest < ActionView::TestCase
 
   # ---------- contract_display_name ----------
 
-  test "contract_display_name prefers on-chain name() over contract.name" do
+  test "contract_display_name prefers on-chain symbol() over name() for ticker-as-H1" do
     @contract = OpenStruct.new(name: "FiatTokenV2_2")
     @live_values = {
       "name()"   => ChainReader::Multicall3Client::Result.new(success: true, values: [ "USD Coin" ]),
       "symbol()" => ChainReader::Multicall3Client::Result.new(success: true, values: [ "USDC" ])
     }
-    assert_equal "USD Coin", contract_display_name
+    assert_equal "USDC", contract_display_name
   end
 
-  test "contract_display_name falls back to symbol() when on-chain name() is missing" do
+  test "contract_display_name falls back to name() when symbol() is missing" do
     @contract = OpenStruct.new(name: "FiatTokenV2_2")
     @live_values = {
-      "symbol()" => ChainReader::Multicall3Client::Result.new(success: true, values: [ "USDC" ])
+      "name()" => ChainReader::Multicall3Client::Result.new(success: true, values: [ "USD Coin" ])
     }
-    assert_equal "USDC", contract_display_name
+    assert_equal "USD Coin", contract_display_name
   end
 
   test "contract_display_name falls back to contract.name when neither on-chain call is available" do
@@ -317,10 +317,11 @@ class ContractsHelperTest < ActionView::TestCase
     assert_equal "FiatTokenV2_2", contract_display_name
   end
 
-  test "contract_display_name prefers @protocol_adapter.display_name over on-chain name()" do
+  test "contract_display_name prefers @protocol_adapter.display_name over on-chain symbol()/name()" do
     @contract = OpenStruct.new(name: "UniswapV3Pool")
     @live_values = {
-      "name()" => ChainReader::Multicall3Client::Result.new(success: true, values: [ "Accidental Name" ])
+      "symbol()" => ChainReader::Multicall3Client::Result.new(success: true, values: [ "UNI-V3" ]),
+      "name()"   => ChainReader::Multicall3Client::Result.new(success: true, values: [ "Accidental Name" ])
     }
     @protocol_adapter = OpenStruct.new(display_name: "USDC/WETH 0.05%")
     assert_equal "USDC/WETH 0.05%", contract_display_name

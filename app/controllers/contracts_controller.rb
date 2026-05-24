@@ -20,9 +20,14 @@ class ContractsController < ApplicationController
 
     respond_to do |format|
       format.html do
-        # Shell: no live values, no activity, no governance.
-        # Live data is fetched by Turbo Frame islands.
-        @live_values = {}
+        # Shell: activity / governance / full live state load via Turbo Frame
+        # islands. ViewCaller is still called here because the header needs
+        # ERC-20 name/symbol via contract_display_name's live_value fallback —
+        # without it brand names regress to the Solidity class ("FiatTokenV2_2").
+        # Values are cached 60s in Solid Cache, so origin hits (rare under the
+        # 1d shell CDN cache) usually skip the Multicall3.
+        @live_snapshot = load_live_values(@contract)
+        @live_values = @live_snapshot
         enqueue_ai_enrichment_if_needed(@contract)
         expires_in 1.day, public: true
         fresh_when etag: [@contract.id, @contract.updated_at, @classification&.id], public: true
