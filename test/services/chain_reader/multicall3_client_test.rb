@@ -147,6 +147,48 @@ class ChainReader::Multicall3ClientTest < ActiveSupport::TestCase
     end
   end
 
+  # Regression: USDT / MKR return raw bytes32 for name() / symbol() even
+  # though the ABI declares them as `string`. The standard dynamic-encoding
+  # decode fails, but the 32-byte payload is a valid null-padded ASCII
+  # string. decode_one must recover via the bytes32 fallback instead of
+  # poisoning the entire batch.
+  test "bytes32-as-string fallback recovers USDT-style name() in a mixed batch" do
+    # name() declared as string, but returns raw bytes32
+    name_call = call_for("name", [], [ "string" ])
+    symbol_call = call_for("symbol", [], [ "string" ])
+    decimals_call = call_for("decimals", [], [ "uint8" ])
+    supply_call = call_for("totalSupply", [], [ "uint256" ])
+
+    # "Tether USD" as null-padded bytes32 (NOT dynamically encoded)
+    bytes32_name = "Tether USD".b.ljust(32, "\x00")
+
+    fake_response = encode_multicall_response([
+      [ true, bytes32_name ],
+      [ true, Eth::Abi.encode([ "string" ], [ "USDT" ]) ],
+      [ true, Eth::Abi.encode([ "uint8" ], [ 6 ]) ],
+      [ true, Eth::Abi.encode([ "uint256" ], [ 50_000_000_000 * 10**6 ]) ]
+    ])
+
+    stub_eth_call(fake_response) do
+      batch = ChainReader::Multicall3Client.call(chain: @chain, calls: [
+        name_call, symbol_call, decimals_call, supply_call
+      ])
+      results = batch.results
+
+      # name() should recover via bytes32 fallback
+      assert results[0].success, "name() should succeed via bytes32 fallback"
+      assert_equal "Tether USD", results[0].values.first
+
+      # other fields must be unaffected
+      assert results[1].success
+      assert_equal "USDT", results[1].values.first
+      assert results[2].success
+      assert_equal 6, results[2].values.first
+      assert results[3].success
+      assert_equal 50_000_000_000 * 10**6, results[3].values.first
+    end
+  end
+
   test "sends aggregate3 calldata with correct selector to Multicall3 address" do
     calls = [ call_for("totalSupply", [], [ "uint256" ]) ]
     fake_response = encode_multicall_response([ [ true, Eth::Abi.encode([ "uint256" ], [ 1 ]) ] ])
