@@ -70,10 +70,12 @@ module ContractEvents
 
     private
 
-    # Try Etherscan first (richer response with timestamps); fall back to
-    # RPC eth_getLogs when Etherscan doesn't support this chain's logs on
-    # the current API plan.
+    # On eth mainnet: try Etherscan first (richer response with timestamps),
+    # fall back to RPC on dynamic failure. On other chains: free-tier
+    # Etherscan can't serve logs, go straight to RPC.
     def fetch_logs(from, latest)
+      return rpc_get_logs_with_adaptive_window(from, latest) unless EtherscanClient.logs_supported?(@contract.chain)
+
       EtherscanClient.new(@contract.chain).get_logs(
         address: @contract.address,
         topic0: topic0,

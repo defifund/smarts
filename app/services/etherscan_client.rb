@@ -13,6 +13,16 @@ class EtherscanClient
   class Error < StandardError; end
   class NotVerifiedError < Error; end
 
+  # Etherscan V2 free tier only serves logs/getLogs for Ethereum mainnet;
+  # every other chain returns NOTOK "Free API access is not supported". The
+  # HTTP round-trip + parse costs ~5s per request, so short-circuit upfront.
+  # Source/ABI endpoints are multichain on free tier and not gated here.
+  LOGS_FREE_TIER_CHAINS = %w[eth].freeze
+
+  def self.logs_supported?(chain)
+    LOGS_FREE_TIER_CHAINS.include?(chain.slug)
+  end
+
   class << self
     def throttle!
       interval = throttle_interval.to_f
@@ -74,6 +84,10 @@ class EtherscanClient
   # `status=0 message="No records found"` is normal (empty contract, narrow
   # filter) — we surface it as an empty array, not an exception.
   def get_logs(address:, topic0: nil, from_block: 0, to_block: "latest", page: 1, offset: 50, sort: "desc")
+    unless LOGS_FREE_TIER_CHAINS.include?(@chain.slug)
+      raise Error, "Etherscan free-tier logs not supported on #{@chain.slug}; use RPC"
+    end
+
     params = {
       module: "logs",
       action: "getLogs",

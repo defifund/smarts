@@ -113,9 +113,22 @@ module GovernanceEvents
       newly
     end
 
-    # Etherscan first (has pagination + timestamps); RPC fallback for chains
-    # where the free Etherscan plan doesn't support getLogs.
+    # On eth mainnet: try Etherscan first (pagination + timestamps), fall back
+    # to RPC on dynamic failure. On other chains: free-tier Etherscan can't
+    # serve logs, go straight to RPC (no pagination, page>1 not meaningful).
     def fetch_logs(topic0:, from_block:, to_block:, page: 1)
+      unless EtherscanClient.logs_supported?(@contract.chain)
+        return [] if page > 1
+
+        return ChainReader::Base.eth_get_logs(
+          @contract.chain,
+          address: @contract.address,
+          topic0: topic0,
+          from_block: from_block,
+          to_block: to_block
+        )
+      end
+
       etherscan.get_logs(
         address: @contract.address,
         topic0: topic0,
