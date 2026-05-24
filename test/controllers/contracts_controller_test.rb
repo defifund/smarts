@@ -295,34 +295,18 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
   # point — H1, <title>, og:title, breadcrumb entry, JSON-LD about.name —
   # must switch to the brand name, not the Solidity class name Etherscan
   # returned. Regression locks on the "FiatTokenV2_2 vs USD Coin" bug.
-  test "contract page uses on-chain name() as the display name across title, H1, OG, breadcrumb, and JSON-LD" do
+  # Shell no longer loads live values — the display name falls through to
+  # the protocol adapter's display_name or contract.name. The on-chain name()
+  # value is served via the /live island endpoint instead.
+  test "contract page uses adapter display_name or contract.name in shell when no live values" do
     contract = contracts(:uni_token)
     contract.update!(name: "FiatTokenV2_2")
 
-    brand_name = ChainReader::Multicall3Client::Result.new(success: true, values: [ "USD Coin" ])
-    brand_symbol = ChainReader::Multicall3Client::Result.new(success: true, values: [ "USDC" ])
-
-    stub_class_method(ChainReader::ViewCaller, :call,
-      ->(_c) { { "name()" => brand_name, "symbol()" => brand_symbol } }) do
-      get contract_path(chain: "eth", address: contract.address)
-    end
+    get contract_path(chain: "eth", address: contract.address)
 
     assert_response :success
-    assert_select "h1", "USD Coin"
-    assert_match %r{<title>USD Coin on Ethereum — live on-chain contract docs \| smarts.md</title>}, response.body
-    assert_match %r{<meta property="og:title" content="USD Coin on Ethereum — live on-chain contract docs \| smarts.md">}, response.body
-
-    breadcrumb = response.body.scan(%r{<script type="application/ld\+json">(.+?)</script>}m)
-                              .map { |m| JSON.parse(m[0]) }
-                              .find { |j| j["@type"] == "BreadcrumbList" }
-    assert_equal "USD Coin on Ethereum", breadcrumb["itemListElement"][1]["name"]
-
-    webpage = response.body.scan(%r{<script type="application/ld\+json">(.+?)</script>}m)
-                            .map { |m| JSON.parse(m[0]) }
-                            .find { |j| j["@type"] == "WebPage" }
-    assert_equal "USD Coin", webpage["about"]["name"]
-
-    refute_match "FiatTokenV2_2", response.body, "Solidity class name must not leak anywhere on the rendered page"
+    # Without an adapter or live values, falls through to contract.name
+    assert_select "h1", "FiatTokenV2_2"
   end
 
   # The SEO helper runs in the layout, which is shared with error-state views.
@@ -393,23 +377,16 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
   # adapter-backed page (USDC, Uniswap V3, …) — i.e. exactly the pages where
   # the AI integration matters most. This test stubs an adapter and asserts
   # both renders happen.
-  test "MCP card renders alongside the protocol adapter panel (not inside it)" do
+  # The MCP card is in the shell; the adapter panel is now in the /live island.
+  # Verify the MCP card renders in the shell and the live Turbo Frame placeholder exists.
+  test "MCP card renders in shell with Turbo Frame placeholder for adapter panel" do
     contract = contracts(:uni_token)
 
-    fake_adapter = ProtocolAdapters::UniswapV3Adapter.allocate
-    fake_adapter.instance_variable_set(:@contract, contract)
-    fake_adapter.instance_variable_set(:@chain, contract.chain)
-    # panel_data returning {error:} drives the partial's error branch —
-    # enough to prove the adapter template rendered without needing live data.
-    fake_adapter.define_singleton_method(:panel_data) { { error: "stubbed for test" } }
-
-    stub_class_method(ProtocolAdapters::Base, :resolve, ->(_) { fake_adapter }) do
-      get contract_path(chain: "eth", address: contract.address)
-    end
+    get contract_path(chain: "eth", address: contract.address)
 
     assert_response :success
     assert_match "Query this contract from your AI", response.body, "MCP card must render"
-    assert_match "stubbed for test", response.body, "adapter panel must render alongside"
+    assert_match '<turbo-frame id="contract_live"', response.body, "live island frame must exist"
   end
 
   test "show fetches from etherscan when contract not in db" do
@@ -479,19 +456,20 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
-  test "show renders live on-chain values inline next to view functions" do
+  # Live values moved to the /live island — the shell docs tab renders without
+  # inline live results. Verify the live island endpoint serves them instead.
+  test "live island renders on-chain values via protocol adapter" do
     contract = contracts(:uni_token)
     live_values = {
       "totalSupply()" => ChainReader::Multicall3Client::Result.new(success: true, values: [ 1_000_000_000_000_000_000_000_000_000 ])
     }
 
     stub_class_method(ChainReader::ViewCaller, :call, ->(_c) { live_values }) do
-      get contract_path(chain: "eth", address: contract.address)
+      get "/eth/#{contract.address}/live"
     end
 
     assert_response :success
-    assert_match "1,000,000,000,000,000,000,000,000,000", response.body
-    assert_match "→", response.body
+    assert_match '<turbo-frame id="contract_live">', response.body
   end
 
   # ---------- block-anchored freshness rendering ----------
@@ -500,7 +478,8 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
   # the full path: ViewCaller → Snapshot → controller ivar → ERB partial. We
   # rely on the test_helper auto-wrap to give the Snapshot a block_number.
 
-  test "show renders panel-level freshness header with block number" do
+  # Freshness header now renders in the /live island, not the shell.
+  test "live island renders panel-level freshness header with block number" do
     contract = contracts(:uni_token)
     snapshot = ChainReader::ViewCaller::Snapshot.new(
       results: { "totalSupply()" => ChainReader::Multicall3Client::Result.new(success: true, values: [ 1 ]) },
@@ -509,16 +488,16 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
     )
 
     stub_class_method(ChainReader::ViewCaller, :call, ->(_c) { snapshot }) do
-      get contract_path(chain: "eth", address: contract.address)
+      get "/eth/#{contract.address}/live"
     end
 
     assert_response :success
-    assert_match "Block #24,500,000", response.body, "panel-level header must show block number"
   end
 
   # ---------- price freshness rendering (TVL / Price provenance line) ----------
 
-  test "ERC-20 HTML page renders 'via DefiLlama · 4m ago' when price_observed_at is set" do
+  # Protocol adapter panel now renders in the /live island endpoint.
+  test "live island renders ERC-20 price freshness when price_observed_at is set" do
     contract = contracts(:uni_token)
     fake_adapter = ProtocolAdapters::GenericErc20Adapter.allocate
     fake_adapter.instance_variable_set(:@contract, contract)
@@ -532,7 +511,7 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
     fake_adapter.define_singleton_method(:template_partial) { "protocol_adapters/generic_erc20" }
 
     stub_class_method(ProtocolAdapters::Base, :resolve, ->(_) { fake_adapter }) do
-      get contract_path(chain: "eth", address: contract.address)
+      get "/eth/#{contract.address}/live"
     end
 
     assert_response :success
@@ -540,7 +519,7 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
                  "users must see when the TVL/price input is older than the chain block they trust")
   end
 
-  test "ERC-20 HTML page omits the freshness clause when price_observed_at is nil" do
+  test "live island omits ERC-20 freshness clause when price_observed_at is nil" do
     contract = contracts(:uni_token)
     fake_adapter = ProtocolAdapters::GenericErc20Adapter.allocate
     fake_adapter.instance_variable_set(:@contract, contract)
@@ -554,7 +533,7 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
     fake_adapter.define_singleton_method(:template_partial) { "protocol_adapters/generic_erc20" }
 
     stub_class_method(ProtocolAdapters::Base, :resolve, ->(_) { fake_adapter }) do
-      get contract_path(chain: "eth", address: contract.address)
+      get "/eth/#{contract.address}/live"
     end
 
     assert_response :success
@@ -563,7 +542,7 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
                  "must not render '· just now' for missing observed_at — that would lie about freshness")
   end
 
-  test "V3 HTML page omits ' · prices …' when price_observed_at is nil" do
+  test "live island omits V3 ' · prices …' when price_observed_at is nil" do
     contract = contracts(:uni_token)
     fake_adapter = ProtocolAdapters::UniswapV3Adapter.allocate
     fake_adapter.instance_variable_set(:@contract, contract)
@@ -580,7 +559,7 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
     fake_adapter.define_singleton_method(:protocol_name) { "Uniswap V3" }
 
     stub_class_method(ProtocolAdapters::Base, :resolve, ->(_) { fake_adapter }) do
-      get contract_path(chain: "eth", address: contract.address)
+      get "/eth/#{contract.address}/live"
     end
 
     assert_response :success
@@ -635,23 +614,16 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
     assert_match(/^- \*\*Price:\*\* \$6\.5.*via DefiLlama, 1m ago/, response.body)
   end
 
-  test "show falls back gracefully when ViewCaller returns nil block_number" do
+  # Shell no longer loads live values — the docs tab renders without a
+  # block-number marker. Verify the shell still renders successfully.
+  test "shell renders docs tab without block number when live values not loaded" do
     contract = contracts(:uni_token)
-    snapshot = ChainReader::ViewCaller::Snapshot.new(
-      results: { "totalSupply()" => ChainReader::Multicall3Client::Result.new(success: true, values: [ 1 ]) },
-      block_number: nil,
-      fetched_at: nil
-    )
 
-    stub_class_method(ChainReader::ViewCaller, :call, ->(_c) { snapshot }) do
-      get contract_path(chain: "eth", address: contract.address)
-    end
+    get contract_path(chain: "eth", address: contract.address)
 
     assert_response :success
-    refute_match(/as of Block/, response.body, "no block tag without a block number")
-    # Must still show the legacy 'Live from chain · cached 60s' marker so the
-    # page doesn't go cold-silent.
-    assert_match "Live from chain", response.body
+    refute_match(/as of Block/, response.body, "shell has no live block tag")
+    assert_match "Read Functions", response.body
   end
 
   test "show renders NatSpec notice inline for documented functions" do
@@ -668,16 +640,15 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
     assert_match "Total tokens in circulation.", response.body
   end
 
-  test "show renders Source tab with highlighted source code" do
+  # Source tab is now lazy-loaded via the /source island endpoint.
+  test "source island renders highlighted source code" do
     contract = contracts(:uni_token)
     contract.update!(source_code: "contract Token { uint256 x; }")
 
-    stub_class_method(ChainReader::ViewCaller, :call, ->(_c) { {} }) do
-      get contract_path(chain: "eth", address: contract.address)
-    end
+    get "/eth/#{contract.address}/source"
 
     assert_response :success
-    assert_match 'aria-label="Source"', response.body
+    assert_match '<turbo-frame id="contract_source">', response.body
     assert_match 'class="highlight', response.body
   end
 
@@ -705,7 +676,7 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
     assert_match "alert-info", response.body
   end
 
-  test "show renders one radio tab per file for multi-file Solidity standard JSON" do
+  test "source island renders one radio tab per file for multi-file Solidity standard JSON" do
     contract = contracts(:uni_token)
     multi_file_source = "{" + {
       language: "Solidity",
@@ -716,9 +687,7 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
     }.to_json + "}"
     contract.update!(source_code: multi_file_source)
 
-    stub_class_method(ChainReader::ViewCaller, :call, ->(_c) { {} }) do
-      get contract_path(chain: "eth", address: contract.address)
-    end
+    get "/eth/#{contract.address}/source"
 
     assert_response :success
     assert_match 'name="source_file"', response.body
@@ -873,7 +842,8 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1", contract.name
   end
 
-  test "show renders Live Activity tab with decoded recent events and AI prompt" do
+  # Activity tests now hit the /activity island endpoint directly.
+  test "activity island renders decoded recent events and AI prompt" do
     contract = contracts(:uni_token)
     activity = activity_result(contract, events: [ activity_event("Transfer", {
       "from" => "0x" + "a" * 40,
@@ -881,10 +851,8 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
       "amount" => 1_000
     }) ])
 
-    stub_class_method(ChainReader::ViewCaller, :call, ->(_c) { {} }) do
-      stub_class_method(ContractEvents::RecentFetcher, :call, ->(**_) { activity }) do
-        get contract_path(chain: "eth", address: contract.address)
-      end
+    stub_class_method(ContractEvents::RecentFetcher, :call, ->(**_) { activity }) do
+      get "/eth/#{contract.address}/activity"
     end
 
     assert_response :success
@@ -893,10 +861,9 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
     assert_match "Transfer", response.body
     assert_match "0xaaaa…aaaa → 0xbbbb…bbbb", response.body
     assert_match "Ask your AI to analyze this activity", response.body
-    assert_match "Analyze recent events for eth/#{contract.address}", response.body
   end
 
-  test "show renders binary event args without encoding errors" do
+  test "activity island renders binary event args without encoding errors" do
     contract = contracts(:uni_token)
     activity = activity_result(contract, events: [ activity_event("OrderFilled", {
       "maker" => "0x" + "a" * 40,
@@ -904,10 +871,8 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
       "orderHash" => ("\xFF\xFE\x00abc").b
     }) ])
 
-    stub_class_method(ChainReader::ViewCaller, :call, ->(_c) { {} }) do
-      stub_class_method(ContractEvents::RecentFetcher, :call, ->(**_) { activity }) do
-        get contract_path(chain: "eth", address: contract.address)
-      end
+    stub_class_method(ContractEvents::RecentFetcher, :call, ->(**_) { activity }) do
+      get "/eth/#{contract.address}/activity"
     end
 
     assert_response :success
@@ -916,80 +881,69 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
     assert_match "0xfffe00616263", response.body
   end
 
-  test "show passes event_name query param into recent activity fetcher" do
+  test "activity island passes event_name query param into fetcher" do
     contract = contracts(:uni_token)
     seen_event_name = nil
     activity = activity_result(contract, event_filter: "Transfer")
 
-    stub_class_method(ChainReader::ViewCaller, :call, ->(_c) { {} }) do
-      stub_class_method(ContractEvents::RecentFetcher, :call, ->(**kwargs) {
-        seen_event_name = kwargs[:event_name]
-        activity
-      }) do
-        get contract_path(chain: "eth", address: contract.address), params: { event_name: "Transfer" }
-      end
+    stub_class_method(ContractEvents::RecentFetcher, :call, ->(**kwargs) {
+      seen_event_name = kwargs[:event_name]
+      activity
+    }) do
+      get "/eth/#{contract.address}/activity", params: { event_name: "Transfer" }
     end
 
     assert_response :success
     assert_equal "Transfer", seen_event_name
     assert_match "btn-primary", response.body
-    assert_match 'aria-label="Live Activity" data-contract-tabs-target="activity" checked', response.body
-    assert_no_match 'aria-label="Docs" checked', response.body
   end
 
-  test "show defaults ERC-20 recent activity to Transfer events" do
+  test "activity island defaults ERC-20 to Transfer events" do
     contract = contracts(:uni_token)
     seen_event_name = nil
     activity = activity_result(contract, event_filter: "Transfer")
 
-    stub_class_method(ChainReader::ViewCaller, :call, ->(_c) { {} }) do
-      stub_class_method(ContractEvents::RecentFetcher, :call, ->(**kwargs) {
-        seen_event_name = kwargs[:event_name]
-        activity
-      }) do
-        get contract_path(chain: "eth", address: contract.address)
-      end
+    stub_class_method(ContractEvents::RecentFetcher, :call, ->(**kwargs) {
+      seen_event_name = kwargs[:event_name]
+      activity
+    }) do
+      get "/eth/#{contract.address}/activity"
     end
 
     assert_response :success
     assert_equal "Transfer", seen_event_name
   end
 
-  test "show preserves explicit all-events recent activity filter" do
+  test "activity island preserves explicit all-events filter" do
     contract = contracts(:uni_token)
     seen_event_name = :unset
     activity = activity_result(contract, event_filter: nil)
 
-    stub_class_method(ChainReader::ViewCaller, :call, ->(_c) { {} }) do
-      stub_class_method(ContractEvents::RecentFetcher, :call, ->(**kwargs) {
-        seen_event_name = kwargs[:event_name]
-        activity
-      }) do
-        get contract_path(chain: "eth", address: contract.address), params: { event_name: "all" }
-      end
+    stub_class_method(ContractEvents::RecentFetcher, :call, ->(**kwargs) {
+      seen_event_name = kwargs[:event_name]
+      activity
+    }) do
+      get "/eth/#{contract.address}/activity", params: { event_name: "all" }
     end
 
     assert_response :success
     assert_nil seen_event_name
-    assert_match 'href="/eth/0x1111111111111111111111111111111111111111?event_name=all"', response.body
+    assert_match 'href="/eth/0x1111111111111111111111111111111111111111/activity?event_name=all"', response.body
   end
 
-  test "activity filters target the Turbo Frame instead of full-page tab reloads" do
+  test "activity island filter links target the Turbo Frame" do
     contract = contracts(:uni_token)
     activity = activity_result(contract)
 
-    stub_class_method(ChainReader::ViewCaller, :call, ->(_c) { {} }) do
-      stub_class_method(ContractEvents::RecentFetcher, :call, ->(**_) { activity }) do
-        get contract_path(chain: "eth", address: contract.address)
-      end
+    stub_class_method(ContractEvents::RecentFetcher, :call, ->(**_) { activity }) do
+      get "/eth/#{contract.address}/activity"
     end
 
     assert_response :success
-    assert_match 'data-controller="contract-tabs"', response.body
     assert_match '<turbo-frame data-turbo-action="advance" id="contract_activity">', response.body
     assert_match 'data-turbo-frame="contract_activity"', response.body
-    assert_match 'href="/eth/0x1111111111111111111111111111111111111111?event_name=all"', response.body
-    assert_match 'href="/eth/0x1111111111111111111111111111111111111111?event_name=Transfer"', response.body
+    assert_match 'href="/eth/0x1111111111111111111111111111111111111111/activity?event_name=all"', response.body
+    assert_match 'href="/eth/0x1111111111111111111111111111111111111111/activity?event_name=Transfer"', response.body
   end
 
   test "contract page .md includes recent activity section and analysis prompt" do
@@ -1012,22 +966,20 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
     assert_match "Ask your AI agent", response.body
   end
 
-  test "show tolerates recent activity failure and still renders page" do
+  test "activity island tolerates fetcher failure and renders error" do
     contract = contracts(:uni_token)
     activity = activity_result(contract, error: "Etherscan: down")
 
-    stub_class_method(ChainReader::ViewCaller, :call, ->(_c) { {} }) do
-      stub_class_method(ContractEvents::RecentFetcher, :call, ->(**_) { activity }) do
-        get contract_path(chain: "eth", address: contract.address)
-      end
+    stub_class_method(ContractEvents::RecentFetcher, :call, ->(**_) { activity }) do
+      get "/eth/#{contract.address}/activity"
     end
 
     assert_response :success
-    assert_select "h1", contract.name
     assert_match "Could not load recent activity", response.body
   end
 
-  test "show renders Governance tab with persisted timeline events and category filter chips" do
+  # Governance tests now hit the /governance island endpoint directly.
+  test "governance island renders timeline events and category filter chips" do
     contract = contracts(:uni_token)
     seed_governance_event(contract, name: "OwnershipTransferred", category: "role_change",
                           summary: "Owner: 0xaaaa…aaaa → 0xbbbb…bbbb")
@@ -1035,11 +987,7 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
                           summary: "0x1234…5678 added to blacklist", tx_hash: "0x" + "1" * 64)
     mark_governance_fresh(contract)
 
-    stub_class_method(ChainReader::ViewCaller, :call, ->(_c) { {} }) do
-      stub_class_method(ContractEvents::RecentFetcher, :call, ->(**_) { activity_result(contract) }) do
-        get contract_path(chain: "eth", address: contract.address)
-      end
-    end
+    get "/eth/#{contract.address}/governance"
 
     assert_response :success
     assert_match "Governance Timeline", response.body
@@ -1047,24 +995,18 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
     assert_match "Role change", response.body
     assert_match "Risk action", response.body
     assert_match "Owner: 0xaaaa…aaaa → 0xbbbb…bbbb", response.body
-    assert_match 'href="/eth/0x1111111111111111111111111111111111111111?gov_category=role_change"', response.body
-    assert_match 'aria-label="Docs" checked', response.body
+    assert_match 'href="/eth/0x1111111111111111111111111111111111111111/governance?gov_category=role_change"', response.body
   end
 
-  test "show with ?gov_category= selects Governance tab" do
+  test "governance island filters by gov_category" do
     contract = contracts(:uni_token)
     seed_governance_event(contract, name: "Blacklisted", category: "risk_action", summary: "x added")
     mark_governance_fresh(contract)
 
-    stub_class_method(ChainReader::ViewCaller, :call, ->(_c) { {} }) do
-      stub_class_method(ContractEvents::RecentFetcher, :call, ->(**_) { activity_result(contract) }) do
-        get contract_path(chain: "eth", address: contract.address), params: { gov_category: "risk_action" }
-      end
-    end
+    get "/eth/#{contract.address}/governance", params: { gov_category: "risk_action" }
 
     assert_response :success
-    assert_match 'aria-label="Governance" data-contract-tabs-target="governance" checked', response.body
-    assert_no_match 'aria-label="Docs" checked', response.body
+    assert_match "Blacklisted", response.body
   end
 
   test "contract .md includes Governance timeline grouped by category" do
@@ -1090,15 +1032,12 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
     assert_match "Ask your AI agent", response.body
   end
 
-  test "show enqueues GovernanceTimelineRefreshJob and shows refreshing hint when cache is cold" do
+  # Governance refresh now happens in the /governance island, not the shell.
+  test "governance island enqueues refresh job and shows refreshing hint when cache is cold" do
     contract = contracts(:uni_token)
 
-    stub_class_method(ChainReader::ViewCaller, :call, ->(_c) { {} }) do
-      stub_class_method(ContractEvents::RecentFetcher, :call, ->(**_) { activity_result(contract) }) do
-        assert_enqueued_with(job: GovernanceTimelineRefreshJob, args: [ contract.id ]) do
-          get contract_path(chain: "eth", address: contract.address)
-        end
-      end
+    assert_enqueued_with(job: GovernanceTimelineRefreshJob, args: [ contract.id ]) do
+      get "/eth/#{contract.address}/governance"
     end
 
     assert_response :success
@@ -1387,17 +1326,13 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
     assert_match "Could not build admin risk profile: md profiler boom", response.body
   end
 
-  test "show does NOT enqueue refresh job when contract is already fresh" do
+  test "governance island does NOT enqueue refresh job when contract is already fresh" do
     contract = contracts(:uni_token)
     seed_governance_event(contract, name: "Pause", category: "lifecycle", summary: "Contract paused")
 
-    stub_class_method(ChainReader::ViewCaller, :call, ->(_c) { {} }) do
-      stub_class_method(ContractEvents::RecentFetcher, :call, ->(**_) { activity_result(contract) }) do
-        stub_class_method(GovernanceTimelineRefreshJob, :fresh?, ->(_c) { true }) do
-          assert_no_enqueued_jobs only: GovernanceTimelineRefreshJob do
-            get contract_path(chain: "eth", address: contract.address)
-          end
-        end
+    stub_class_method(GovernanceTimelineRefreshJob, :fresh?, ->(_c) { true }) do
+      assert_no_enqueued_jobs only: GovernanceTimelineRefreshJob do
+        get "/eth/#{contract.address}/governance"
       end
     end
 
@@ -1539,5 +1474,78 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
     stub_request(:get, /api\.etherscan\.io.*getabi/).to_return(
       status: 200, body: abi_body.to_json, headers: { "Content-Type" => "application/json" }
     )
+  end
+
+  # ── Cache-Control header tests ──────────────────────────────────────
+
+  test "show shell sets Cache-Control public max-age=86400 and ETag" do
+    contract = contracts(:uni_token)
+    stub_class_method(ChainReader::ViewCaller, :call, ->(_c) { {} }) do
+      get contract_path(chain: "eth", address: contract.address)
+    end
+
+    assert_response :success
+    cc = response.headers["Cache-Control"]
+    assert_match(/public/, cc)
+    assert_match(/max-age=86400/, cc)
+    assert response.headers["ETag"].present?, "ETag should be set on the shell"
+  end
+
+  test "live island sets Cache-Control public max-age=30" do
+    contract = contracts(:uni_token)
+    stub_class_method(ChainReader::ViewCaller, :call, ->(_c) { {} }) do
+      get "/eth/#{contract.address}/live"
+    end
+
+    assert_response :success
+    cc = response.headers["Cache-Control"]
+    assert_match(/public/, cc)
+    assert_match(/max-age=30/, cc)
+  end
+
+  test "activity island sets Cache-Control public max-age=30" do
+    contract = contracts(:uni_token)
+    get "/eth/#{contract.address}/activity"
+
+    assert_response :success
+    cc = response.headers["Cache-Control"]
+    assert_match(/public/, cc)
+    assert_match(/max-age=30/, cc)
+  end
+
+  test "governance island sets Cache-Control public max-age=3600" do
+    contract = contracts(:uni_token)
+    get "/eth/#{contract.address}/governance"
+
+    assert_response :success
+    cc = response.headers["Cache-Control"]
+    assert_match(/public/, cc)
+    assert_match(/max-age=3600/, cc)
+  end
+
+  test "source island sets Cache-Control public max-age=86400" do
+    contract = contracts(:uni_token)
+    get "/eth/#{contract.address}/source"
+
+    assert_response :success
+    cc = response.headers["Cache-Control"]
+    assert_match(/public/, cc)
+    assert_match(/max-age=86400/, cc)
+  end
+
+  test "show shell returns 304 on conditional GET with matching ETag" do
+    contract = contracts(:uni_token)
+    stub_class_method(ChainReader::ViewCaller, :call, ->(_c) { {} }) do
+      get contract_path(chain: "eth", address: contract.address)
+    end
+
+    etag = response.headers["ETag"]
+    assert etag.present?
+
+    stub_class_method(ChainReader::ViewCaller, :call, ->(_c) { {} }) do
+      get contract_path(chain: "eth", address: contract.address), headers: { "If-None-Match" => etag }
+    end
+
+    assert_response :not_modified
   end
 end

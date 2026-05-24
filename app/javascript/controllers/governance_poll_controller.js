@@ -23,6 +23,10 @@ export default class extends Controller {
   reloadFrame() {
     const frame = document.getElementById(this.frameIdValue)
     if (!frame) return
-    frame.src = window.location.href
+    // Prefer the frame's own src (island URL set by contract-tabs) over
+    // window.location.href (the shell page, which no longer renders
+    // governance inline).
+    const url = frame.getAttribute("src") || window.location.href
+    frame.src = url
   }
 }
