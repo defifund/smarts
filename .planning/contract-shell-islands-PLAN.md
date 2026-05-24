@@ -1,6 +1,6 @@
 # 合约页 — 静态壳 + 实时岛 PLAN.md
 
-> 分支：待定（建议 `feat/contract-shell-islands`）
+> 分支：`feat/contract-shell-islands`
 > 状态：**未开始 — 只是设计**
 > 范围：把 `ContractsController#show` 拆成长缓存的 HTML 壳 + Turbo Frame 化的实时数据 / tab endpoint，每个 endpoint 有自己的 HTTP TTL
 > 最后更新：2026-05-23
@@ -37,7 +37,7 @@
 ## 架构概览
 
 ```
-GET /:slug 或 /:chain/:address              ←  长缓存（~6h），带 ETag，public
+GET /:slug 或 /:chain/:address              ←  长缓存（1d），带 ETag，public
   └─ 只渲染壳：
        header（name、chain badge、地址、classification）
        MCP info 卡片
@@ -58,7 +58,7 @@ GET /:slug/governance                        ←  cache=1h
   └─ Turbo Frame：Governance tab 内容
        治理时间线（基本只追加历史）
 
-GET /:slug/source                            ←  cache=12h（或合并进壳）
+GET /:slug/source                            ←  cache=1d
   └─ Turbo Frame：Source tab 内容
        文件索引 + 当前选中文件
 ```
@@ -73,13 +73,31 @@ GET /:slug/source                            ←  cache=12h（或合并进壳）
 
 | Endpoint | `Cache-Control` | 理由 |
 |---|---|---|
-| `#show`（壳） | `public, max-age=21600, must-revalidate` + ETag | 结构性 HTML——name、地址、ABI 派生 docs、admin risk——很少变；AI docs 是 7 天周期重生成 |
+| `#show`（壳） | `public, max-age=86400, must-revalidate` + ETag | 结构性 HTML——name、地址、ABI 派生 docs、admin risk——很少变；AI docs 是 7 天周期重生成；ETag 兜底即时失效 |
 | `#live`（ERC-20 条） | `public, max-age=30, stale-while-revalidate=60` | 价格 / 供应量 / 区块头——刷新短；SWR 防 origin 峰值 |
 | `#activity` | `public, max-age=30, stale-while-revalidate=60` | 事件——比链头稍滞后 |
 | `#governance` | `public, max-age=3600` | 历史时间线；只有新的治理事件才变化（很少） |
-| `#source` | `public, max-age=43200` | 验证过的源码就是不可变的 |
+| `#source` | `public, max-age=86400` | 验证过的源码就是不可变的 |
 
 壳的 ETag 用 `[contract.id, contract.abi_hash, contract.docs_version, classification.id]`。任一变化都通过 304 即时失效，无需 purge。
+
+---
+
+## 现状基础（不是 greenfield）
+
+代码里 Turbo Frame 部分已经搭好，这次工作主要是"把数据加载从 `#show` 搬出去"：
+
+- `app/views/contracts/show.html.erb` 已用 `turbo_stream_from @contract` 做 ActionCable 订阅（后台 job 推送 morph 刷新）
+- `_activity.html.erb` 已用 `turbo_frame_tag "contract_activity", data: { turbo_action: "advance" }` 包裹，里面的过滤链接（All / Transfer / Swap …）已经用 `data-turbo-frame` 局部刷新——只是 frame 当前是**首屏 eager 渲染**，不是懒加载
+- `_governance.html.erb` 同上，包了 `contract_governance` frame；额外有 `governance-poll` Stimulus controller 做轮询，在后台任务出结果前用 spinner 占位
+- 共用控件：`contract-tabs` Stimulus controller 管 tab 状态切换
+
+这次要做的本质是：
+1. 把 `ContractsController#show` 里的 `load_recent_events` / `load_governance_timeline` / `load_live_values` 调用搬到独立 action
+2. show 里的 frame 改成空 frame + `src=` 指向新 endpoint，触发懒加载
+3. 加 Cache-Control + ETag
+
+现有 frame、`turbo_action: "advance"`、URL 路由（filter via query string）一律保留。
 
 ---
 
@@ -106,7 +124,7 @@ GET /:slug/source                            ←  cache=12h（或合并进壳）
 - 把 `#show` action 里的实时 fetch（`load_live_values`、`load_recent_events`、`load_governance_timeline`）全部移除
 - 留在壳里的：classification、adapter、admin_risk
 - 在 `#show` 最后加 `fresh_when etag: [@contract, @contract.abi_hash, @contract.docs_version, @classification&.id], public: true`
-- 加 `expires_in 6.hours, public: true, must_revalidate: true`
+- 加 `expires_in 1.day, public: true, must_revalidate: true`
 - `enqueue_ai_enrichment_if_needed` 保留——已经是后台 job，不阻塞响应
 
 ### Phase 4 — Loading UX + 测试
@@ -130,6 +148,6 @@ GET /:slug/source                            ←  cache=12h（或合并进壳）
 
 ## 待定问题
 
-1. Source tab 懒加载还是合并到壳？大合约的文件索引（USDC ~10 个文件）不大，但完整源码内容可能 50KB+。**暂定：懒加载，12h 缓存。**
-2. `/eth/0xabc...` 十六进制路由 vs 规范 `/usdc-eth` slug——重定向到 canonical 之后，懒加载 endpoint 的 cache key 要不要也对应清掉？**暂定：每个 endpoint 走同一个 `resolve_chain_and_address` helper 做 canonicalize；重定向就是 301，有自己的缓存。**
-3. Phase 1 单独发还是 1-3 打包一个 PR？**暂定：Phase 1 单独发，先验证 pattern + 量一下 CDN 命中率，再决定要不要继续做 tab。**
+1. Source tab 懒加载还是合并到壳？大合约的文件索引（USDC ~10 个文件）不大，但完整源码内容可能 50KB+。**已定：懒加载，1d 缓存。**
+2. `/eth/0xabc...` 十六进制路由 vs 规范 `/usdc-eth` slug——重定向到 canonical 之后，懒加载 endpoint 的 cache key 要不要也对应清掉？**已定：每个 endpoint 走同一个 `resolve_chain_and_address` helper 做 canonicalize；重定向就是 301，有自己的缓存。**
+3. Phase 1 单独发还是 1-3 打包一个 PR？**已定：Phase 1-3 打包一个 PR（Phase 4 的测试 / 骨架 UX 随同 ship，不另开）。**
