@@ -137,6 +137,34 @@ class MarketingController < ApplicationController
     flash.now[:alert] = "Could not load Polymarket data: #{e.message}"
   end
 
+  def ai_plugin
+    response.set_header("Cache-Control", "public, max-age=3600")
+    response.set_header("Access-Control-Allow-Origin", "*")
+
+    render json: {
+      schema_version: "v1",
+      name_for_human: "Smarts — Smart Contract Docs",
+      name_for_model: "smarts",
+      description_for_human: "Live docs for every verified smart contract. Query on-chain state, token info, admin risk, and governance events across Ethereum, Base, Arbitrum, Optimism, BNB, and Polygon.",
+      description_for_model: "Use the Smarts API to read live on-chain state for verified smart contracts on EVM chains (Ethereum, Base, Arbitrum, Optimism, BNB, Polygon). You can look up ERC-20 token metadata and prices, Uniswap V3 pool state, admin risk profiles, governance timelines, Polymarket markets, contract source code, and call any view function. Use curated slugs (e.g. 'usdc-eth', 'uni-eth') or chain+address pairs.",
+      auth: { type: "none" },
+      api: {
+        type: "openapi",
+        url: "https://smarts.md/api/openapi.json"
+      },
+      logo_url: "https://smarts.md/logo.png",
+      contact_email: "bob@smarts.md",
+      legal_info_url: "https://smarts.md/"
+    }
+  end
+
+  def openapi_spec
+    response.set_header("Cache-Control", "public, max-age=3600")
+    response.set_header("Access-Control-Allow-Origin", "*")
+
+    render json: build_openapi_spec
+  end
+
   def well_known_mcp
     response.set_header("Cache-Control", "public, max-age=3600")
     response.set_header("Access-Control-Allow-Origin", "*")
@@ -164,6 +192,62 @@ class MarketingController < ApplicationController
   end
 
   private
+
+  # Generates the OpenAPI 3.1 spec from the same tool definitions used by
+  # the MCP server. Each public tool becomes a GET endpoint at
+  # /api/v1/:tool_name with query parameters derived from input_schema.
+  def build_openapi_spec
+    tools = Api::V1::ToolsController::TOOL_MAP
+
+    paths = tools.each_with_object({}) do |(name, klass), h|
+      schema = klass.input_schema_value.to_h
+      properties = schema[:properties] || {}
+      required = Array(schema[:required])
+
+      parameters = properties.map do |pname, prop|
+        param = {
+          name: pname.to_s,
+          in: "query",
+          description: prop[:description].to_s,
+          required: required.include?(pname.to_s),
+          schema: { type: prop[:type] }
+        }
+        if param[:schema][:type] == "array"
+          param[:schema][:items] = prop[:items] || { type: "string" }
+          param[:style] = "form"
+          param[:explode] = true
+        end
+        param
+      end
+
+      h["/api/v1/#{name}"] = {
+        get: {
+          operationId: name,
+          summary: klass.description,
+          parameters: parameters,
+          responses: {
+            "200" => {
+              description: "Successful response",
+              content: { "application/json" => { schema: { type: "object" } } }
+            },
+            "404" => { description: "Unknown tool or resource not found" },
+            "422" => { description: "Unprocessable request" }
+          }
+        }
+      }
+    end
+
+    {
+      openapi: "3.1.0",
+      info: {
+        title: "Smarts API",
+        version: "1.0.0",
+        description: "Live docs for every verified smart contract. Query on-chain state, ERC-20 tokens, Uniswap V3 pools, admin risk, governance events, Polymarket markets, and more across Ethereum, Base, Arbitrum, Optimism, BNB, and Polygon."
+      },
+      servers: [ { url: "https://smarts.md" } ],
+      paths: paths
+    }
+  end
 
   def fetch_live_prices(markets)
     token_ids = markets.flat_map { |m| m.tokens.map(&:token_id) }.compact.uniq

@@ -126,8 +126,17 @@ Rails.application.routes.draw do
   get ":chain/:address(.:format)", to: "contracts#show", as: :contract,
     constraints: { address: /0x[0-9a-fA-F]{40}/, format: /html|md/ }
 
-  # MCP discovery manifest (forward-looking, no formal spec yet). Served on
-  # both smarts.md and mcp.smarts.md so crawlers and future auto-discovery
-  # clients find it either way.
+  # REST API for ChatGPT Custom GPTs and other OpenAPI consumers.
+  # Each MCP tool is accessible as GET /api/v1/:tool_name?params.
+  namespace :api do
+    namespace :v1 do
+      get ":tool_name", to: "tools#show", as: :tool
+    end
+  end
+
+  # Discovery manifests. Served on both smarts.md and mcp.smarts.md so
+  # crawlers and auto-discovery clients find them either way.
+  get "/.well-known/ai-plugin.json", to: "marketing#ai_plugin", defaults: { format: :json }
+  get "/api/openapi.json", to: "marketing#openapi_spec", defaults: { format: :json }
   get "/.well-known/mcp.json", to: "marketing#well_known_mcp", defaults: { format: :json }
 end
