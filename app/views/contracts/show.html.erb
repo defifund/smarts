@@ -64,7 +64,7 @@
   <%# data-turbo-permanent on each tab radio so user's selection survives the
       background-job-triggered Turbo morph refresh. Server-rendered `checked`
       still wins on initial load (when there's no client state to preserve). %>
-  <div role="tablist" class="tabs tabs-lift tabs-lg"
+  <div role="tablist" class="tabs tabs-lift tabs-sm md:tabs-lg"
        data-controller="contract-tabs"
        data-contract-tabs-activity-url-value="<%= contract_island_path("activity") %>"
        data-contract-tabs-governance-url-value="<%= contract_island_path("governance") %>"
