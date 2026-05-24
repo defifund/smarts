@@ -3,7 +3,7 @@
 
 <div class="flex gap-8 min-w-0 overflow-x-hidden">
   <article class="mx-auto max-w-3xl flex-1 min-w-0 py-14 sm:py-20">
-  <header class="mb-12">
+  <header class="mb-8">
     <div class="mb-5 flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">
       <span><%= article_category_label(@article) %></span>
       <% if @article.published_at.present? %>
@@ -22,11 +22,11 @@
     <h1 class="text-4xl font-extrabold tracking-tight text-gray-950 sm:text-6xl"><%= @title %></h1>
 
     <% if @summary.present? %>
-      <p class="mt-6 text-xl leading-8 text-gray-600"><%= @summary %></p>
+      <p class="mt-6 text-xl leading-8 text-gray-500 italic border-l-4 border-gray-200 pl-5"><%= @summary %></p>
     <% end %>
 
     <% if @article_headers.present? %>
-      <div id="mobile-toc" class="hidden xl:hidden mt-6 rounded-lg border border-gray-200 bg-gray-50 p-4">
+      <div id="mobile-toc" class="xl:hidden mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
         <nav class="space-y-1.5">
           <%= render_table_of_contents %>
         </nav>
