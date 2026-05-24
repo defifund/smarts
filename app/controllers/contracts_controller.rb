@@ -30,7 +30,7 @@ class ContractsController < ApplicationController
         @live_values = @live_snapshot
         enqueue_ai_enrichment_if_needed(@contract)
         expires_in 1.day, public: true
-        fresh_when etag: [@contract.id, @contract.updated_at, @classification&.id], public: true
+        fresh_when etag: [ @contract.id, @contract.updated_at, @classification&.id ], public: true
       end
       format.md do
         # Markdown distillation needs full data inline.

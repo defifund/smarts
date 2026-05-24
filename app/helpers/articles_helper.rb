@@ -15,7 +15,7 @@ module ArticlesHelper
 
     def header(text, level)
       # Generate slug from header text, supporting both Latin and CJK characters
-      slug = text.strip.parameterize(separator: '-').presence || "heading-#{@headers.length}"
+      slug = text.strip.parameterize(separator: "-").presence || "heading-#{@headers.length}"
       @headers << { text: text, level: level, slug: slug }
       "<h#{level} id=\"#{slug}\">#{text}</h#{level}>"
     end
@@ -62,10 +62,10 @@ module ArticlesHelper
     toc_html = "<nav class=\"space-y-1.5\">"
     @article_headers.reject { |h| h[:level] == 1 }.each do |header|
       margin_class = case header[:level]
-                     when 2 then "ml-0"
-                     when 3 then "ml-4"
-                     else "ml-8"
-                     end
+      when 2 then "ml-0"
+      when 3 then "ml-4"
+      else "ml-8"
+      end
       font_class = header[:level] == 2 ? "font-medium text-gray-800" : "text-gray-500"
       bullet = header[:level] >= 3 ? "<span class=\"text-gray-300 mr-1.5\">•</span>" : ""
       toc_html += "<a href=\"##{header[:slug]}\" "
