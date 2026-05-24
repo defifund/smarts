@@ -103,6 +103,16 @@ Rails.application.routes.draw do
   get ":slug", to: "articles#show", as: :article,
     constraints: { slug: Article::SLUG_PATTERN }
 
+  # Contract sub-resource endpoints (Turbo Frame islands).
+  # These MUST sit before the slug / hex catch-all routes so Rails tries them
+  # first; otherwise `:slug` would swallow "usdc-eth/live" as a single param.
+  %w[live activity governance source].each do |island|
+    get ":slug/#{island}", to: "contracts##{island}",
+      constraints: { slug: ContractSlugs::ROUTE_PATTERN }
+    get ":chain/:address/#{island}", to: "contracts##{island}",
+      constraints: { address: /0x[0-9a-fA-F]{40}/ }
+  end
+
   # Friendly slug: GET /uni-eth, /usdc-base, ... (curated whitelist only).
   # The pattern constraint rejects `/about`, `/api`, etc. — only strings ending
   # in a known chain suffix reach this route. Optional `.md` format returns

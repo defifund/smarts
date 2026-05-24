@@ -2,6 +2,16 @@ require "bigdecimal"
 require "bigdecimal/util"
 
 module ContractsHelper
+  # Generates the path for a Turbo Frame island sub-resource (live, activity,
+  # governance, source). Prefers the slug form when available.
+  def contract_island_path(island)
+    if @canonical_slug
+      "/#{@canonical_slug}/#{island}"
+    else
+      "/#{@chain.slug}/#{@contract.address}/#{island}"
+    end
+  end
+
   # Dispatches by ABI output shape: tuples → (name: val, ...), arrays → [...],
   # scalars → format_abi_value. Prefer this over format_abi_value when you have
   # the full output hash (with components for tuples).

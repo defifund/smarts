@@ -32,6 +32,16 @@ class UniswapV3PoolFlowTest < ActionDispatch::IntegrationTest
             # POOL_ADDRESS has a slug (univ3-usdc-weth-eth), so hex URL 301s
             get contract_path(chain: "eth", address: POOL_ADDRESS)
             follow_redirect! if response.status == 301
+
+            # Shell assertions — display name, SEO meta, structure
+            assert_response :success
+            assert_select "h1", "USDC/WETH 0.05%"
+            assert_match %r{<title>USDC/WETH 0\.05% on Ethereum — live on-chain contract docs \| smarts.md</title>}, response.body
+            assert_match %r{<meta property="og:title" content="USDC/WETH 0\.05% on Ethereum — live on-chain contract docs \| smarts.md">}, response.body
+            refute_match "UniswapV3Pool on Ethereum", response.body, "Solidity class name must not leak into the page title/breadcrumb"
+
+            # Panel data is in the /live island — fetch it separately
+            get "/univ3-usdc-weth-eth/live"
           end
         end
       end
@@ -51,14 +61,6 @@ class UniswapV3PoolFlowTest < ActionDispatch::IntegrationTest
     assert_match "Active liquidity", response.body
     assert_match "3.10 × 10¹⁸", response.body             # liquidity humanized to scientific notation
     assert_match "(spot, no slippage)", response.body
-
-    # Adapter-provided display name flows all the way up to page-level
-    # identity — H1, <title>, OG title, breadcrumb. Locks the fix for the
-    # "H1 says UniswapV3Pool instead of USDC/WETH 0.05%" bug.
-    assert_select "h1", "USDC/WETH 0.05%"
-    assert_match %r{<title>USDC/WETH 0\.05% on Ethereum — live on-chain contract docs \| smarts.md</title>}, response.body
-    assert_match %r{<meta property="og:title" content="USDC/WETH 0\.05% on Ethereum — live on-chain contract docs \| smarts.md">}, response.body
-    refute_match "UniswapV3Pool on Ethereum", response.body, "Solidity class name must not leak into the page title/breadcrumb"
   end
 
   test "renders pool panel gracefully when DefiLlama is down (no TVL, but price/fee/tokens shown)" do
@@ -70,9 +72,8 @@ class UniswapV3PoolFlowTest < ActionDispatch::IntegrationTest
       stub_class_method(ChainReader::Multicall3Client, :call, method(:fake_multicall)) do
         stub_class_method(ChainReader::ViewCaller, :call, ->(_c) { {} }) do
           stub_class_method(DefiLlamaClient, :fetch_prices, defillama_down) do
-            # POOL_ADDRESS has a slug (univ3-usdc-weth-eth), so hex URL 301s
-            get contract_path(chain: "eth", address: POOL_ADDRESS)
-            follow_redirect! if response.status == 301
+            # Panel data is in the /live island
+            get "/univ3-usdc-weth-eth/live"
           end
         end
       end

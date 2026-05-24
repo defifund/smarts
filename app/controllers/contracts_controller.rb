@@ -12,24 +12,29 @@ class ContractsController < ApplicationController
       return redirect_to canonical_path(slug), status: :moved_permanently
     end
 
-    @contract = Contract.find_by(chain: @chain, address: address)
-
-    if @contract.nil? || @contract.abi.blank?
-      info = EtherscanClient.new(@chain).fetch_contract_info(address)
-      @contract = Contract.find_or_initialize_by(chain: @chain, address: address)
-      @contract.update!(info)
-    end
-
+    find_or_fetch_contract(address)
     @canonical_slug = ContractSlugs.for(chain_slug, address)
-    @live_snapshot = load_live_values(@contract)
-    @live_values = @live_snapshot
-    @protocol_adapter = resolve_protocol_adapter(@contract)
     @classification = classify(@contract)
-    @activity = load_recent_events(@contract)
-    @governance = load_governance_timeline(@contract)
+    @protocol_adapter = resolve_protocol_adapter(@contract)
     @admin_risk = load_admin_risk_profile(@contract)
 
-    enqueue_ai_enrichment_if_needed(@contract)
+    respond_to do |format|
+      format.html do
+        # Shell: no live values, no activity, no governance.
+        # Live data is fetched by Turbo Frame islands.
+        @live_values = {}
+        enqueue_ai_enrichment_if_needed(@contract)
+        expires_in 1.day, public: true
+        fresh_when etag: [@contract.id, @contract.updated_at, @classification&.id], public: true
+      end
+      format.md do
+        # Markdown distillation needs full data inline.
+        @live_snapshot = load_live_values(@contract)
+        @live_values = @live_snapshot
+        @activity = load_recent_events(@contract)
+        @governance = load_governance_timeline(@contract)
+      end
+    end
   rescue EtherscanClient::NotVerifiedError
     @address = address
     @inspection = inspect_address(@chain, address)
@@ -47,7 +52,57 @@ class ContractsController < ApplicationController
     end
   end
 
+  # ── Turbo Frame islands ──────────────────────────────────────────────
+
+  def live
+    load_island_contract
+    @protocol_adapter = resolve_protocol_adapter(@contract)
+    @live_snapshot = load_live_values(@contract)
+    @live_values = @live_snapshot
+    @classification = classify(@contract)
+    expires_in 30.seconds, public: true, stale_while_revalidate: 60.seconds
+    render layout: false
+  end
+
+  def activity
+    load_island_contract
+    @activity = load_recent_events(@contract)
+    @classification = classify(@contract)
+    @live_values = load_live_values(@contract)
+    expires_in 30.seconds, public: true, stale_while_revalidate: 60.seconds
+    render layout: false
+  end
+
+  def governance
+    load_island_contract
+    @governance = load_governance_timeline(@contract)
+    expires_in 1.hour, public: true
+    render layout: false
+  end
+
+  def source
+    load_island_contract
+    expires_in 1.day, public: true
+    render layout: false
+  end
+
   private
+
+  def load_island_contract
+    chain_slug, address = resolve_chain_and_address
+    @chain = Chain.find_by!(slug: chain_slug)
+    @canonical_slug = ContractSlugs.for(chain_slug, address)
+    find_or_fetch_contract(address)
+  end
+
+  def find_or_fetch_contract(address)
+    @contract = Contract.find_by(chain: @chain, address: address)
+    if @contract.nil? || @contract.abi.blank?
+      info = EtherscanClient.new(@chain).fetch_contract_info(address)
+      @contract = Contract.find_or_initialize_by(chain: @chain, address: address)
+      @contract.update!(info)
+    end
+  end
 
   # Returns [chain_slug, address] from either slug or chain/address params.
   # Raises ActionController::RoutingError for an unknown slug so the route

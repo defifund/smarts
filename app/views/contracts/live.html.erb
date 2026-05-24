@@ -1,0 +1,5 @@
+<%= turbo_frame_tag "contract_live" do %>
+  <% if @protocol_adapter %>
+    <%= render @protocol_adapter.template_partial, adapter: @protocol_adapter %>
+  <% end %>
+<% end %>
