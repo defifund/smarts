@@ -1,7 +1,7 @@
 <% seo_meta title: @title, description: @summary, canonical: "#{SeoHelper::SITE_URL}#{@canonical_path}", og_type: "article" %>
 
-<div class="flex gap-8">
-  <article class="mx-auto max-w-3xl flex-1 py-14 sm:py-20">
+<div class="flex gap-8 min-w-0 overflow-hidden">
+  <article class="mx-auto max-w-3xl flex-1 min-w-0 py-14 sm:py-20">
   <header class="mb-12">
     <div class="mb-5 flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">
       <span><%= article_category_label(@article) %></span>

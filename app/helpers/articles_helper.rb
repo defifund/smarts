@@ -9,6 +9,10 @@ module ArticlesHelper
       @headers = []
     end
 
+    def table(header, body)
+      %(<div class="overflow-x-auto -mx-4 px-4"><table>#{header}#{body}</table></div>)
+    end
+
     def header(text, level)
       # Generate slug from header text, supporting both Latin and CJK characters
       slug = text.strip.parameterize(separator: '-').presence || "heading-#{@headers.length}"
