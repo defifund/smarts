@@ -77,8 +77,28 @@ module ChainReader
       values = Eth::Abi.decode(types, return_data)
       values = values.map.with_index { |v, i| Base.retag_string_encoding(v, outputs[i]) }
       Result.new(success: true, values: values)
-    rescue Eth::Abi::DecodingError => e
+    rescue StandardError => e
+      # Pre-0.5 Solidity contracts (e.g. USDT, MKR) return raw bytes32 for
+      # functions declared as returning `string`. The dynamic-encoding decode
+      # fails, but the data is perfectly valid as a null-padded ASCII string.
+      # Try that before giving up — it keeps the whole batch from dying.
+      fallback = try_bytes32_string_fallback(outputs, return_data)
+      return Result.new(success: true, values: fallback) if fallback
+
       Result.new(success: false, error: "decode failed: #{e.message}")
+    end
+
+    # When a single `string` output fails to decode and the return data is
+    # exactly 32 bytes, re-interpret it as a null-padded bytes32 value.
+    def try_bytes32_string_fallback(outputs, return_data)
+      return nil unless outputs&.length == 1 && outputs[0]["type"] == "string"
+      return nil unless return_data.bytesize == 32
+
+      raw = return_data.dup.force_encoding(Encoding::UTF_8)
+      cleaned = raw.delete("\x00")
+      cleaned.valid_encoding? && !cleaned.empty? ? [ cleaned ] : nil
+    rescue StandardError
+      nil
     end
 
     def decode_block_number(tuple)
