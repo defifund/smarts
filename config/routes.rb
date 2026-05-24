@@ -39,6 +39,7 @@ Rails.application.routes.draw do
     tools: [
       GetContractInfoTool,
       GetContractSourceTool,
+      GetAdminRiskTool,
       GetErc20InfoTool,
       GetGovernanceTimelineTool,
       GetPolymarketMarketTool,

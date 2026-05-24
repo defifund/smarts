@@ -62,6 +62,7 @@ class MarketingController < ApplicationController
   MCP_TOOLS = [
     { name: "get_contract_info",    blurb: "Metadata about a verified contract: name, classification, adapter, function counts." },
     { name: "get_contract_source",  blurb: "Fetch the verified Solidity source: file index, single-file content, or substring grep across files." },
+    { name: "get_admin_risk",       blurb: "Current admin / risk profile for a verified contract: detected controls, current values, governance summary, and warnings." },
     { name: "get_erc20_info",       blurb: "Live token state: formatted supply, price, market cap, issuer, admin controls (paused/owner/minter/…)." },
     { name: "get_governance_timeline", blurb: "Privileged-event history for a contract, including Polymarket exchange/CTF/UMA slugs: role changes, proxy upgrades, pauses, blacklisting, minter config — decoded, categorized, summarized." },
     { name: "get_polymarket_market", blurb: "Polymarket market state by slug or condition ID: outcomes, prices when present, resolution payouts, and CTF position IDs." },
@@ -82,6 +83,7 @@ class MarketingController < ApplicationController
     { q: "Who is 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045?",  tool: "inspect_address" },
     { q: "Get the total supply of USDT on Arbitrum.",           tool: "get_erc20_info" },
     { q: "Who can blacklist my USDC balance?",                  tool: "get_erc20_info" },
+    { q: "Show me the current admin risk profile for USDC.",    tool: "get_admin_risk" },
     { q: "Show me where USDC's blacklisting logic lives in source.", tool: "get_contract_source" },
     { q: "Show me the last 10 swaps on the USDC/WETH 0.05% pool.", tool: "get_recent_events" },
     { q: "How has admin power on USDC evolved? Show me every role change and pause.", tool: "get_governance_timeline" },
