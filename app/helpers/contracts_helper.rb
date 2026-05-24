@@ -211,14 +211,17 @@ module ContractsHelper
   #   1. Protocol adapter's `display_name` — for non-ERC-20 shapes where the
   #      on-chain name()/symbol() don't exist or aren't descriptive. Example:
   #      UniswapV3Adapter composes "USDC/WETH 0.05%" from token0/token1/fee.
-  #   2. On-chain `name()` — ERC-20 brand name ("USD Coin").
-  #   3. On-chain `symbol()` — ticker fallback ("USDC").
+  #   2. On-chain `symbol()` — ticker is what users search and recognize
+  #      ("USDC", "WPOL"); also keeps the H1 short and aligns with Etherscan /
+  #      DefiLlama / Uniswap conventions. The full name() still shows below in
+  #      the ERC-20 panel, so no information is lost.
+  #   3. On-chain `name()` — falls through when no symbol() is exposed.
   #   4. `contract.name` — whatever Etherscan handed us.
   #   5. "Unknown Contract" — final safety net.
   def contract_display_name
     @protocol_adapter&.display_name.to_s.presence ||
-      live_value("name()").to_s.presence ||
       live_value("symbol()").to_s.presence ||
+      live_value("name()").to_s.presence ||
       @contract&.name.presence ||
       "Unknown Contract"
   end
