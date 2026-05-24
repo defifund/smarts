@@ -8,6 +8,7 @@ class ArticlesController < ApplicationController
     # Locale is parsed from route but currently not used for filtering
     # (all articles display regardless of available locales)
     Article.locale_from_route(params[:locale])
+    expires_in 1.hour, public: true
   end
 
   def show

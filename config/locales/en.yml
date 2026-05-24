@@ -29,6 +29,9 @@
 
 en:
   hello: "Hello world"
+  articles:
+    toc: "Table of contents"
+    on_this_page: "On this page"
   article_categories:
     product: "Product"
     stablecoins: "Stablecoins"

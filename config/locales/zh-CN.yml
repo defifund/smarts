@@ -1,4 +1,7 @@
 "zh-CN":
+  articles:
+    toc: "目录"
+    on_this_page: "本页目录"
   article_categories:
     product: "产品"
     stablecoins: "稳定币"

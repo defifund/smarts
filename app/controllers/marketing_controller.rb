@@ -105,10 +105,12 @@ class MarketingController < ApplicationController
   def home
     if params[:q].present? && params[:q].match?(%r{\A[a-z]+/0x[0-9a-fA-F]{40}\z})
       redirect_to "/#{params[:q]}", status: :moved_permanently
+      return
     end
 
     @featured_groups = FEATURED.group_by { |f| f[:category] }
     @recent_articles = Article.published.order(published_at: :desc).limit(3)
+    expires_in 6.hours, public: true
   end
 
   def mcp_docs
@@ -116,6 +118,7 @@ class MarketingController < ApplicationController
     @tools          = MCP_TOOLS
     @example_queries = MCP_EXAMPLE_QUERIES
     @shortcuts      = MCP_SHORTCUTS
+    expires_in 12.hours, public: true
   end
 
   # Forward-looking discovery manifest. MCP spec hasn't formalized a

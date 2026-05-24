@@ -189,9 +189,14 @@ module Articles
     end
 
     def strip_first_heading(markdown)
-      lines = markdown.to_s.lines
+      text = strip_front_matter(markdown.to_s)
+      lines = text.lines
       lines.shift if lines.first&.match?(/\A#\s+/)
       lines.join.strip
+    end
+
+    def strip_front_matter(text)
+      text.sub(/\A---\s*\n.*?\n---\s*\n/m, "")
     end
 
     def locale_hash(value)

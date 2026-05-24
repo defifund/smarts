@@ -1,4 +1,7 @@
 "zh-TW":
+  articles:
+    toc: "目錄"
+    on_this_page: "本頁目錄"
   article_categories:
     product: "產品"
     stablecoins: "穩定幣"
