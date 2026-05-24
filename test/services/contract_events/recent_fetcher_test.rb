@@ -124,40 +124,7 @@ class ContractEvents::RecentFetcherTest < ActiveSupport::TestCase
     end
   end
 
-  test "surfaces Base Etherscan V2 errors with fallback context" do
-    base_contract = Contract.new(
-      chain: chains(:base),
-      address: "0x" + "1" * 40,
-      abi: [
-        { "type" => "event", "name" => "Transfer", "inputs" => [
-          { "name" => "from", "type" => "address", "indexed" => true },
-          { "name" => "to", "type" => "address", "indexed" => true },
-          { "name" => "amount", "type" => "uint256", "indexed" => false }
-        ] }
-      ]
-    )
-
-    stub_class_method(ChainReader::Base, :eth_block_number, ->(_chain) { @latest_block }) do
-      stub_request(:get, %r{api\.etherscan\.io}).to_return(
-        status: 200,
-        body: { status: "0", message: "NOTOK", result: "Invalid params" }.to_json,
-        headers: { "Content-Type" => "application/json" }
-      )
-
-      stub_class_method(ChainReader::Base, :eth_get_logs,
-        ->(_chain, **_) { raise ChainReader::Base::RpcError, "rpc down" }) do
-        result = ContractEvents::RecentFetcher.call(contract: base_contract)
-
-        refute result.success?
-        assert_match(/Recent activity on Base failed:/, result.error)
-        assert_match(/Etherscan logs failed on Base:/, result.error)
-        assert_match(/Etherscan API error: NOTOK - Invalid params/, result.error)
-        assert_match(/RPC fallback failed: rpc down/, result.error)
-      end
-    end
-  end
-
-  test "uses Etherscan V2 logs directly for Base recent activity" do
+  test "non-eth chain skips Etherscan logs and uses RPC directly" do
     base_contract = Contract.new(
       chain: chains(:base),
       address: "0x" + "1" * 40,
@@ -171,19 +138,44 @@ class ContractEvents::RecentFetcherTest < ActiveSupport::TestCase
     )
     rpc_logs = [ sample_transfer_log(block_number: 20_000_001, tx_hash: "0xbase1") ]
 
-    stub_request(:get, %r{api\.etherscan\.io}).to_return(
-      status: 200,
-      body: logs_response(rpc_logs),
-      headers: { "Content-Type" => "application/json" }
-    )
+    etherscan_stub = stub_request(:get, %r{api\.etherscan\.io})
 
-    result = stub_class_method(ChainReader::Base, :eth_block_number, ->(_chain) { @latest_block }) do
-      ContractEvents::RecentFetcher.call(contract: base_contract, limit: 1)
+    stub_class_method(ChainReader::Base, :eth_block_number, ->(_chain) { @latest_block }) do
+      stub_class_method(ChainReader::Base, :eth_get_logs, ->(_chain, **_) { rpc_logs }) do
+        result = ContractEvents::RecentFetcher.call(contract: base_contract, limit: 1)
+
+        assert result.success?, result.error
+        assert_equal "base", result.chain
+        assert_equal [ 20_000_001 ], result.events.map(&:block_number)
+      end
     end
 
-    assert result.success?, result.error
-    assert_equal "base", result.chain
-    assert_equal [ 20_000_001 ], result.events.map(&:block_number)
+    assert_not_requested etherscan_stub
+  end
+
+  test "non-eth chain surfaces RPC failure directly (no Etherscan wrapping)" do
+    base_contract = Contract.new(
+      chain: chains(:base),
+      address: "0x" + "1" * 40,
+      abi: [
+        { "type" => "event", "name" => "Transfer", "inputs" => [
+          { "name" => "from", "type" => "address", "indexed" => true },
+          { "name" => "to", "type" => "address", "indexed" => true },
+          { "name" => "amount", "type" => "uint256", "indexed" => false }
+        ] }
+      ]
+    )
+
+    stub_class_method(ChainReader::Base, :eth_block_number, ->(_chain) { @latest_block }) do
+      stub_class_method(ChainReader::Base, :eth_get_logs,
+        ->(_chain, **_) { raise ChainReader::Base::RpcError, "rpc down" }) do
+        result = ContractEvents::RecentFetcher.call(contract: base_contract)
+
+        refute result.success?
+        assert_match(/Recent activity on Base failed: rpc down/, result.error)
+        refute_match(/Etherscan/, result.error, "Etherscan must not be mentioned — skipped upfront")
+      end
+    end
   end
 
   private
