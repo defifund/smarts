@@ -62,7 +62,7 @@ class GetErc20InfoToolTest < ActiveSupport::TestCase
         assert_kind_of Numeric, result[:market_cap_usd]
         assert_equal "Circle", result[:issuer][:name]
         # Admin / role fields deliberately removed from this tool — Admin & Risk
-        # lives on the contract page and (TODO) a future get_admin_risk MCP tool.
+        # now lives on the contract page and the dedicated get_admin_risk MCP tool.
         refute result.key?(:admin_status)
         refute result.key?(:admin_roles)
       end
