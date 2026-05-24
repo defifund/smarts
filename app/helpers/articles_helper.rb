@@ -49,7 +49,8 @@ module ArticlesHelper
     }
 
     markdown_instance = Redcarpet::Markdown.new(renderer, options)
-    html = markdown_instance.render(markdown.to_s).html_safe
+    cleaned = markdown.to_s.sub(/\A---\s*\n.*?\n---\s*\n/m, "")
+    html = markdown_instance.render(cleaned).html_safe
     @article_headers = renderer.headers
 
     html
@@ -59,15 +60,17 @@ module ArticlesHelper
     return "" unless @article_headers.present?
 
     toc_html = "<nav class=\"space-y-1.5\">"
-    @article_headers.each do |header|
+    @article_headers.reject { |h| h[:level] == 1 }.each do |header|
       margin_class = case header[:level]
                      when 2 then "ml-0"
                      when 3 then "ml-4"
                      else "ml-8"
                      end
+      font_class = header[:level] == 2 ? "font-medium text-gray-800" : "text-gray-500"
+      bullet = header[:level] >= 3 ? "<span class=\"text-gray-300 mr-1.5\">•</span>" : ""
       toc_html += "<a href=\"##{header[:slug]}\" "
-      toc_html += "class=\"block text-sm text-gray-600 hover:text-blue-700 hover:font-medium transition #{margin_class}\">"
-      toc_html += "#{header[:text]}</a>"
+      toc_html += "class=\"block text-sm #{font_class} hover:text-blue-700 transition #{margin_class}\">"
+      toc_html += "#{bullet}#{header[:text]}</a>"
     end
     toc_html += "</nav>"
 
