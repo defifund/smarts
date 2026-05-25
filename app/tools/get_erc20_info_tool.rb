@@ -7,14 +7,14 @@ class GetErc20InfoTool < ApplicationTool
   input_schema(
     properties: {
       slug:    { type: "string", description: "Curated slug like 'usdc-eth' or 'usdc-base'. Alternative to chain+address." },
-      chain:   { type: "string", description: "Chain slug: eth, base, arbitrum, optimism, bnb, or polygon. Required unless `slug` is given." },
+      chain:   { type: "string", description: "Chain slug. Live-data chains only: eth, base, arbitrum, optimism, bnb, polygon. docs-only chains (linea) return an error. Required unless `slug` is given." },
       address: { type: "string", description: "Token address (0x-prefixed). Required unless `slug` is given." }
     }
   )
 
   class << self
     def payload(chain: nil, address: nil, slug: nil)
-      resolved = resolve_contract(chain: chain, address: address, slug: slug)
+      resolved = resolve_contract(chain: chain, address: address, slug: slug, require_full: true)
       return resolved if resolved.is_a?(Hash)
 
       _chain_record, contract = resolved

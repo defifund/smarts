@@ -49,4 +49,39 @@ class ChainTest < ActiveSupport::TestCase
 
     assert_equal "https://api.basescan.org/api", chain.etherscan_url
   end
+
+  test "tier defaults to full" do
+    assert_equal "full", Chain.new.tier
+    assert chains(:ethereum).full?
+    assert_not chains(:ethereum).docs_only?
+  end
+
+  test "tier scopes return matching chains" do
+    assert_includes Chain.full, chains(:ethereum)
+    assert_empty Chain.docs_only
+
+    docs_chain = Chain.create!(
+      name: "Linea", slug: "linea", chain_id: 59144,
+      explorer_api_url: "https://api.etherscan.io/v2/api",
+      tier: "docs_only"
+    )
+    assert_includes Chain.docs_only, docs_chain
+    assert docs_chain.docs_only?
+    assert_not docs_chain.full?
+  end
+
+  test "DISPLAY_ORDER covers every chain in db/seeds/chains.rb" do
+    seeded_slugs = eval(Rails.root.join("db/seeds/chains.rb").read).map { |c| c[:slug] }
+    missing = seeded_slugs - Chain::DISPLAY_ORDER
+    assert_empty missing,
+                 "Seeded chains not listed in Chain::DISPLAY_ORDER: #{missing.inspect}. " \
+                 "Add them so they appear in the homepage chain selector."
+  end
+
+  test "for_display scope returns chains in DISPLAY_ORDER" do
+    Chains::Seeder.call
+    slugs = Chain.for_display.pluck(:slug)
+    expected = Chain::DISPLAY_ORDER & slugs
+    assert_equal expected, slugs
+  end
 end

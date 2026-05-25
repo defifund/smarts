@@ -6,7 +6,7 @@ class InspectAddressTool < ApplicationTool
 
   input_schema(
     properties: {
-      chain:   { type: "string", description: "Chain slug: eth, base, arbitrum, optimism, bnb, or polygon." },
+      chain:   { type: "string", description: "Chain slug. Live-data chains only: eth, base, arbitrum, optimism, bnb, polygon. docs-only chains (linea) return an error." },
       address: { type: "string", description: "Any 0x-prefixed EVM address (contract or EOA)." }
     },
     required: [ "chain", "address" ]
@@ -16,6 +16,9 @@ class InspectAddressTool < ApplicationTool
     def payload(chain:, address:)
       chain_record = Chain.find_by(slug: chain)
       return { error: "unknown chain: #{chain}" } unless chain_record
+
+      tier_error = check_full_tier(chain_record)
+      return tier_error if tier_error
 
       result = ChainReader::AddressInspector.call(chain: chain_record, address: address)
 

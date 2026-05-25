@@ -7,7 +7,7 @@ class GetContractInfoTool < ApplicationTool
   input_schema(
     properties: {
       slug:    { type: "string", description: "Curated slug like 'uni-eth' or 'univ3-usdc-weth-eth'. Alternative to chain+address." },
-      chain:   { type: "string", description: "Chain slug: eth, base, arbitrum, optimism, bnb, or polygon. Required unless `slug` is given." },
+      chain:   { type: "string", description: "Chain slug: eth, base, arbitrum, optimism, bnb, polygon, linea. Required unless `slug` is given." },
       address: { type: "string", description: "The 0x-prefixed EVM contract address. Required unless `slug` is given." }
     }
   )

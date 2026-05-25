@@ -21,8 +21,8 @@ class ContractsController < ApplicationController
     find_or_fetch_contract(address)
     @canonical_slug = ContractSlugs.for(chain_slug, address)
     @classification = classify(@contract)
-    @protocol_adapter = resolve_protocol_adapter(@contract)
-    @admin_risk = load_admin_risk_profile(@contract)
+    @protocol_adapter = resolve_protocol_adapter(@contract) if @chain.full?
+    @admin_risk = load_admin_risk_profile(@contract) if @chain.full?
 
     respond_to do |format|
       format.html do
@@ -32,7 +32,7 @@ class ContractsController < ApplicationController
         # without it brand names regress to the Solidity class ("FiatTokenV2_2").
         # Values are cached 60s in Solid Cache, so origin hits (rare under the
         # 1d shell CDN cache) usually skip the Multicall3.
-        @live_snapshot = load_live_values(@contract)
+        @live_snapshot = @chain.full? ? load_live_values(@contract) : empty_live_snapshot
         @live_values = @live_snapshot
         enqueue_ai_enrichment_if_needed(@contract)
         expires_in 1.day, public: true
@@ -40,10 +40,15 @@ class ContractsController < ApplicationController
       end
       format.md do
         # Markdown distillation needs full data inline.
-        @live_snapshot = load_live_values(@contract)
-        @live_values = @live_snapshot
-        @activity = load_recent_events(@contract)
-        @governance = load_governance_timeline(@contract)
+        if @chain.full?
+          @live_snapshot = load_live_values(@contract)
+          @live_values = @live_snapshot
+          @activity = load_recent_events(@contract)
+          @governance = load_governance_timeline(@contract)
+        else
+          @live_snapshot = empty_live_snapshot
+          @live_values = @live_snapshot
+        end
       end
     end
   rescue EtherscanClient::NotVerifiedError
@@ -67,6 +72,8 @@ class ContractsController < ApplicationController
 
   def live
     load_island_contract
+    return render_docs_only_island if @chain.docs_only?
+
     @protocol_adapter = resolve_protocol_adapter(@contract)
     @live_snapshot = load_live_values(@contract)
     @live_values = @live_snapshot
@@ -77,6 +84,8 @@ class ContractsController < ApplicationController
 
   def activity
     load_island_contract
+    return render_docs_only_island if @chain.docs_only?
+
     @activity = load_recent_events(@contract)
     @classification = classify(@contract)
     @live_values = load_live_values(@contract)
@@ -86,6 +95,8 @@ class ContractsController < ApplicationController
 
   def governance
     load_island_contract
+    return render_docs_only_island if @chain.docs_only?
+
     @governance = load_governance_timeline(@contract)
     expires_in 1.hour, public: true
     render layout: false
@@ -133,6 +144,10 @@ class ContractsController < ApplicationController
     ChainReader::ViewCaller.call(contract)
   rescue => e
     Rails.logger.warn("[ContractsController] live values failed: #{e.class}: #{e.message}")
+    empty_live_snapshot
+  end
+
+  def empty_live_snapshot
     ChainReader::ViewCaller::Snapshot.new(results: {}, block_number: nil, fetched_at: nil)
   end
 
@@ -276,6 +291,25 @@ class ContractsController < ApplicationController
 
       View raw on-chain state: <https://smarts.md/#{chain.slug}/#{address}>
     MD
+  end
+
+  # Renders a friendly notice in a Turbo Frame for docs_only chains. Used by
+  # live/activity/governance island actions so they fail fast instead of
+  # spinning up RPC calls that aren't configured for the chain.
+  def render_docs_only_island
+    frame_id =
+      case action_name
+      when "live"       then "contract_live"
+      when "activity"   then "contract_activity"
+      when "governance" then "contract_governance"
+      end
+    render plain: <<~HTML, content_type: "text/html"
+      <turbo-frame id="#{frame_id}">
+        <div class="alert alert-info">
+          #{ERB::Util.h(t('contracts.show.docs_only_notice', chain: @chain.name))}
+        </div>
+      </turbo-frame>
+    HTML
   end
 
   def set_contract_locale

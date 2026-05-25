@@ -1601,4 +1601,42 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :not_modified
   end
+
+  # ---------- docs_only chains (Tier 2) ----------
+
+  test "docs_only chain renders without RPC and shows docs-only notice" do
+    linea = Chain.create!(
+      name: "Linea", slug: "linea", chain_id: 59144, tier: "docs_only",
+      explorer_api_url: "https://api.etherscan.io/v2/api"
+    )
+    contract = Contract.create!(
+      chain: linea, address: "0x" + "a" * 40,
+      name: "FiatTokenV2_1", abi: [ { "name" => "totalSupply", "type" => "function" } ]
+    )
+
+    get contract_path(chain: "linea", address: contract.address)
+
+    assert_response :success
+    assert_match "Linea is a docs-only chain", response.body
+    refute_match %r{turbo-frame id="contract_live"}, response.body
+    refute_match %r{id="contract_tab_activity"}, response.body
+    refute_match %r{id="contract_tab_governance"}, response.body
+    assert_match %r{id="contract_tab_docs"}, response.body
+    assert_match %r{id="contract_tab_source"}, response.body
+  end
+
+  test "docs_only chain live island returns docs-only notice without hitting RPC" do
+    linea = Chain.create!(
+      name: "Linea", slug: "linea", chain_id: 59144, tier: "docs_only",
+      explorer_api_url: "https://api.etherscan.io/v2/api"
+    )
+    contract = Contract.create!(
+      chain: linea, address: "0x" + "b" * 40, name: "Foo",
+      abi: [ { "name" => "totalSupply", "type" => "function" } ]
+    )
+
+    get "/linea/#{contract.address}/live"
+    assert_response :success
+    assert_match "docs-only chain", response.body
+  end
 end

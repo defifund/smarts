@@ -46,6 +46,7 @@ en:
       tab_activity: "Live Activity"
       tab_governance: "Governance"
       tab_source: "Source"
+      docs_only_notice: "%{chain} is a docs-only chain on Smarts: source code and ABI are indexed, but live on-chain data (state, recent events, admin profile) is not currently available. AI agents can still query get_contract_info and get_contract_source via MCP."
     docs:
       overview: "Overview"
       read_functions: "Read Functions"

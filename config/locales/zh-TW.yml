@@ -13,6 +13,7 @@
       tab_activity: "即時動態"
       tab_governance: "治理"
       tab_source: "原始碼"
+      docs_only_notice: "%{chain} 在 Smarts 上是僅文件鏈：原始碼和 ABI 已索引，但目前不提供即時鏈上資料（狀態、最新事件、管理員概覽）。AI 代理仍可透過 MCP 呼叫 get_contract_info 和 get_contract_source。"
     docs:
       overview: "概覽"
       read_functions: "讀取函式"
