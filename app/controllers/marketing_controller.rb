@@ -144,6 +144,7 @@ class MarketingController < ApplicationController
     @tools          = MCP_TOOLS
     @example_queries = MCP_EXAMPLE_QUERIES
     @shortcuts      = MCP_SHORTCUTS
+    response.set_header("Vary", "Accept-Language, Cookie")
     expires_in 12.hours, public: true
   end
 
