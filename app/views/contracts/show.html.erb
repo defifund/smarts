@@ -37,9 +37,9 @@
     <div class="flex items-center gap-3 mb-2 flex-wrap">
       <h1 class="text-3xl font-bold"><%= contract_name %></h1>
       <span class="badge badge-primary"><%= @chain.name %></span>
-      <% if @classification %>
-        <span class="badge badge-outline" title="<%= @classification.description %>">
-          <%= @classification.display_name %>
+      <% if contract_protocol_badge.present? %>
+        <span class="badge badge-outline" title="<%= contract_protocol_description %>">
+          <%= contract_protocol_badge %>
         </span>
       <% end %>
     </div>
@@ -54,8 +54,8 @@
     <% if @contract.compiler_version.present? %>
       <p class="text-sm opacity-50 mt-1">Solidity <%= @contract.compiler_version %></p>
     <% end %>
-    <% if @classification&.description.present? %>
-      <p class="text-sm opacity-70 mt-2 italic"><%= @classification.description %></p>
+    <% if contract_protocol_description.present? %>
+      <p class="text-sm opacity-70 mt-2 italic"><%= contract_protocol_description %></p>
     <% end %>
   </div>
 

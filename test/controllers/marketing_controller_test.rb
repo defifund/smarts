@@ -8,6 +8,15 @@ class MarketingControllerTest < ActionDispatch::IntegrationTest
     assert_match "Live docs for every smart contract.", response.body
   end
 
+  test "home hides the secondary nav until i18n and account surfaces are ready" do
+    get root_path
+    assert_response :success
+
+    refute_match ">Articles<", response.body
+    refute_match ">My<", response.body
+    refute_match ">EN<", response.body
+  end
+
   # Prevents the mobile-overflow regression fixed in fix/mobile-layout: flex
   # items with unbreakable descendants (long hex addresses, <pre> source
   # blocks) can expand past the viewport on narrow screens. overflow-x-hidden
@@ -120,6 +129,29 @@ class MarketingControllerTest < ActionDispatch::IntegrationTest
       expected_href = slug ? "/#{slug}" : "/#{item[:chain]}/#{item[:address]}"
       assert_match expected_href, response.body,
                    "expected link to #{expected_href} on home page"
+    end
+  end
+
+  test "home featured cards show ticker titles with human-readable subtitles" do
+    get root_path
+    assert_response :success
+
+    {
+      "usdc-eth" => "USD Coin",
+      "usdt-eth" => "Tether USD",
+      "dai-eth" => "Dai",
+      "uni-eth" => "Uniswap",
+      "link-eth" => "Chainlink",
+      "aave-eth" => "Aave",
+      "usdc-base" => "USD Coin (Base)",
+      "usdc-arbitrum" => "USD Coin (Arbitrum)",
+      "usdt-bnb" => "Tether USD (BNB)",
+      "wbnb-bnb" => "Wrapped BNB",
+      "cake-bnb" => "PancakeSwap",
+      "wpol-polygon" => "Wrapped POL"
+    }.each do |slug, subtitle|
+      assert_match %r{href="/#{slug}"[^>]*>.*?<div class="mb-1 text-sm text-slate-300">#{Regexp.escape(subtitle)}</div>}m,
+                   response.body
     end
   end
 

@@ -38,6 +38,12 @@ module ProtocolAdapters
       raise NotImplementedError
     end
 
+    # Optional one-line explanation rendered under the contract header.
+    # Default nil keeps non-ERC-20 adapters from showing redundant copy.
+    def description
+      nil
+    end
+
     def panel_data
       raise NotImplementedError
     end

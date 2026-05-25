@@ -75,6 +75,20 @@ class ProtocolAdapters::GenericErc20AdapterTest < ActiveSupport::TestCase
     end
   end
 
+  test "display_name prefers panel_data symbol so USDT-style tokens show their ticker" do
+    adapter = ProtocolAdapters::GenericErc20Adapter.new(@contract)
+    adapter.define_singleton_method(:panel_data) { { symbol: "USDT" } }
+
+    assert_equal "USDT", adapter.display_name
+  end
+
+  test "display_name returns nil when panel_data has no symbol" do
+    adapter = ProtocolAdapters::GenericErc20Adapter.new(@contract)
+    adapter.define_singleton_method(:panel_data) { { symbol: nil } }
+
+    assert_nil adapter.display_name
+  end
+
   # ---------- panel_data: degradation ----------
 
   test "panel_data returns {error:} when metadata multicall fails to produce symbol/decimals" do

@@ -291,6 +291,18 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
     refute_match %r{<meta property="og:description" content="[^"]*\(ERC-20 Token\)}, response.body
   end
 
+  test "contract page still shows ERC-20 badge and description when classifier is missing" do
+    contract = contracts(:uni_token)
+
+    stub_class_method(ContractDocument::Classifier, :call, ->(_) { nil }) do
+      get contract_path(chain: "eth", address: contract.address)
+    end
+
+    assert_response :success
+    assert_match "ERC-20 Token", response.body
+    assert_match "Fungible token following the ERC-20 standard.", response.body
+  end
+
   # When the on-chain ERC-20 name() call succeeds, every page-level display
   # point — H1, <title>, og:title, breadcrumb entry, JSON-LD about.name —
   # must switch to the brand name, not the Solidity class name Etherscan
@@ -307,6 +319,23 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     # Without an adapter or live values, falls through to contract.name
     assert_select "h1", "FiatTokenV2_2"
+  end
+
+  test "contract page uses adapter display_name ticker in shell for ERC-20s" do
+    contract = contracts(:uni_token)
+    contract.update!(name: "Tether USD")
+
+    fake_adapter = ProtocolAdapters::GenericErc20Adapter.allocate
+    fake_adapter.instance_variable_set(:@contract, contract)
+    fake_adapter.instance_variable_set(:@chain, contract.chain)
+    fake_adapter.define_singleton_method(:display_name) { "USDT" }
+
+    stub_class_method(ProtocolAdapters::Base, :resolve, ->(_) { fake_adapter }) do
+      get contract_path(chain: "eth", address: contract.address)
+    end
+
+    assert_response :success
+    assert_select "h1", "USDT"
   end
 
   # The SEO helper runs in the layout, which is shared with error-state views.
@@ -720,7 +749,6 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_response :success
-    refute_match "ERC-20 Token", response.body
   end
 
   test "show enqueues EnrichContractAiJob when ai_natspec is missing and some function lacks real natspec" do

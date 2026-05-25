@@ -1,5 +1,6 @@
 require "bigdecimal"
 require "bigdecimal/util"
+require "set"
 
 module ContractsHelper
   # Generates the path for a Turbo Frame island sub-resource (live, activity,
@@ -224,6 +225,38 @@ module ContractsHelper
       live_value("name()").to_s.presence ||
       @contract&.name.presence ||
       "Unknown Contract"
+  end
+
+  # Contract-page header badge for the protocol class. Prefers the classifier,
+  # then the resolved protocol adapter, then a shape-based ERC-20 fallback so
+  # the page still explains what kind of contract the user is looking at even
+  # when classification is unavailable.
+  def contract_protocol_badge
+    @classification&.display_name.to_s.presence ||
+      @protocol_adapter&.protocol_name.to_s.presence ||
+      erc20_contract? && "ERC-20 Token"
+  end
+
+  # Short one-line explanation for the header. Mirrors the badge fallback so
+  # the page can still explain itself when the classifier is missing.
+  def contract_protocol_description
+    @classification&.description.to_s.presence ||
+      @protocol_adapter&.description.to_s.presence ||
+      (erc20_contract? ? "Fungible token following the ERC-20 standard." : nil)
+  end
+
+  def erc20_contract?
+    return true if ProtocolAdapters::GenericErc20Adapter.matches?(@contract)
+
+    abi = @contract&.abi
+    return false unless abi.is_a?(Array)
+
+    names = abi.map { |item| [ item["type"], item["name"] ] }.to_set
+    names.include?([ "function", "totalSupply" ]) &&
+      names.include?([ "function", "approve" ]) &&
+      names.include?([ "event", "Transfer" ])
+  rescue StandardError
+    false
   end
 
   # Truncated "0xa0b8…eb48" for inline display. First 6 + last 4.

@@ -91,6 +91,20 @@ module ProtocolAdapters
       "ERC-20 Token"
     end
 
+    def description
+      "Fungible token following the ERC-20 standard."
+    end
+
+    # ERC-20 pages should prefer the ticker in the H1 / breadcrumb / title.
+    # panel_data already caches the symbol read, so reusing it keeps the
+    # contract shell aligned with the token panel without another RPC path.
+    def display_name
+      panel_data[:symbol].presence
+    rescue StandardError => e
+      Rails.logger.warn("[GenericErc20Adapter] display_name failed: #{e.class}: #{e.message}")
+      nil
+    end
+
     def panel_data
       Rails.cache.fetch(cache_key, expires_in: 60.seconds) { read_panel_data }
     end
