@@ -85,6 +85,8 @@ Rails.application.routes.draw do
   root "marketing#home"
 
   get "polymarket", to: "marketing#polymarket"
+  get "sitemap.xml", to: "marketing#sitemap", defaults: { format: :xml }
+  get "robots.txt", to: "marketing#robots", defaults: { format: :text }
 
   # Articles list with optional locale prefix
   get ":locale/articles", to: "articles#index", as: :localized_articles,

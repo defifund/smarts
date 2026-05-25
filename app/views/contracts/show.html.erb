@@ -3,23 +3,31 @@
 <%
   contract_name = contract_display_name
   seo_title = "#{contract_name} on #{@chain.name} — live on-chain contract docs"
-  seo_desc  =
-    if @classification&.display_name.present?
-      "Live on-chain docs for #{contract_name} (#{@classification.display_name}) on #{@chain.name}. Supply, admin controls, live state, and source — read straight from the chain."
-    else
-      "Live on-chain docs for #{contract_name} at #{@contract.display_address} on #{@chain.name}. View functions, admin controls, source code — current from the chain."
-    end
+  seo_desc  = Seo::Copy.contract(
+    contract_name: contract_name,
+    chain_name: @chain.name,
+    classification: @classification,
+    address: @contract.display_address
+  )
   seo_canonical =
     @canonical_slug ? "#{SeoHelper::SITE_URL}/#{@canonical_slug}" : "#{SeoHelper::SITE_URL}/#{@chain.slug}/#{@contract.address}"
   seo_meta title: seo_title, description: seo_desc, canonical: seo_canonical
 %>
 
 <% content_for :head do %>
-  <%= contract_json_ld(contract: @contract, chain: @chain, classification: @classification, display_name: contract_name) %>
-  <%= breadcrumb_json_ld([
+  <%= render_json_ld(Seo::JsonLd.contract(
+    contract: @contract,
+    chain: @chain,
+    classification: @classification,
+    display_name: contract_name,
+    canonical_url: seo_canonical,
+    title: seo_title,
+    description: seo_desc
+  )) %>
+  <%= render_json_ld(Seo::JsonLd.breadcrumb([
     { name: "Smarts", url: "#{SeoHelper::SITE_URL}/" },
     { name: "#{contract_name} on #{@chain.name}", url: seo_canonical }
-  ]) %>
+  ])) %>
 <% end %>
 
 <%# Inner px-0 — outer <main> in the layout already supplies horizontal

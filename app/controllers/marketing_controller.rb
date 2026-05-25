@@ -110,9 +110,23 @@ class MarketingController < ApplicationController
       return
     end
 
-    @featured_groups = FEATURED.group_by { |f| f[:category] }
-    @recent_articles = Article.published.order(published_at: :desc).limit(3)
+    @homepage = Marketing::HomepagePresenter.call(featured: FEATURED, recent_limit: 3, contract_limit: 50)
     expires_in 6.hours, public: true
+  end
+
+  def sitemap
+    @sitemap = Marketing::SitemapBuilder.call(contract_limit: 50)
+    expires_in 12.hours, public: true
+  end
+
+  def robots
+    response.set_header("Cache-Control", "public, max-age=3600")
+
+    render plain: <<~TXT
+      User-agent: *
+      Allow: /
+      Sitemap: #{SeoHelper::SITE_URL}/sitemap.xml
+    TXT
   end
 
   def mcp_docs

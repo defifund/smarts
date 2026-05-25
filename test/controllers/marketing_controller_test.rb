@@ -86,6 +86,19 @@ class MarketingControllerTest < ActionDispatch::IntegrationTest
     assert_match(/\{search_term_string\}/, website["potentialAction"]["target"]["urlTemplate"])
   end
 
+  test "home emits an ItemList JSON-LD for the top curated contract URLs" do
+    get root_path
+    assert_response :success
+
+    item_list = response.body.scan(%r{<script type="application/ld\+json">(.+?)</script>}m)
+                            .map { |m| JSON.parse(m[0]) }
+                            .find { |j| j["@type"] == "ItemList" }
+
+    assert item_list, "expected an ItemList JSON-LD on the home page"
+    assert_equal 50, item_list["numberOfItems"]
+    assert_equal "https://smarts.md/usdc-eth", item_list["itemListElement"].first["item"]
+  end
+
   test "home renders the curated featured section" do
     get root_path
     assert_response :success
@@ -108,6 +121,38 @@ class MarketingControllerTest < ActionDispatch::IntegrationTest
       assert_match expected_href, response.body,
                    "expected link to #{expected_href} on home page"
     end
+  end
+
+  test "sitemap.xml exposes the top 50 canonical contract URLs" do
+    Article.create!(
+      slug: "1z",
+      user: users(:one),
+      category: "company",
+      subcategory: "updates",
+      title: { "en" => "Sitemap article", "zh-CN" => "站点地图文章" },
+      summary: { "en" => "Summary", "zh-CN" => "摘要" },
+      content: { "en" => "English body", "zh-CN" => "中文正文" },
+      published_at: 1.day.ago
+    )
+
+    get "/sitemap.xml"
+
+    assert_response :success
+    assert_equal "application/xml", response.media_type
+
+    urls = response.body.scan(%r{<loc>([^<]+)</loc>}).flatten
+    assert_equal 52, urls.length
+    assert_equal "https://smarts.md/usdc-eth", urls.first
+    refute_includes urls, "https://smarts.md/wmatic-polygon"
+    assert_includes urls, "https://smarts.md/1z"
+    assert_includes urls, "https://smarts.md/cn/1z"
+  end
+
+  test "robots.txt advertises the sitemap" do
+    get "/robots.txt"
+
+    assert_response :success
+    assert_match "Sitemap: https://smarts.md/sitemap.xml", response.body
   end
 
   test "home still redirects on q= input with chain/address pattern" do

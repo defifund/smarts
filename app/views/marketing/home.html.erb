@@ -1,107 +1,173 @@
+<% seo_meta description: @homepage.meta_description %>
+
 <% content_for :head do %>
-  <%= home_json_ld %>
+  <%= render_json_ld(Seo::JsonLd.homepage) %>
+  <%= render_json_ld(Seo::JsonLd.item_list(
+    name: "Top 50 curated contract URLs on Smarts",
+    description: "Canonical contract URLs indexed for search engines and AI agents.",
+    items: @homepage.top_contract_urls.map { |url| { url: url } }
+  )) %>
 <% end %>
 
-<div class="flex flex-col items-center w-full min-h-screen bg-gray-950 text-gray-100 fixed inset-0 z-50 overflow-auto">
-  <div class="flex flex-col items-center text-center px-6 pt-20 pb-10 w-full">
-    <h1 class="text-6xl md:text-7xl font-extrabold text-white tracking-tight mb-5">smarts<span class="text-gray-400 font-normal">.md</span></h1>
-    <p class="text-xl md:text-2xl text-gray-300 mb-3">Live docs for every smart contract.</p>
-    <p class="text-sm md:text-base text-gray-500 max-w-lg mx-auto mb-10">
-      Enter a verified contract address to generate live documentation with real-time on-chain state.
-    </p>
+<div class="relative isolate overflow-hidden bg-slate-950 text-slate-100">
+  <div class="absolute inset-x-0 top-0 -z-10 h-72 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.22),_transparent_48%),radial-gradient(circle_at_80%_20%,_rgba(16,185,129,0.14),_transparent_32%)]"></div>
+  <div class="absolute inset-0 -z-10 bg-[linear-gradient(rgba(15,23,42,0.65)_1px,transparent_1px),linear-gradient(90deg,rgba(15,23,42,0.65)_1px,transparent_1px)] bg-[size:5rem_5rem] opacity-20"></div>
 
-    <%= form_with url: "/", method: :get, local: true, class: "w-full max-w-xl" do %>
-      <div class="flex gap-3">
-        <input
-          type="text"
-          name="q"
-          placeholder="eth/0x1f98..."
-          class="flex-1 px-5 py-4 rounded-xl bg-gray-800/60 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
-          required
-          pattern="[a-z]+/0x[0-9a-fA-F]{40}"
-          title="Format: chain/0xAddress (e.g. eth/0x1f98...)"
-        >
-        <button
-          type="submit"
-          class="px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl text-base transition-colors"
-        >
-          Go
-        </button>
+  <div class="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-6 pb-12 pt-16 sm:px-8 lg:px-10">
+    <section class="grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
+      <div class="max-w-3xl">
+        <div class="mb-5 inline-flex items-center gap-2 rounded-full border border-sky-400/20 bg-sky-400/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-sky-200">
+          Live docs for every smart contract
+        </div>
+
+        <h1 class="text-5xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl">
+          <span class="block">smarts<span class="text-slate-400 font-normal">.md</span></span>
+          <span class="mt-4 block max-w-2xl text-2xl font-semibold leading-tight text-slate-200 sm:text-3xl lg:text-4xl">
+            Query verified on-chain state, source, admin risk, and governance without leaving the page.
+          </span>
+        </h1>
+
+        <p class="mt-6 max-w-2xl text-base leading-7 text-slate-300 sm:text-lg">
+          Enter a verified contract address to generate live documentation, or start from a curated blue chip. Smarts covers Ethereum, Base, Arbitrum, Optimism, BNB Smart Chain, and Polygon.
+        </p>
+
+        <div class="mt-8 flex flex-wrap gap-3 text-sm text-slate-300">
+          <span class="rounded-full border border-white/10 bg-white/5 px-4 py-2"><%= @homepage.top_contract_slugs.length %> curated contract URLs</span>
+          <span class="rounded-full border border-white/10 bg-white/5 px-4 py-2"><%= MarketingController::CHAIN_LABELS.length %> supported chains</span>
+          <span class="rounded-full border border-white/10 bg-white/5 px-4 py-2">MCP + OpenAPI + AI Plugin</span>
+        </div>
+
+        <div class="mt-10 rounded-3xl border border-white/10 bg-white/5 p-4 shadow-2xl shadow-slate-950/40 backdrop-blur">
+          <%= form_with url: "/", method: :get, local: true, class: "grid gap-3 sm:grid-cols-[1fr_auto]" do %>
+            <input
+              type="text"
+              name="q"
+              placeholder="eth/0x1f98..."
+              class="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-5 py-4 text-base text-white placeholder:text-slate-500 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-400/40"
+              required
+              pattern="[a-z]+/0x[0-9a-fA-F]{40}"
+              title="Format: chain/0xAddress (e.g. eth/0x1f98...)"
+            >
+            <button
+              type="submit"
+              class="rounded-2xl bg-sky-400 px-8 py-4 text-base font-semibold text-slate-950 transition-colors hover:bg-sky-300"
+            >
+              Go
+            </button>
+          <% end %>
+        </div>
+
+        <div class="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-400">
+          <span>Or</span>
+          <a href="https://mcp.smarts.md/" class="font-semibold text-sky-300 underline decoration-sky-400/50 underline-offset-4 hover:text-sky-200">connect your AI agent</a>
+          <span>to query every contract via MCP.</span>
+        </div>
       </div>
-    <% end %>
 
-    <p class="text-sm text-gray-500 mt-5">
-      Or
-      <a href="https://mcp.smarts.md/" class="text-blue-400 hover:text-blue-300 underline underline-offset-2">connect your AI agent</a>
-      to query every contract via MCP.
-    </p>
-  </div>
+      <div class="grid gap-4">
+        <div class="rounded-3xl border border-white/10 bg-slate-900/80 p-6 shadow-xl shadow-slate-950/40 backdrop-blur">
+          <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">Discovery surfaces</p>
+          <div class="mt-4 grid gap-3 sm:grid-cols-2">
+            <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+              <p class="text-3xl font-black text-white">Top 50</p>
+              <p class="mt-1 text-sm text-slate-400">canonical contract URLs in the sitemap</p>
+            </div>
+            <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+              <p class="text-3xl font-black text-white">JSON-LD</p>
+              <p class="mt-1 text-sm text-slate-400">WebSite and ItemList structured data</p>
+            </div>
+            <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+              <p class="text-3xl font-black text-white">MCP</p>
+              <p class="mt-1 text-sm text-slate-400">tools exposed for AI agents</p>
+            </div>
+            <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+              <p class="text-3xl font-black text-white">OpenAPI</p>
+              <p class="mt-1 text-sm text-slate-400">REST discovery for ChatGPT Actions</p>
+            </div>
+          </div>
+        </div>
 
-  <section class="w-full max-w-6xl px-6 pb-20">
-    <div class="text-xs uppercase tracking-widest text-gray-500 mb-6 text-center">
-      Or start from a curated blue chip
-    </div>
+        <div class="rounded-3xl border border-emerald-400/20 bg-emerald-400/10 p-6">
+          <p class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200">What you get</p>
+          <ul class="mt-4 space-y-3 text-sm leading-6 text-emerald-50/90">
+            <li>• Live source, admin controls, and governance history from verified contracts.</li>
+            <li>• Curated blue-chip entries for high-signal tokens, pools, and protocol contracts.</li>
+            <li>• AI-friendly discovery through a sitemap, structured data, and direct tool endpoints.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
 
-    <% @featured_groups.each do |category, items| %>
-      <div class="mb-10">
-        <h2 class="text-xs uppercase tracking-wider text-gray-400 mb-3 font-semibold"><%= category %></h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          <% items.each do |item| %>
-            <% slug = ContractSlugs.for(item[:chain], item[:address]) %>
-            <a href="<%= slug ? "/#{slug}" : "/#{item[:chain]}/#{item[:address]}" %>"
-               class="group block p-4 bg-gray-900/60 border border-gray-800 hover:border-blue-500/60 hover:bg-gray-900 rounded-xl transition-all">
-              <div class="flex items-baseline justify-between gap-2 mb-1">
-                <span class="text-lg font-bold text-white group-hover:text-blue-400 transition-colors"><%= item[:symbol] %></span>
-                <span class="text-[10px] uppercase tracking-wider text-gray-500 font-mono">
-                  <%= MarketingController::CHAIN_LABELS[item[:chain]] || item[:chain] %>
-                </span>
+    <section class="mt-16">
+      <div class="mb-6 text-center">
+        <div class="text-xs font-semibold uppercase tracking-[0.35em] text-slate-500">
+          Or start from a curated blue chip
+        </div>
+      </div>
+
+      <% @homepage.featured_groups.each do |category, items| %>
+        <div class="mb-10">
+          <h2 class="mb-3 text-xs font-semibold uppercase tracking-[0.3em] text-slate-400"><%= category %></h2>
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <% items.each do |item| %>
+              <% slug = ContractSlugs.for(item[:chain], item[:address]) %>
+              <a href="<%= slug ? "/#{slug}" : "/#{item[:chain]}/#{item[:address]}" %>"
+                 class="group block rounded-2xl border border-white/10 bg-slate-900/70 p-4 transition-all hover:-translate-y-0.5 hover:border-sky-400/40 hover:bg-slate-900">
+                <div class="mb-1 flex items-baseline justify-between gap-2">
+                  <span class="text-lg font-bold text-white transition-colors group-hover:text-sky-300"><%= item[:symbol] %></span>
+                  <span class="font-mono text-[10px] uppercase tracking-[0.3em] text-slate-500">
+                    <%= MarketingController::CHAIN_LABELS[item[:chain]] || item[:chain] %>
+                  </span>
+                </div>
+                <div class="mb-1 text-sm text-slate-300"><%= item[:name] %></div>
+                <div class="text-xs leading-6 text-slate-500"><%= item[:blurb] %></div>
+              </a>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </section>
+
+    <% if @homepage.recent_articles.any? %>
+      <section class="mt-6 border-t border-white/10 pt-12">
+        <div class="mb-6 text-center">
+          <div class="text-xs font-semibold uppercase tracking-[0.35em] text-slate-500">
+            Latest articles
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <% @homepage.recent_articles.each do |article| %>
+            <% locale = "en" %>
+            <% title = article.title_for(locale) %>
+            <% summary = article.summary_for(locale) %>
+            <% article_url = article_path(article.slug) %>
+            <a href="<%= article_url %>"
+               class="group block rounded-2xl border border-white/10 bg-slate-900/70 p-5 transition-all hover:-translate-y-0.5 hover:border-sky-400/40 hover:bg-slate-900">
+              <div class="mb-2 flex items-baseline justify-between gap-2">
+                <span class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500"><%= article.category %></span>
+                <% if article.published_at.present? %>
+                  <time datetime="<%= article.published_at.utc.iso8601 %>" class="text-[10px] text-slate-600">
+                    <%= article.published_at.to_date.to_fs(:short) %>
+                  </time>
+                <% end %>
               </div>
-              <div class="text-sm text-gray-300 mb-1"><%= item[:name] %></div>
-              <div class="text-xs text-gray-500 leading-snug"><%= item[:blurb] %></div>
+              <h3 class="mb-2 text-base font-bold text-white transition-colors group-hover:text-sky-300"><%= title %></h3>
+              <% if summary.present? %>
+                <p class="text-xs leading-6 text-slate-400"><%= summary %></p>
+              <% end %>
             </a>
           <% end %>
         </div>
-      </div>
+
+        <div class="mt-8 text-center">
+          <%= link_to "Browse all articles", articles_path, class: "text-sm font-semibold text-sky-300 underline decoration-sky-400/50 underline-offset-4 hover:text-sky-200" %>
+        </div>
+      </section>
     <% end %>
-  </section>
 
-  <% if @recent_articles.any? %>
-    <section class="w-full max-w-6xl px-6 pb-20 border-t border-gray-800 pt-12">
-      <div class="text-xs uppercase tracking-widest text-gray-500 mb-6 text-center">
-        Latest articles
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <% @recent_articles.each do |article| %>
-          <% locale = "en" %>
-          <% title = article.title_for(locale) %>
-          <% summary = article.summary_for(locale) %>
-          <% article_url = article_path(article.slug) %>
-          <a href="<%= article_url %>"
-             class="group block p-4 bg-gray-900/60 border border-gray-800 hover:border-blue-500/60 hover:bg-gray-900 rounded-xl transition-all">
-            <div class="flex items-baseline justify-between gap-2 mb-2">
-              <span class="text-sm font-semibold text-gray-400 uppercase tracking-wider"><%= article.category %></span>
-              <% if article.published_at.present? %>
-                <time datetime="<%= article.published_at.utc.iso8601 %>" class="text-[10px] text-gray-600">
-                  <%= article.published_at.to_date.to_fs(:short) %>
-                </time>
-              <% end %>
-            </div>
-            <h3 class="text-base font-bold text-white group-hover:text-blue-400 transition-colors mb-2"><%= title %></h3>
-            <% if summary.present? %>
-              <p class="text-xs text-gray-400 leading-relaxed"><%= summary %></p>
-            <% end %>
-          </a>
-        <% end %>
-      </div>
-
-      <div class="text-center mt-8">
-        <%= link_to "Browse all articles", articles_path, class: "text-sm text-blue-400 hover:text-blue-300 underline underline-offset-2" %>
-      </div>
-    </section>
-  <% end %>
-
-  <footer class="pb-8">
-    <p class="text-xs text-gray-600">Built by <a href="https://chain.dev" class="text-gray-500 hover:text-gray-400 underline">chain.dev</a></p>
-  </footer>
+    <footer class="mt-16 border-t border-white/10 pt-8 pb-4 text-center">
+      <p class="text-xs text-slate-500">Built by <a href="https://chain.dev" class="text-slate-400 underline decoration-slate-600 underline-offset-4 hover:text-slate-200">chain.dev</a></p>
+    </footer>
+  </div>
 </div>

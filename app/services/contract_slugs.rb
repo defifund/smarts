@@ -135,4 +135,15 @@ module ContractSlugs
   def self.polymarket_slugs
     MAP.keys.grep(/\Apolymarket-/)
   end
+
+  # Canonical slug list in registry order, excluding legacy aliases that share
+  # an address with a newer slug. Used for sitemap generation and homepage
+  # discovery surfaces.
+  def self.canonical_slugs(limit = nil)
+    slugs = MAP.each_pair.filter_map do |slug, (chain_slug, address)|
+      slug if REVERSE[[ chain_slug, address.downcase ]] == slug
+    end
+
+    limit ? slugs.first(limit) : slugs
+  end
 end
