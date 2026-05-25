@@ -1,5 +1,5 @@
 <% content_for :body_class, "overflow-x-hidden bg-slate-950 text-slate-100" %>
-<% content_for :nav_class, "border-b border-white/10 bg-slate-950/85 px-3 py-3 backdrop-blur sm:px-5" %>
+<% content_for :nav_class, "border-b border-white/10 bg-transparent px-3 py-4 sm:px-5" %>
 <% content_for :brand_class, "text-xl font-bold text-white hover:text-slate-200" %>
 <% content_for :hide_secondary_nav, true %>
 <% content_for :footer_class, "container mx-auto mt-12 border-t border-white/10 px-3 py-8 sm:px-5" %>
@@ -17,11 +17,11 @@
   )) %>
 <% end %>
 
-<div class="relative isolate overflow-hidden">
+<div class="-mx-3 relative isolate overflow-hidden sm:-mx-5">
   <div class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_12%,rgba(56,189,248,0.18),transparent_28%),radial-gradient(circle_at_85%_24%,rgba(16,185,129,0.10),transparent_24%),linear-gradient(180deg,#0b1020_0%,#09101b_46%,#071018_100%)]"></div>
   <div class="absolute inset-0 -z-10 bg-[linear-gradient(rgba(148,163,184,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.08)_1px,transparent_1px)] bg-[size:5rem_5rem] opacity-15"></div>
 
-  <div class="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-6 pb-12 pt-16 sm:px-8 lg:px-10">
+  <div class="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-4 pb-12 pt-10 sm:px-8 lg:px-10">
     <section class="grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
       <div class="max-w-3xl">
         <div class="mb-5 inline-flex items-center gap-2 rounded-full border border-sky-400/20 bg-sky-400/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-sky-200">
