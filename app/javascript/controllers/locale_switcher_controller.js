@@ -94,13 +94,24 @@ export default class extends Controller {
     const path = window.location.pathname;
     let newPath;
 
+    // Check if we're on home (/ or /cn or /tw) — must be checked BEFORE articleMatch
+    // because /tw matches the 2-char article pattern
+    const homeMatch = path.match(/^\/(?:cn|tw)?$/) || path === "/";
+
     // Check if we're on an article (with or without locale prefix)
     const articleMatch = path.match(/^\/?(?:cn|tw)?\/?([a-z0-9]{2})$/) || path.match(/^\/([a-z0-9]{2})$/);
 
     // Check if we're on /articles or /cn/articles or /tw/articles
     const articlesMatch = path.match(/^\/?(?:cn|tw)?\/?(articles)$/);
 
-    if (articleMatch) {
+    if (homeMatch) {
+      // Home route: adjust locale prefix
+      if (locale === "en") {
+        newPath = "/";
+      } else {
+        newPath = `/${locale}`;
+      }
+    } else if (articleMatch) {
       // Article route: adjust locale prefix
       const slug = articleMatch[1];
       if (locale === "en") {
@@ -118,7 +129,7 @@ export default class extends Controller {
         newPath = `/${locale}/articles`;
       }
     } else {
-      // Other routes (home, admin, etc.): cookie is set, force reload
+      // Other routes (admin, etc.): cookie is set, force reload
       window.location.reload();
       return;
     }

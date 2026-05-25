@@ -82,6 +82,10 @@ Rails.application.routes.draw do
     root "marketing#mcp_docs", as: :mcp_docs
   end
 
+  # Localized home with optional locale prefix
+  get ":locale", to: "marketing#home", as: :localized_home,
+    constraints: { locale: Regexp.union(Article::LOCALE_ROUTE_MAP.keys) }
+
   root "marketing#home"
 
   get "polymarket", to: "marketing#polymarket"

@@ -186,9 +186,9 @@
       ai_tools: "AI 工具端点"
       rest_api: "Actions-ready REST API"
       what_you_get: "你将获得"
-      benefit_1: "• 实时源码、管理权限和治理历史。"
-      benefit_2: "• 精选代币、流动池和协议合约。"
-      benefit_3: "• 站点地图、结构化数据和 AI 代理工具端点。"
+      benefit_1: "实时源码、管理权限和治理历史。"
+      benefit_2: "精选代币、流动池和协议合约。"
+      benefit_3: "站点地图、结构化数据和 AI 代理工具端点。"
       curated_cta: "或从精选蓝筹合约开始"
       latest_articles: "最新文章"
       browse_all: "浏览所有文章"
@@ -200,7 +200,7 @@
       featured:
         usdc_eth:
           name: "USD Coin"
-          blurb: "Circle 发行的受监管美元稳定币，在多条主流链上具有深度流动性。"
+          blurb: "Circle 发行的受监管美元稳定币，流动性深厚。"
         usdt_eth:
           name: "Tether USD"
           blurb: "历史最久、交易最活跃的美元稳定币。"
