@@ -1,5 +1,7 @@
 require "test_helper"
 
+require "yaml"
+
 class ChainTest < ActiveSupport::TestCase
   test "validates required fields" do
     chain = Chain.new
@@ -71,7 +73,7 @@ class ChainTest < ActiveSupport::TestCase
   end
 
   test "DISPLAY_ORDER covers every chain in db/seeds/chains.rb" do
-    seeded_slugs = eval(Rails.root.join("db/seeds/chains.rb").read).map { |c| c[:slug] }
+    seeded_slugs = YAML.safe_load_file(Rails.root.join("db/seeds/chains.rb"), symbolize_names: true).map { |c| c[:slug] }
     missing = seeded_slugs - Chain::DISPLAY_ORDER
     assert_empty missing,
                  "Seeded chains not listed in Chain::DISPLAY_ORDER: #{missing.inspect}. " \

@@ -1,3 +1,5 @@
+require "yaml"
+
 module Chains
   # Idempotent upsert for the chain registry. Reads canonical chain attributes
   # from db/seeds/chains.rb and applies them via find_or_initialize_by + update!
@@ -26,7 +28,7 @@ module Chains
     private
 
     def load_chain_data
-      eval(SEED_PATH.read, binding, SEED_PATH.to_s)
+      YAML.safe_load_file(SEED_PATH, symbolize_names: true)
     end
   end
 end

@@ -49,7 +49,7 @@ module Chains
       end
 
       def top_kinds(limit = 2)
-        kind_counts.sort_by { |kind, count| [-count, kind] }.first(limit)
+        kind_counts.sort_by { |kind, count| [ -count, kind ] }.first(limit)
       end
 
       def path(locale: I18n.locale)

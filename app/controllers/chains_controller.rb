@@ -5,7 +5,7 @@ class ChainsController < ApplicationController
 
   def index
     @query = params[:q].to_s.strip
-    @tier_filter = params[:tier].presence_in(%w[all full docs_only]) || "all"
+    @tier_filter = params[:tier].presence_in(%w[ all full docs_only ]) || "all"
 
     @chains = Chains::Catalog.all.select { |chain| chain_visible?(chain) }
     @full_chains = @chains.select(&:full?)
@@ -15,7 +15,7 @@ class ChainsController < ApplicationController
       chain.kind_counts.each do |kind, count|
         counts[kind] += count
       end
-    end.sort_by { |kind, count| [-count, kind] }.first(4)
+    end.sort_by { |kind, count| [ -count, kind ] }.first(4)
     response.set_header("Vary", "Accept-Language, Cookie")
     expires_in 12.hours, public: true
   end
