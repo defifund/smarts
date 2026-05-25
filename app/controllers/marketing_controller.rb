@@ -55,7 +55,7 @@ class MarketingController < ApplicationController
   ].freeze
 
   CHAIN_LABELS = {
-    "eth" => "Ethereum", "base" => "Base", "arbitrum" => "Arbitrum", "optimism" => "Optimism", "bnb" => "BNB Smart Chain", "polygon" => "Polygon"
+    "eth" => "Ethereum", "base" => "Base", "bnb" => "BNB Smart Chain", "arbitrum" => "Arbitrum", "optimism" => "Optimism", "polygon" => "Polygon"
   }.freeze
 
   # Tools exposed over MCP. Kept in sync with app/tools/*.
