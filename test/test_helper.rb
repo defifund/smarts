@@ -26,6 +26,13 @@ module ActiveSupport
     # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
     fixtures :all
 
+    # Reset I18n.locale between tests. Controller before_actions and the locale
+    # cookie path can leave a non-default locale set; subsequent tests that read
+    # I18n.locale (HomepagePresenter, partial renders, etc.) then see whichever
+    # locale the previous test happened to land on, producing flaky failures
+    # under parallel execution.
+    setup { I18n.locale = I18n.default_locale }
+
     # Minitest 6 dropped Minitest::Mock#stub. Block-scoped singleton-method
     # replacement: stub_impl is a callable (lambda/proc), yielded block runs the test.
     #

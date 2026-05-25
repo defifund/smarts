@@ -13,7 +13,7 @@ class Marketing::HomepagePresenterTest < ActiveSupport::TestCase
       published_at: 1.day.ago
     )
 
-    result = Marketing::HomepagePresenter.call(featured: MarketingController::FEATURED, recent_limit: 3, contract_limit: 50)
+    result = Marketing::HomepagePresenter.call(featured: MarketingController::FEATURED, recent_limit: 3, contract_limit: 50, locale: "en")
 
     assert_equal MarketingController::FEATURED.map { |f| f[:category] }.uniq.sort, result.featured_groups.keys.sort
     assert_includes result.recent_articles, article
