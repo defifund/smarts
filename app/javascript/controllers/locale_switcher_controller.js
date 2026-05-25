@@ -6,7 +6,11 @@ export default class extends Controller {
   // URLs on unlisted chains fall back to a full page reload on locale switch
   // instead of rewriting the URL — still works (cookie carries locale) but
   // less smooth. Keep this in sync when adding new chains.
-  static supportedChains = ["eth", "base", "bnb", "arbitrum", "optimism", "polygon", "linea"];
+  static supportedChains = [
+    "eth", "base", "bnb", "arbitrum", "optimism", "polygon",
+    "linea", "unichain", "berachain", "blast", "sonic", "mantle",
+    "gnosis", "celo", "fraxtal", "taiko", "world", "abstract"
+  ];
 
   connect() {
     const currentLocale = this.extractLocaleFromPath() || this.extractLocaleFromHtmlLang() || this.extractLocaleFromCookie() || "en";

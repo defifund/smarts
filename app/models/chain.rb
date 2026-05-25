@@ -13,7 +13,10 @@ class Chain < ApplicationRecord
   # (most-recognised brands at the top), Tier 2 follows. Adding a new chain to
   # db/seeds/chains.rb without also appending to DISPLAY_ORDER will skip the
   # chain in dropdowns — chain_registry_consistency_test catches this drift.
-  DISPLAY_ORDER = %w[eth base bnb arbitrum optimism polygon linea].freeze
+  DISPLAY_ORDER = %w[
+    eth base bnb arbitrum optimism polygon
+    linea unichain berachain blast sonic mantle gnosis celo fraxtal taiko world abstract
+  ].freeze
 
   scope :for_display, -> { in_order_of(:slug, DISPLAY_ORDER) }
 
