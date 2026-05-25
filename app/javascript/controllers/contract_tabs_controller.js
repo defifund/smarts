@@ -32,9 +32,12 @@ export default class extends Controller {
 
   loadTab(event) {
     const target = event.target
-    if (target === this.activityTarget)   this.loadFrame("contract_activity",   this.activityUrlValue)
-    if (target === this.governanceTarget) this.loadFrame("contract_governance", this.governanceUrlValue)
-    if (target === this.sourceTarget)     this.loadFrame("contract_source",     this.sourceUrlValue)
+    // hasXTarget guards required because docs_only chains omit activity and
+    // governance tabs entirely — accessing this.activityTarget when the target
+    // is absent throws and aborts the handler, blocking source from loading too.
+    if (this.hasActivityTarget   && target === this.activityTarget)   this.loadFrame("contract_activity",   this.activityUrlValue)
+    if (this.hasGovernanceTarget && target === this.governanceTarget) this.loadFrame("contract_governance", this.governanceUrlValue)
+    if (this.hasSourceTarget     && target === this.sourceTarget)     this.loadFrame("contract_source",     this.sourceUrlValue)
   }
 
   // ── private ──────────────────────────────────────────────────────────
