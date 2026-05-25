@@ -6,7 +6,7 @@ class InspectAddressTool < ApplicationTool
 
   input_schema(
     properties: {
-      chain:   { type: "string", description: "Chain slug: eth, base, arbitrum, optimism, bnb, or polygon." },
+      chain:   { type: "string", description: "Chain slug. Live-data chains only: eth, base, arbitrum, optimism, bnb, polygon. docs-only chains (linea) return an error." },
       address: { type: "string", description: "Any 0x-prefixed EVM address (contract or EOA)." }
     },
     required: [ "chain", "address" ]

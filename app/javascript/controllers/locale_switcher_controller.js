@@ -2,7 +2,11 @@ import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
   static targets = ["menu", "label"];
-  static supportedChains = ["eth", "base", "arbitrum", "optimism", "bnb", "polygon"];
+  // Mirrors Chain::DISPLAY_ORDER (app/models/chain.rb). Drift means contract
+  // URLs on unlisted chains fall back to a full page reload on locale switch
+  // instead of rewriting the URL — still works (cookie carries locale) but
+  // less smooth. Keep this in sync when adding new chains.
+  static supportedChains = ["eth", "base", "bnb", "arbitrum", "optimism", "polygon", "linea"];
 
   connect() {
     const currentLocale = this.extractLocaleFromPath() || this.extractLocaleFromHtmlLang() || this.extractLocaleFromCookie() || "en";
@@ -59,7 +63,7 @@ export default class extends Controller {
     const segments = cleanPath.split("/").filter(Boolean);
 
     if (segments.length === 1) {
-      return /-(eth|base|arbitrum|optimism|bnb|polygon)(?:\.md)?$/i.test(segments[0]);
+      return new RegExp(`-(${this.constructor.supportedChains.join("|")})(?:\\.md)?$`, "i").test(segments[0]);
     }
 
     if (segments.length === 2) {

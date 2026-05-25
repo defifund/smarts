@@ -9,7 +9,7 @@ class GetGovernanceTimelineTool < ApplicationTool
   input_schema(
     properties: {
       slug:     { type: "string", description: "Curated slug like 'usdc-eth' or 'uni-eth'. Alternative to chain+address." },
-      chain:    { type: "string", description: "Chain slug: eth, base, arbitrum, optimism, bnb, or polygon. Required unless `slug` is given." },
+      chain:    { type: "string", description: "Chain slug. Live-data chains only: eth, base, arbitrum, optimism, bnb, polygon. docs-only chains (linea) return an error. Required unless `slug` is given." },
       address:  { type: "string", description: "0x-prefixed contract address. Required unless `slug` is given." },
       category: { type: "string", description: "Optional. Filter to one of: #{CATEGORIES.join(', ')}." },
       limit:    { type: "integer", description: "Max events to return. Default 100, no hard cap." }

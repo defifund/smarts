@@ -7,7 +7,7 @@ class GetUniswapV3PoolTool < ApplicationTool
   input_schema(
     properties: {
       slug:    { type: "string", description: "Curated slug like 'univ3-usdc-weth-eth'. Alternative to chain+address." },
-      chain:   { type: "string", description: "Chain slug: eth, base, arbitrum, optimism, bnb, or polygon. Required unless `slug` is given." },
+      chain:   { type: "string", description: "Chain slug. Live-data chains only: eth, base, arbitrum, optimism, bnb, polygon. docs-only chains (linea) return an error. Required unless `slug` is given." },
       address: { type: "string", description: "Pool address (0x-prefixed). Required unless `slug` is given." }
     }
   )
