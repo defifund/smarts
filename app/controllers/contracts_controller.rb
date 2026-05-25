@@ -32,7 +32,7 @@ class ContractsController < ApplicationController
         # without it brand names regress to the Solidity class ("FiatTokenV2_2").
         # Values are cached 60s in Solid Cache, so origin hits (rare under the
         # 1d shell CDN cache) usually skip the Multicall3.
-        @live_snapshot = load_live_values(@contract) if @chain.full?
+        @live_snapshot = @chain.full? ? load_live_values(@contract) : empty_live_snapshot
         @live_values = @live_snapshot
         enqueue_ai_enrichment_if_needed(@contract)
         expires_in 1.day, public: true
@@ -45,6 +45,9 @@ class ContractsController < ApplicationController
           @live_values = @live_snapshot
           @activity = load_recent_events(@contract)
           @governance = load_governance_timeline(@contract)
+        else
+          @live_snapshot = empty_live_snapshot
+          @live_values = @live_snapshot
         end
       end
     end
@@ -141,6 +144,10 @@ class ContractsController < ApplicationController
     ChainReader::ViewCaller.call(contract)
   rescue => e
     Rails.logger.warn("[ContractsController] live values failed: #{e.class}: #{e.message}")
+    empty_live_snapshot
+  end
+
+  def empty_live_snapshot
     ChainReader::ViewCaller::Snapshot.new(results: {}, block_number: nil, fetched_at: nil)
   end
 
