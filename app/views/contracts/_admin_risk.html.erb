@@ -3,8 +3,8 @@
   <div class="card-body">
     <div class="flex items-start justify-between gap-4 flex-wrap">
       <div>
-        <p class="text-xs uppercase tracking-wide opacity-60 mb-1">Admin & Risk</p>
-        <h2 class="card-title text-2xl">Who can change the rules?</h2>
+        <p class="text-xs uppercase tracking-wide opacity-60 mb-1"><%= t('contracts.admin_risk.section_label') %></p>
+        <h2 class="card-title text-2xl"><%= t('contracts.admin_risk.heading') %></h2>
       </div>
       <% if @admin_risk.block_number %>
         <span class="text-xs opacity-60 font-mono">Block #<%= number_with_delimiter(@admin_risk.block_number) %></span>
@@ -16,9 +16,9 @@
     <% if @protocol_adapter.is_a?(ProtocolAdapters::PolymarketAdapter) %>
       <div class="alert alert-info alert-soft mt-4 text-sm">
         <div>
-          <div class="font-semibold">Polymarket contract governance</div>
+          <div class="font-semibold"><%= t('contracts.admin_risk.polymarket_governance_title') %></div>
           <div class="opacity-80">
-            Ask your AI who can pause, upgrade, or change roles on this Polymarket contract.
+            <%= t('contracts.admin_risk.polymarket_governance_desc') %>
           </div>
         </div>
       </div>
@@ -26,7 +26,7 @@
 
     <% if @admin_risk.error.present? %>
       <div class="alert alert-warning alert-soft mt-3">
-        <span>Could not refresh admin/risk profile: <%= @admin_risk.error %></span>
+        <span><%= t('contracts.admin_risk.error') %> <%= @admin_risk.error %></span>
       </div>
     <% end %>
 
@@ -40,7 +40,7 @@
 
     <% if @admin_risk.controls.any? %>
       <div class="mt-5">
-        <h3 class="font-semibold mb-2">Current controls</h3>
+        <h3 class="font-semibold mb-2"><%= t('contracts.admin_risk.current_controls') %></h3>
         <dl class="grid grid-cols-1 md:grid-cols-[11rem_1fr] gap-x-4 gap-y-2 text-sm">
           <% @admin_risk.controls.each do |control| %>
             <dt class="opacity-60"><%= control[:label] %></dt>
@@ -54,7 +54,7 @@
                   <span class="badge badge-outline badge-xs"><%= ens %></span>
                 <% end %>
                 <% if is_zero %>
-                  <span class="text-xs opacity-60">(none)</span>
+                  <span class="text-xs opacity-60"><%= t('contracts.admin_risk.none') %></span>
                 <% else %>
                   <% if (etherscan = explorer_address_url(@chain, addr)) %>
                     <a href="<%= etherscan %>" target="_blank" rel="noopener"
@@ -62,7 +62,7 @@
                       ↗ <%= explorer_name(@chain) %>
                     </a>
                   <% end %>
-                  <%= link_to "→ smarts", contract_path(chain: @chain.slug, address: addr),
+                  <%= link_to t('contracts.admin_risk.view_on_smarts'), contract_path(chain: @chain.slug, address: addr),
                         class: "text-xs opacity-70 hover:opacity-100 hover:text-primary",
                         title: "View on smarts.md (if verified)" %>
                 <% end %>
@@ -80,11 +80,11 @@
 
     <% if @admin_risk.recent_governance[:count].to_i.positive? %>
       <div class="mt-5 text-sm">
-        <h3 class="font-semibold mb-1">Recent governance</h3>
+        <h3 class="font-semibold mb-1"><%= t('contracts.admin_risk.recent_governance') %></h3>
         <p class="opacity-70">
           <%= pluralize(@admin_risk.recent_governance[:count], "privileged event") %> loaded.
           <% if @admin_risk.recent_governance[:latest_event] %>
-            Latest: <span class="font-mono"><%= @admin_risk.recent_governance[:latest_event] %></span>
+            <%= t('contracts.admin_risk.latest') %> <span class="font-mono"><%= @admin_risk.recent_governance[:latest_event] %></span>
             <% if @admin_risk.recent_governance[:latest_block] %>
               at block #<%= number_with_delimiter(@admin_risk.recent_governance[:latest_block]) %>.
             <% end %>

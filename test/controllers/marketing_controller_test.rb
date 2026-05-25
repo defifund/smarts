@@ -8,13 +8,13 @@ class MarketingControllerTest < ActionDispatch::IntegrationTest
     assert_match "Live docs for every smart contract.", response.body
   end
 
-  test "home hides the secondary nav until i18n and account surfaces are ready" do
+  test "home hides nav links but shows the locale switcher" do
     get root_path
     assert_response :success
 
     refute_match ">Articles<", response.body
     refute_match ">My<", response.body
-    refute_match ">EN<", response.body
+    assert_match ">EN<", response.body
   end
 
   # Prevents the mobile-overflow regression fixed in fix/mobile-layout: flex

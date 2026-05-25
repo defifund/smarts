@@ -4,7 +4,7 @@ export default class extends Controller {
   static targets = ["menu", "label"];
 
   connect() {
-    const currentLocale = this.extractLocaleFromPath() || "en";
+    const currentLocale = this.extractLocaleFromCookie() || this.extractLocaleFromPath() || "en";
     this.updateLabel(currentLocale);
   }
 
@@ -17,7 +17,13 @@ export default class extends Controller {
     event.preventDefault();
     const selectedLocale = event.target.dataset.locale;
     localStorage.setItem("smarts_locale", selectedLocale);
+    document.cookie = `locale=${selectedLocale};path=/;max-age=${365 * 24 * 60 * 60};SameSite=Lax`;
     this.navigateToLocale(selectedLocale);
+  }
+
+  extractLocaleFromCookie() {
+    const match = document.cookie.match(/(?:^|;\s*)locale=(\w+)/);
+    return match ? match[1] : null;
   }
 
   extractLocaleFromPath() {
@@ -58,8 +64,9 @@ export default class extends Controller {
         newPath = `/${locale}/articles`;
       }
     } else {
-      // Other routes (contracts, home, etc.): don't add locale prefix
-      newPath = path;
+      // Other routes (contracts, home, etc.): cookie is set, force reload
+      window.location.reload();
+      return;
     }
 
     window.location.pathname = newPath;

@@ -2,7 +2,7 @@
 
 <% if data[:error] %>
   <div class="alert alert-warning mb-6">
-    Could not read pool state: <%= data[:error] %>
+    <%= t('adapters.uniswap_v3.error') %> <%= data[:error] %>
   </div>
 <% else %>
   <div class="card bg-gradient-to-br from-primary/10 to-secondary/10 border border-base-300 mb-6">
@@ -23,7 +23,7 @@
       <% if data[:price_0_per_1] %>
         <div class="mt-6 flex flex-wrap gap-8">
           <div>
-            <div class="text-xs opacity-60 mb-1">Price <span class="opacity-70">(spot, no slippage)</span></div>
+            <div class="text-xs opacity-60 mb-1"><%= t('adapters.uniswap_v3.price') %> <span class="opacity-70"><%= t('adapters.uniswap_v3.spot_no_slippage') %></span></div>
             <div class="text-xl font-mono">
               1 <%= data[:token1][:symbol] %> ≈ <%= number_with_delimiter(data[:price_0_per_1].round(6)) %> <%= data[:token0][:symbol] %>
             </div>
@@ -33,28 +33,28 @@
           </div>
 
           <div>
-            <div class="text-xs opacity-60 mb-1">Current tick</div>
+            <div class="text-xs opacity-60 mb-1"><%= t('adapters.uniswap_v3.current_tick') %></div>
             <div class="text-xl font-mono"><%= number_with_delimiter(data[:tick]) %></div>
           </div>
 
           <div>
             <div class="text-xs opacity-60 mb-1"
                  title="Uniswap V3 internal sqrt-formula liquidity at the current tick. Not a USD amount and not the depth you can swap against.">
-              Active liquidity <span class="opacity-70">(V3 L)</span>
+              <%= t('adapters.uniswap_v3.active_liquidity') %> <span class="opacity-70"><%= t('adapters.uniswap_v3.v3_l') %></span>
             </div>
             <div class="text-xl font-mono"
                  title="<%= number_with_delimiter(data[:liquidity]) %>">
               <%= format_v3_liquidity(data[:liquidity]) %>
             </div>
-            <div class="text-xs opacity-60 mt-1">at tick <%= number_with_delimiter(data[:tick]) %> · not USD</div>
+            <div class="text-xs opacity-60 mt-1">at tick <%= number_with_delimiter(data[:tick]) %> · <%= t('adapters.uniswap_v3.not_usd') %></div>
           </div>
 
           <% if data[:tvl_usd] %>
             <div>
-              <div class="text-xs opacity-60 mb-1">TVL</div>
+              <div class="text-xs opacity-60 mb-1"><%= t('adapters.uniswap_v3.tvl') %></div>
               <div class="text-xl font-mono">$<%= number_with_delimiter(data[:tvl_usd].round(0)) %></div>
               <div class="text-xs opacity-60 mt-1">
-                via DefiLlama
+                <%= t('adapters.uniswap_v3.via_defillama') %>
                 <% if data[:price_observed_at] %>
                   · prices <%= freshness_phrase(data[:price_observed_at]) %>
                 <% end %>

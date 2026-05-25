@@ -1,7 +1,7 @@
 <% files = source_files(@contract.source_code) %>
 
 <% if files.empty? %>
-  <p class="opacity-70">Source code is not available.</p>
+  <p class="opacity-70"><%= t('contracts.source.unavailable') %></p>
 <% else %>
   <style><%= rouge_theme_stylesheet %></style>
 
@@ -11,7 +11,7 @@
       <pre class="whitespace-pre"><%= highlight_solidity(files.first[:content]) %></pre>
     </div>
   <% else %>
-    <p class="text-sm opacity-70 mb-4"><%= files.size %> files</p>
+    <p class="text-sm opacity-70 mb-4"><%= t('contracts.source.file_count', count: files.size) %></p>
 
     <div role="tablist" class="tabs tabs-box flex-wrap">
       <% files.each_with_index do |file, i| %>

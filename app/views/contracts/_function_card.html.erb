@@ -18,7 +18,7 @@
     <% end %>
     <% if (context = polymarket_context_for(func)) %>
       <p class="text-sm mt-2 opacity-80">
-        <span class="badge badge-sm badge-outline mr-1">Polymarket context</span>
+        <span class="badge badge-sm badge-outline mr-1"><%= t('contracts.function_card.polymarket_context') %></span>
         <%= context %>
       </p>
     <% end %>
@@ -26,18 +26,18 @@
   <div class="collapse-content">
     <% if doc["dev"].present? %>
       <div class="alert alert-info alert-soft text-xs mb-3">
-        <span class="font-semibold">dev:</span> <%= doc["dev"] %><%= ai_badge(source["dev"]) %>
+        <span class="font-semibold"><%= t('contracts.function_card.dev_label') %></span> <%= doc["dev"] %><%= ai_badge(source["dev"]) %>
       </div>
     <% end %>
 
     <% if func["inputs"]&.any? %>
-      <h4 class="font-semibold text-sm mt-2 mb-1">Parameters</h4>
+      <h4 class="font-semibold text-sm mt-2 mb-1"><%= t('contracts.function_card.parameters') %></h4>
       <table class="table table-sm">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
+            <th><%= t('contracts.function_card.th_name') %></th>
+            <th><%= t('contracts.function_card.th_type') %></th>
+            <th><%= t('contracts.function_card.th_description') %></th>
           </tr>
         </thead>
         <tbody>
@@ -56,13 +56,13 @@
     <% end %>
 
     <% if func["outputs"]&.any? %>
-      <h4 class="font-semibold text-sm mt-3 mb-1">Returns</h4>
+      <h4 class="font-semibold text-sm mt-3 mb-1"><%= t('contracts.function_card.returns') %></h4>
       <table class="table table-sm">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
+            <th><%= t('contracts.function_card.th_name') %></th>
+            <th><%= t('contracts.function_card.th_type') %></th>
+            <th><%= t('contracts.function_card.th_description') %></th>
           </tr>
         </thead>
         <tbody>

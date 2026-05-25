@@ -6,13 +6,12 @@
 <div class="flex flex-col items-center w-full min-h-screen bg-gray-950 text-gray-100 fixed inset-0 z-50 overflow-auto">
   <%# ---------- Hero ---------- %>
   <div class="w-full max-w-4xl px-6 pt-20 pb-10 text-center">
-    <p class="text-xs uppercase tracking-widest text-blue-400 mb-4">Model Context Protocol</p>
+    <p class="text-xs uppercase tracking-widest text-blue-400 mb-4"><%= t('marketing.mcp.protocol_label') %></p>
     <h1 class="text-5xl md:text-6xl font-extrabold text-white tracking-tight mb-5">
-      Point your AI at smarts.md
+      <%= t('marketing.mcp.heading') %>
     </h1>
     <p class="text-lg md:text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
-      One endpoint. Every verified smart contract. Live on-chain data your agent can query —
-      no API keys, no scraping.
+      <%= t('marketing.mcp.description') %>
     </p>
 
     <div class="bg-gray-900/60 border border-gray-800 rounded-xl p-5 inline-flex items-center gap-4 font-mono text-sm md:text-base">
@@ -25,13 +24,13 @@
         data-action="click->copy#write"
         class="text-xs px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors"
         title="Copy endpoint URL"
-      >Copy</button>
+      ><%= t('marketing.mcp.copy') %></button>
     </div>
   </div>
 
   <%# ---------- Install ---------- %>
   <section class="w-full max-w-5xl px-6 pb-14">
-    <h2 class="text-xs uppercase tracking-wider text-gray-400 mb-4 font-semibold">Quick install</h2>
+    <h2 class="text-xs uppercase tracking-wider text-gray-400 mb-4 font-semibold"><%= t('marketing.mcp.quick_install') %></h2>
 
     <%# Featured: Claude Code one-liner %>
     <% claude_code_cmd = "claude mcp add --transport http smarts #{@endpoint_url}" %>
@@ -39,7 +38,7 @@
       <div class="flex items-baseline justify-between gap-3 mb-3 flex-wrap">
         <div class="flex items-baseline gap-2">
           <span class="text-lg font-bold text-white">Claude Code</span>
-          <span class="text-xs text-blue-300/80">Recommended · one command</span>
+          <span class="text-xs text-blue-300/80"><%= t('marketing.mcp.recommended') %></span>
         </div>
         <span class="text-[11px] text-gray-500 font-mono uppercase tracking-wider">CLI</span>
       </div>
@@ -51,7 +50,7 @@
           data-copy-text-value="<%= claude_code_cmd %>"
           data-action="click->copy#write"
           class="absolute top-2 right-2 text-xs px-2.5 py-1 bg-gray-800/80 hover:bg-blue-600 text-gray-200 hover:text-white rounded-md transition-colors border border-gray-700/60"
-        >Copy</button>
+        ><%= t('marketing.mcp.copy') %></button>
       </div>
     </div>
 
@@ -81,7 +80,7 @@
           lang: "json",
           pre_class: "md:h-[180px]",
           snippet: %({ "mcpServers": { "smarts": { "command": "npx", "args": ["-y", "mcp-remote", "#{@endpoint_url}"] } } }),
-          note: 'Uses <code class="text-gray-400">mcp-remote</code> to bridge Streamable HTTP → stdio.'
+          note: t('marketing.mcp.mcp_remote_note_html')
         },
         {
           name: "Windsurf · Cline · others",
@@ -89,7 +88,7 @@
           lang: "url",
           pre_class: "md:h-[140px]",
           snippet: @endpoint_url,
-          note: "Check the client's MCP docs for exact config syntax — the URL is what matters."
+          note: t('marketing.mcp.generic_client_note')
         }
       ]
     %>
@@ -108,7 +107,7 @@
               data-copy-text-value="<%= client[:snippet] %>"
               data-action="click->copy#write"
               class="absolute top-1.5 right-1.5 text-[11px] px-2 py-0.5 bg-gray-800/80 hover:bg-blue-600 text-gray-300 hover:text-white rounded transition-colors border border-gray-700/60"
-            >Copy</button>
+            ><%= t('marketing.mcp.copy') %></button>
           </div>
           <% if client[:note] %>
             <p class="text-xs text-gray-500 mt-3 leading-snug"><%= client[:note].html_safe %></p>
@@ -120,7 +119,7 @@
 
   <%# ---------- Example queries ---------- %>
   <section class="w-full max-w-5xl px-6 pb-14">
-    <h2 class="text-xs uppercase tracking-wider text-gray-400 mb-4 font-semibold">Ask your AI</h2>
+    <h2 class="text-xs uppercase tracking-wider text-gray-400 mb-4 font-semibold"><%= t('marketing.mcp.ask_your_ai') %></h2>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
       <% @example_queries.each do |ex| %>
@@ -134,25 +133,23 @@
 
   <%# ---------- On-chain native positioning ---------- %>
   <section class="w-full max-w-5xl px-6 pb-14">
-    <h2 class="text-xs uppercase tracking-wider text-gray-400 mb-4 font-semibold">On-chain native</h2>
+    <h2 class="text-xs uppercase tracking-wider text-gray-400 mb-4 font-semibold"><%= t('marketing.mcp.onchain_native') %></h2>
 
     <div class="p-5 bg-gray-900/60 border border-gray-800 rounded-xl">
       <p class="text-sm text-gray-300 leading-relaxed max-w-3xl">
-        Smarts does not stop at API metadata. Your AI can verify contract state, decoded events,
-        governance changes, and Polymarket resolution payouts directly from chain data, then compare
-        that evidence with off-chain market status when useful.
+        <%= t('marketing.mcp.onchain_description') %>
       </p>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-5">
-        <div class="text-sm text-gray-400">Audit how a Polymarket market resolved on-chain.</div>
-        <div class="text-sm text-gray-400">Ask who can pause, upgrade, or change roles on a contract.</div>
-        <div class="text-sm text-gray-400">Check whether a condition has a final payout vector.</div>
+        <div class="text-sm text-gray-400"><%= t('marketing.mcp.onchain_1') %></div>
+        <div class="text-sm text-gray-400"><%= t('marketing.mcp.onchain_2') %></div>
+        <div class="text-sm text-gray-400"><%= t('marketing.mcp.onchain_3') %></div>
       </div>
     </div>
   </section>
 
   <%# ---------- Tool list ---------- %>
   <section class="w-full max-w-5xl px-6 pb-14">
-    <h2 class="text-xs uppercase tracking-wider text-gray-400 mb-4 font-semibold">Tools</h2>
+    <h2 class="text-xs uppercase tracking-wider text-gray-400 mb-4 font-semibold"><%= t('marketing.mcp.tools') %></h2>
 
     <div class="divide-y divide-gray-800 border border-gray-800 rounded-xl overflow-hidden">
       <% @tools.each do |tool| %>
@@ -166,10 +163,10 @@
 
   <%# ---------- Curated shortcuts ---------- %>
   <section class="w-full max-w-5xl px-6 pb-14">
-    <h2 class="text-xs uppercase tracking-wider text-gray-400 mb-4 font-semibold">Curated shortcuts</h2>
+    <h2 class="text-xs uppercase tracking-wider text-gray-400 mb-4 font-semibold"><%= t('marketing.mcp.curated_shortcuts') %></h2>
 
     <p class="text-sm text-gray-400 mb-4 max-w-3xl">
-      Use slugs anywhere a tool accepts <code class="text-gray-300">slug</code>. They resolve to curated blue-chip contracts without copying chain IDs or hex addresses.
+      <%= t('marketing.mcp.shortcuts_description_html').html_safe %>
     </p>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -186,7 +183,7 @@
   <footer class="w-full max-w-5xl px-6 pb-8 flex flex-wrap items-center justify-between gap-4 text-xs text-gray-500">
     <div>
       <a href="https://smarts.md/" class="text-gray-400 hover:text-white underline">smarts.md</a>
-      · Built on the <a href="https://modelcontextprotocol.io" target="_blank" rel="noopener" class="hover:text-white underline">MCP spec</a>
+      · <%= t('marketing.mcp.built_on_mcp') %> <a href="https://modelcontextprotocol.io" target="_blank" rel="noopener" class="hover:text-white underline">MCP spec</a>
     </div>
     <div>
       Built by <a href="https://chain.dev" class="text-gray-400 hover:text-white underline">chain.dev</a>

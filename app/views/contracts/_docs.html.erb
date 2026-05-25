@@ -1,21 +1,21 @@
 <%= render "contracts/polymarket_architecture" %>
 
 <section class="mb-8">
-  <h2 class="text-2xl font-semibold mb-4">Overview</h2>
+  <h2 class="text-2xl font-semibold mb-4"><%= t('contracts.docs.overview') %></h2>
   <%# Stack vertically on mobile (horizontal row overflowed the viewport on
       narrow screens); switch to horizontal from md up where 3 tiles comfortably
       fit side-by-side. %>
   <div class="stats stats-vertical md:stats-horizontal shadow w-full md:w-auto">
     <div class="stat">
-      <div class="stat-title">Read Functions</div>
+      <div class="stat-title"><%= t('contracts.docs.read_functions') %></div>
       <div class="stat-value text-primary"><%= @contract.view_functions.size %></div>
     </div>
     <div class="stat">
-      <div class="stat-title">Write Functions</div>
+      <div class="stat-title"><%= t('contracts.docs.write_functions') %></div>
       <div class="stat-value text-secondary"><%= @contract.write_functions.size %></div>
     </div>
     <div class="stat">
-      <div class="stat-title">Events</div>
+      <div class="stat-title"><%= t('contracts.docs.events') %></div>
       <div class="stat-value text-accent"><%= @contract.events.size %></div>
     </div>
   </div>
@@ -24,7 +24,7 @@
 <% if @contract.view_functions.any? %>
   <section class="mb-8">
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-2xl font-semibold">Read Functions</h2>
+      <h2 class="text-2xl font-semibold"><%= t('contracts.docs.read_functions') %></h2>
       <% if @live_snapshot&.present? %>
         <% if @live_snapshot.block_number %>
           <span class="text-xs opacity-60 font-mono"
@@ -35,7 +35,7 @@
             <% end %>
           </span>
         <% else %>
-          <span class="text-xs opacity-60">Live from chain · cached 60s</span>
+          <span class="text-xs opacity-60"><%= t('contracts.docs.live_from_chain') %></span>
         <% end %>
       <% end %>
     </div>
@@ -54,7 +54,7 @@
 
 <% if @contract.write_functions.any? %>
   <section class="mb-8">
-    <h2 class="text-2xl font-semibold mb-4">Write Functions</h2>
+    <h2 class="text-2xl font-semibold mb-4"><%= t('contracts.docs.write_functions') %></h2>
     <div class="space-y-3">
       <% @contract.write_functions.each do |func| %>
         <%= render "contracts/function_card",
@@ -68,7 +68,7 @@
 
 <% if @contract.events.any? %>
   <section class="mb-8">
-    <h2 class="text-2xl font-semibold mb-4">Events</h2>
+    <h2 class="text-2xl font-semibold mb-4"><%= t('contracts.docs.events') %></h2>
     <div class="space-y-3">
       <% @contract.events.each do |event| %>
         <% ev_doc = @contract.natspec_for("events", event["name"]) %>
@@ -81,7 +81,7 @@
             <% end %>
             <% if (context = polymarket_context_for(event)) %>
               <p class="text-sm mt-2 opacity-80">
-                <span class="badge badge-sm badge-outline mr-1">Polymarket context</span>
+                <span class="badge badge-sm badge-outline mr-1"><%= t('contracts.docs.polymarket_context') %></span>
                 <%= context %>
               </p>
             <% end %>
@@ -91,10 +91,10 @@
               <table class="table table-sm">
                 <thead>
                   <tr>
-                    <th>Name</th>
-                    <th>Type</th>
-                    <th>Indexed</th>
-                    <th>Description</th>
+                    <th><%= t('contracts.docs.th_name') %></th>
+                    <th><%= t('contracts.docs.th_type') %></th>
+                    <th><%= t('contracts.docs.th_indexed') %></th>
+                    <th><%= t('contracts.docs.th_description') %></th>
                   </tr>
                 </thead>
                 <tbody>

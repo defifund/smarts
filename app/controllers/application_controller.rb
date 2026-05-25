@@ -5,12 +5,22 @@ class ApplicationController < ActionController::Base
 
   MCP_ENDPOINT_URL = "https://smarts.md/mcp".freeze
 
+  LOCALE_MAP = { "cn" => "zh-CN", "tw" => "zh-TW", "en" => "en" }.freeze
+
+  before_action :set_locale
+
   # Changes to the importmap will invalidate the etag for HTML responses
   stale_when_importmap_changes
 
   helper_method :mcp_endpoint_url
 
   private
+
+  def set_locale
+    locale_key = cookies[:locale].presence
+    resolved = LOCALE_MAP[locale_key] || "en"
+    I18n.locale = resolved
+  end
 
   def mcp_endpoint_url
     return "#{request.base_url}/mcp" if local_mcp_host?

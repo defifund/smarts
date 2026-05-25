@@ -9,11 +9,10 @@
   <% end %>
 
   <header class="mb-8">
-    <p class="text-xs font-semibold uppercase tracking-[0.22em] text-gray-500">Publishing</p>
-    <h1 class="mt-3 text-4xl font-semibold tracking-tight text-gray-950">X accounts</h1>
+    <p class="text-xs font-semibold uppercase tracking-[0.22em] text-gray-500"><%= t('accounts.index.section_label') %></p>
+    <h1 class="mt-3 text-4xl font-semibold tracking-tight text-gray-950"><%= t('accounts.index.heading') %></h1>
     <p class="mt-3 max-w-2xl text-gray-600">
-      Connect one X account per article locale. When MCP publishing includes tweets,
-      Smarts schedules each locale through its matching account.
+      <%= t('accounts.index.description') %>
     </p>
   </header>
 
@@ -26,17 +25,17 @@
           <% if account %>
             <div>
               <p class="font-semibold text-gray-950"><%= account.handle %></p>
-              <p class="text-xs font-medium text-emerald-700">Connected</p>
+              <p class="text-xs font-medium text-emerald-700"><%= t('accounts.index.connected') %></p>
             </div>
           <% else %>
             <div>
-              <p class="font-semibold text-gray-950">No X account</p>
-              <p class="text-xs text-gray-500">Tweets for <%= locale %> will be skipped until connected.</p>
+              <p class="font-semibold text-gray-950"><%= t('accounts.index.no_account') %></p>
+              <p class="text-xs text-gray-500"><%= t('accounts.index.skipped_until_connected', locale: locale) %></p>
             </div>
           <% end %>
         </div>
 
-        <%= link_to(account ? "Reconnect X" : "Connect X", auth_x_path(locale: locale),
+        <%= link_to(account ? t('accounts.index.reconnect_x') : t('accounts.index.connect_x'), auth_x_path(locale: locale),
           class: "inline-flex items-center justify-center rounded-xl border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-800 hover:border-gray-950 hover:text-gray-950") %>
       </div>
     <% end %>
