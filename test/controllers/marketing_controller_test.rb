@@ -233,7 +233,7 @@ class MarketingControllerTest < ActionDispatch::IntegrationTest
   # slugs, malformed addresses before they hit production.
 
   test "every FEATURED entry has a supported chain slug" do
-    supported = MarketingController::CHAIN_LABELS.keys
+    supported = Chain.pluck(:slug)
     MarketingController::FEATURED.each do |item|
       assert_includes supported, item[:chain],
                       "FEATURED entry #{item[:symbol]} uses unsupported chain #{item[:chain].inspect}"
@@ -262,10 +262,10 @@ class MarketingControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "every FEATURED chain has a display label in CHAIN_LABELS" do
+  test "every FEATURED chain has a display label in Chain.labels" do
     featured_chains = MarketingController::FEATURED.map { |i| i[:chain] }.uniq
-    missing = featured_chains - MarketingController::CHAIN_LABELS.keys
-    assert_empty missing, "chains in FEATURED but not in CHAIN_LABELS: #{missing.inspect}"
+    missing = featured_chains - Chain.labels.keys
+    assert_empty missing, "chains in FEATURED but not in Chain.labels: #{missing.inspect}"
   end
 
   test "every distinct FEATURED category renders as a heading on the page" do

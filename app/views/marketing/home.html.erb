@@ -43,7 +43,7 @@
 
         <div class="mt-8 flex flex-wrap gap-3 text-sm text-slate-300">
           <span class="rounded-full border border-white/10 bg-white/5 px-4 py-2"><%= @homepage.top_contract_slugs.length %> <%= t('marketing.home.stat_curated') %></span>
-          <span class="rounded-full border border-white/10 bg-white/5 px-4 py-2"><%= MarketingController::CHAIN_LABELS.length %> <%= t('marketing.home.stat_chains') %></span>
+          <span class="rounded-full border border-white/10 bg-white/5 px-4 py-2"><%= Chain.labels.length %> <%= t('marketing.home.stat_chains') %></span>
           <span class="rounded-full border border-white/10 bg-white/5 px-4 py-2">MCP + OpenAPI + AI Plugin</span>
         </div>
 
@@ -55,7 +55,7 @@
                 data-contract-search-target="chainSelect"
                 class="rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-4 text-base text-white focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-400/40 cursor-pointer"
               >
-                <% MarketingController::CHAIN_LABELS.each do |chain_slug, chain_name| %>
+                <% Chain.labels.each do |chain_slug, chain_name| %>
                   <option value="<%= chain_slug %>" <%= 'selected' if chain_slug == 'eth' %>><%= chain_name %></option>
                 <% end %>
               </select>
@@ -145,7 +145,7 @@
                 <div class="mb-1 flex items-baseline justify-between gap-2">
                   <span class="text-lg font-bold text-white transition-colors group-hover:text-sky-300"><%= item[:symbol] %></span>
                   <span class="font-mono text-[10px] uppercase tracking-[0.3em] text-slate-500">
-                    <%= MarketingController::CHAIN_LABELS[item[:chain]] || item[:chain] %>
+                    <%= Chain.labels[item[:chain]] || item[:chain] %>
                   </span>
                 </div>
                 <div class="mb-1 text-sm text-slate-300"><%= item_name %></div>

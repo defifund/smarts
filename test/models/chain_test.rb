@@ -69,4 +69,19 @@ class ChainTest < ActiveSupport::TestCase
     assert docs_chain.docs_only?
     assert_not docs_chain.full?
   end
+
+  test "DISPLAY_ORDER covers every chain in db/seeds/chains.rb" do
+    seeded_slugs = eval(Rails.root.join("db/seeds/chains.rb").read).map { |c| c[:slug] }
+    missing = seeded_slugs - Chain::DISPLAY_ORDER
+    assert_empty missing,
+                 "Seeded chains not listed in Chain::DISPLAY_ORDER: #{missing.inspect}. " \
+                 "Add them so they appear in the homepage chain selector."
+  end
+
+  test "for_display scope returns chains in DISPLAY_ORDER" do
+    Chains::Seeder.call
+    slugs = Chain.for_display.pluck(:slug)
+    expected = Chain::DISPLAY_ORDER & slugs
+    assert_equal expected, slugs
+  end
 end

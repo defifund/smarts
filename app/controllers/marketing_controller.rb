@@ -54,10 +54,6 @@ class MarketingController < ApplicationController
       symbol: "WPOL", name: "Wrapped POL",          blurb: "Polygon's canonical wrapped gas token (formerly WMATIC)." }
   ].freeze
 
-  CHAIN_LABELS = {
-    "eth" => "Ethereum", "base" => "Base", "bnb" => "BNB Smart Chain", "arbitrum" => "Arbitrum", "optimism" => "Optimism", "polygon" => "Polygon"
-  }.freeze
-
   # Tools exposed over MCP. Kept in sync with app/tools/*.
   MCP_TOOLS = [
     { name: "get_contract_info",    blurb: "Metadata about a verified contract: name, classification, adapter, function counts." },
