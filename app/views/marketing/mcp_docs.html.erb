@@ -1,9 +1,16 @@
+<% content_for :body_class, "overflow-x-hidden bg-gray-950 text-gray-100" %>
+<% content_for :nav_class, "border-b border-gray-800 bg-gray-950/90 px-3 py-3 backdrop-blur sm:px-5" %>
+<% content_for :brand_class, "text-xl font-bold text-white hover:text-gray-200" %>
+<% content_for :nav_link_class, "flex items-center gap-4 text-sm font-medium text-gray-400" %>
+<% content_for :nav_link_item_class, "hover:text-white" %>
+<% content_for :hide_secondary_nav, true %>
+
 <% seo_meta(
   title: t('marketing.mcp.seo_title'),
   description: t('marketing.mcp.seo_description')
 ) %>
 
-<div class="flex flex-col items-center w-full min-h-screen bg-gray-950 text-gray-100 fixed inset-0 z-50 overflow-auto">
+<div class="flex flex-col items-center w-full min-h-screen bg-gray-950 text-gray-100 overflow-auto">
   <%# ---------- Hero ---------- %>
   <div class="w-full max-w-4xl px-6 pt-20 pb-10 text-center">
     <p class="text-xs uppercase tracking-widest text-blue-400 mb-4"><%= t('marketing.mcp.protocol_label') %></p>
