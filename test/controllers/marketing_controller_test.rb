@@ -108,6 +108,37 @@ class MarketingControllerTest < ActionDispatch::IntegrationTest
     assert_equal "https://smarts.md/usdc-eth", item_list["itemListElement"].first["item"]
   end
 
+  test "home localizes featured contract URLs and JSON-LD when the locale cookie is set" do
+    Article.create!(
+      slug: "1c",
+      user: users(:one),
+      category: "company",
+      subcategory: "updates",
+      title: { "en" => "English update", "zh-CN" => "中文更新" },
+      summary: { "en" => "English summary", "zh-CN" => "中文摘要" },
+      content: { "en" => "English body", "zh-CN" => "中文正文" },
+      published_at: Time.current
+    )
+
+    cookies[:locale] = "cn"
+    get root_path
+
+    assert_response :success
+    assert_match %r{href="/cn/usdc-eth"[^>]*>.*?<div class="mb-1 text-sm text-slate-300">USD Coin</div>}m, response.body
+    assert_match %r{href="/cn/articles"[^>]*>浏览所有文章</a>}, response.body
+    assert_match "Circle 发行的受监管美元稳定币，在多条主流链上具有深度流动性。", response.body
+    refute_match "Circle's regulated USD stablecoin", response.body
+    refute_match "largest by market cap", response.body
+    refute_match "按市值计规模最大", response.body
+
+    item_list = response.body.scan(%r{<script type="application/ld\+json">(.+?)</script>}m)
+                            .map { |m| JSON.parse(m[0]) }
+                            .find { |j| j["@type"] == "ItemList" }
+
+    assert item_list, "expected an ItemList JSON-LD on the home page"
+    assert_equal "https://smarts.md/cn/usdc-eth", item_list["itemListElement"].first["item"]
+  end
+
   test "home renders the curated featured section" do
     get root_path
     assert_response :success
@@ -187,9 +218,15 @@ class MarketingControllerTest < ActionDispatch::IntegrationTest
     assert_match "Sitemap: https://smarts.md/sitemap.xml", response.body
   end
 
-  test "home still redirects on q= input with chain/address pattern" do
+  test "home redirects q= input with chain/address pattern to the canonical contract URL" do
     get root_path, params: { q: "eth/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" }
-    assert_redirected_to "/eth/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+    assert_redirected_to "/usdc-eth"
+  end
+
+  test "home redirects q= input to the localized canonical contract URL when a locale cookie is set" do
+    cookies[:locale] = "cn"
+    get root_path, params: { q: "eth/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" }
+    assert_redirected_to "/cn/usdc-eth"
   end
 
   # Structural guards on the FEATURED constant — catches typos, wrong chain

@@ -22,4 +22,15 @@ class Marketing::HomepagePresenterTest < ActiveSupport::TestCase
     assert_equal "https://smarts.md/usdc-eth", result.top_contract_urls.first
     assert_match "USDC", result.meta_description
   end
+
+  test "localizes top contract urls when a localized locale is requested" do
+    result = Marketing::HomepagePresenter.call(
+      featured: MarketingController::FEATURED,
+      recent_limit: 3,
+      contract_limit: 1,
+      locale: "zh-CN"
+    )
+
+    assert_equal "https://smarts.md/cn/usdc-eth", result.top_contract_urls.first
+  end
 end

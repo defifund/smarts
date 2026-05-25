@@ -17,9 +17,25 @@ class ApplicationController < ActionController::Base
   private
 
   def set_locale
-    locale_key = cookies[:locale].presence
-    resolved = LOCALE_MAP[locale_key] || "en"
+    route_locale = request.path_parameters[:locale].presence
+    locale_key = route_locale || cookies[:locale].presence
+    resolved =
+      if route_locale.present?
+        LOCALE_MAP[route_locale] || "en"
+      else
+        LOCALE_MAP[locale_key] || "en"
+      end
+
     I18n.locale = resolved
+
+    return unless route_locale.present? && LOCALE_MAP.key?(route_locale)
+
+    cookies[:locale] = {
+      value: route_locale,
+      path: "/",
+      expires: 1.year.from_now,
+      same_site: :lax
+    }
   end
 
   def mcp_endpoint_url

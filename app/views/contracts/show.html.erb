@@ -2,6 +2,7 @@
 
 <%
   contract_name = contract_display_name
+  current_contract_path = localized_contract_path(locale: I18n.locale, slug: @canonical_slug, chain_slug: @chain.slug, address: @contract.address)
   seo_title = "#{contract_name} on #{@chain.name} — live on-chain contract docs"
   seo_desc  = Seo::Copy.contract(
     contract_name: contract_name,
@@ -9,8 +10,7 @@
     classification: @classification,
     address: @contract.display_address
   )
-  seo_canonical =
-    @canonical_slug ? "#{SeoHelper::SITE_URL}/#{@canonical_slug}" : "#{SeoHelper::SITE_URL}/#{@chain.slug}/#{@contract.address}"
+  seo_canonical = "#{SeoHelper::SITE_URL}#{current_contract_path}"
   seo_meta title: seo_title, description: seo_desc, canonical: seo_canonical
 %>
 
@@ -28,6 +28,10 @@
     { name: "Smarts", url: "#{SeoHelper::SITE_URL}/" },
     { name: "#{contract_name} on #{@chain.name}", url: seo_canonical }
   ])) %>
+  <% I18n.available_locales.each do |locale| %>
+    <link rel="alternate" hreflang="<%= locale %>" href="<%= SeoHelper::SITE_URL %><%= localized_contract_path(locale: locale, slug: @canonical_slug, chain_slug: @chain.slug, address: @contract.address) %>">
+  <% end %>
+  <link rel="alternate" hreflang="x-default" href="<%= SeoHelper::SITE_URL %><%= localized_contract_path(locale: I18n.default_locale, slug: @canonical_slug, chain_slug: @chain.slug, address: @contract.address) %>">
 <% end %>
 
 <%# Inner px-0 — outer <main> in the layout already supplies horizontal

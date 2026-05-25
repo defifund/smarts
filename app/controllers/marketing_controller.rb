@@ -106,11 +106,20 @@ class MarketingController < ApplicationController
 
   def home
     if params[:q].present? && params[:q].match?(%r{\A[a-z]+/0x[0-9a-fA-F]{40}\z})
-      redirect_to "/#{params[:q]}", status: :moved_permanently
+      chain_slug, address = params[:q].split("/", 2)
+      slug = ContractSlugs.for(chain_slug, address)
+      target =
+        if slug.present?
+          helpers.localized_contract_path(locale: I18n.locale, slug: slug)
+        else
+          helpers.localized_contract_path(locale: I18n.locale, chain_slug: chain_slug, address: address)
+        end
+
+      redirect_to target, status: :moved_permanently
       return
     end
 
-    @homepage = Marketing::HomepagePresenter.call(featured: FEATURED, recent_limit: 3, contract_limit: 50)
+    @homepage = Marketing::HomepagePresenter.call(featured: FEATURED, recent_limit: 3, contract_limit: 50, locale: I18n.locale)
     expires_in 6.hours, public: true
   end
 

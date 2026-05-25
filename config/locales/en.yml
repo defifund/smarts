@@ -227,6 +227,57 @@ en:
       curated_cta: "Or start from a curated blue chip"
       latest_articles: "Latest articles"
       browse_all: "Browse all articles"
+      featured_categories:
+        stablecoins: "Stablecoins"
+        dex_wrapped: "DEX & Wrapped"
+        governance: "Governance"
+        multi_chain: "Multi-chain"
+      featured:
+        usdc_eth:
+          name: "USD Coin"
+          blurb: "Circle-issued regulated USD stablecoin with deep liquidity across major chains."
+        usdt_eth:
+          name: "Tether USD"
+          blurb: "The oldest and most-traded dollar stablecoin."
+        dai_eth:
+          name: "Dai"
+          blurb: "MakerDAO's decentralized, crypto-backed stablecoin."
+        univ3_usdc_weth_eth:
+          name: "Uniswap V3 · 0.05% fee"
+          blurb: "Ethereum's deepest Uniswap V3 pool."
+        weth_eth:
+          name: "Wrapped Ether"
+          blurb: "The ERC-20 form of ETH — plumbing for every DEX."
+        wbtc_eth:
+          name: "Wrapped Bitcoin"
+          blurb: "BitGo-custodied Bitcoin, bridged as an ERC-20."
+        uni_eth:
+          name: "Uniswap"
+          blurb: "Governance token for the Uniswap protocol."
+        link_eth:
+          name: "Chainlink"
+          blurb: "Token for Chainlink's decentralized oracle network."
+        aave_eth:
+          name: "Aave"
+          blurb: "Governance and safety-module token for Aave."
+        usdc_base:
+          name: "USD Coin (Base)"
+          blurb: "Native Circle-issued USDC on Base."
+        usdc_arbitrum:
+          name: "USD Coin (Arbitrum)"
+          blurb: "Native Circle-issued USDC on Arbitrum One."
+        usdt_bnb:
+          name: "Tether USD (BNB)"
+          blurb: "The most-traded dollar stablecoin on BNB Smart Chain."
+        wbnb_bnb:
+          name: "Wrapped BNB"
+          blurb: "The canonical wrapped gas token on BNB Smart Chain."
+        cake_bnb:
+          name: "PancakeSwap"
+          blurb: "The flagship DEX token for BNB Smart Chain's biggest venue."
+        wpol_polygon:
+          name: "Wrapped POL"
+          blurb: "Polygon's canonical wrapped gas token (formerly WMATIC)."
     mcp:
       protocol_label: "Model Context Protocol"
       heading: "Point your AI at smarts.md"

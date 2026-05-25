@@ -21,6 +21,31 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1", "Uni"
   end
 
+  test "show via localized slug renders the requested locale and localized island urls" do
+    contract = contracts(:uni_token)
+    contract.update!(address: "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984")
+
+    get "/cn/uni-eth"
+
+    assert_response :success
+    assert_select "html[lang='zh-CN']"
+    assert_match "通过你的 AI 查询此合约", response.body
+    assert_match %r{data-contract-tabs-activity-url-value="/cn/uni-eth/activity"}, response.body
+    assert_match %r{<link rel="alternate" hreflang="zh-CN" href="https://smarts\.md/cn/uni-eth">}, response.body
+  end
+
+  test "localized hex URL 301s to the localized slug when one exists" do
+    uni_addr = "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984"
+    Contract.find_or_create_by!(chain: chains(:ethereum), address: uni_addr) do |c|
+      c.name = "Uniswap"
+      c.abi = []
+    end
+
+    get "/cn/eth/#{uni_addr}"
+    assert_redirected_to "/cn/uni-eth"
+    assert_equal 301, response.status
+  end
+
   test "show via hex URL 301s to slug when one exists" do
     uni_addr = "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984"
     Contract.find_or_create_by!(chain: chains(:ethereum), address: uni_addr) do |c|

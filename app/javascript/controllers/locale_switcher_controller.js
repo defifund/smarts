@@ -2,9 +2,10 @@ import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
   static targets = ["menu", "label"];
+  static supportedChains = ["eth", "base", "arbitrum", "optimism", "bnb", "polygon"];
 
   connect() {
-    const currentLocale = this.extractLocaleFromCookie() || this.extractLocaleFromPath() || "en";
+    const currentLocale = this.extractLocaleFromPath() || this.extractLocaleFromHtmlLang() || this.extractLocaleFromCookie() || "en";
     this.updateLabel(currentLocale);
   }
 
@@ -26,11 +27,62 @@ export default class extends Controller {
     return match ? match[1] : null;
   }
 
+  extractLocaleFromHtmlLang() {
+    const lang = document.documentElement.lang;
+    if (lang === "zh-CN") return "cn";
+    if (lang === "zh-TW") return "tw";
+    if (lang === "en") return "en";
+    return null;
+  }
+
   extractLocaleFromPath() {
     const path = window.location.pathname;
-    // Only "cn" and "tw" are valid locale prefixes; "en" has no prefix
-    const match = path.match(/^\/(cn|tw)(\/|$)/);
+    const match = path.match(/^\/(cn|tw)(?:\/|$)/);
     return match ? match[1] : null;
+  }
+
+  stripLocalePrefix(path) {
+    return path.replace(/^\/(cn|tw)(?=\/)/, "");
+  }
+
+  isArticlePath(path) {
+    const cleanPath = this.stripLocalePrefix(path);
+    return /^\/?(?:articles|[a-z0-9]{2})$/.test(cleanPath);
+  }
+
+  isChainAddressPath(chain, address) {
+    return this.constructor.supportedChains.includes(chain) && /^0x[0-9a-fA-F]{40}(?:\.md)?$/.test(address);
+  }
+
+  isContractPath(path) {
+    const cleanPath = this.stripLocalePrefix(path);
+    const segments = cleanPath.split("/").filter(Boolean);
+
+    if (segments.length === 1) {
+      return /-(eth|base|arbitrum|optimism|bnb|polygon)(?:\.md)?$/i.test(segments[0]);
+    }
+
+    if (segments.length === 2) {
+      return this.isChainAddressPath(segments[0], segments[1]);
+    }
+
+    return false;
+  }
+
+  currentContractPath(locale) {
+    const localePrefix = locale === "en" ? "" : `/${locale}`;
+    const cleanPath = this.stripLocalePrefix(window.location.pathname);
+    const segments = cleanPath.split("/").filter(Boolean);
+
+    if (segments.length === 1) {
+      return `${localePrefix}/${segments[0]}`;
+    }
+
+    if (segments.length === 2 && this.isChainAddressPath(segments[0], segments[1])) {
+      return `${localePrefix}/${segments[0]}/${segments[1]}`;
+    }
+
+    return null;
   }
 
   updateLabel(locale) {
@@ -56,6 +108,8 @@ export default class extends Controller {
       } else {
         newPath = `/${locale}/${slug}`;
       }
+    } else if (this.isContractPath(path)) {
+      newPath = this.currentContractPath(locale);
     } else if (articlesMatch) {
       // Articles list route: adjust locale prefix
       if (locale === "en") {
@@ -64,7 +118,12 @@ export default class extends Controller {
         newPath = `/${locale}/articles`;
       }
     } else {
-      // Other routes (contracts, home, etc.): cookie is set, force reload
+      // Other routes (home, admin, etc.): cookie is set, force reload
+      window.location.reload();
+      return;
+    }
+
+    if (!newPath) {
       window.location.reload();
       return;
     }
