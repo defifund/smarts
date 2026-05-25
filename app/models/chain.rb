@@ -1,6 +1,10 @@
 class Chain < ApplicationRecord
   has_many :contracts, dependent: :destroy
 
+  # full: live state + activity + governance via RPC (Tier 1, ~6 chains)
+  # docs_only: Etherscan source/ABI only — no RPC, no live data (Tier 2, long-tail EVM)
+  enum :tier, { full: "full", docs_only: "docs_only" }, default: :full
+
   validates :name, :slug, :chain_id, :explorer_api_url, presence: true
   validates :slug, uniqueness: true
   validates :chain_id, uniqueness: true

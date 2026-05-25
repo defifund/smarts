@@ -1,31 +1,31 @@
 chains = [
   {
-    name: "Ethereum", slug: "eth", chain_id: 1,
+    name: "Ethereum", slug: "eth", chain_id: 1, tier: "full",
     explorer_api_url: "https://api.etherscan.io/v2/api",
     rpc_url: "https://ethereum-rpc.publicnode.com"
   },
   {
-    name: "Base", slug: "base", chain_id: 8453,
+    name: "Base", slug: "base", chain_id: 8453, tier: "full",
     explorer_api_url: "https://api.etherscan.io/v2/api",
     rpc_url: "https://base-rpc.publicnode.com"
   },
   {
-    name: "Arbitrum One", slug: "arbitrum", chain_id: 42161,
+    name: "Arbitrum One", slug: "arbitrum", chain_id: 42161, tier: "full",
     explorer_api_url: "https://api.etherscan.io/v2/api",
     rpc_url: "https://arbitrum-one-rpc.publicnode.com"
   },
   {
-    name: "Optimism", slug: "optimism", chain_id: 10,
+    name: "Optimism", slug: "optimism", chain_id: 10, tier: "full",
     explorer_api_url: "https://api.etherscan.io/v2/api",
     rpc_url: "https://optimism-rpc.publicnode.com"
   },
   {
-    name: "BNB Smart Chain", slug: "bnb", chain_id: 56,
+    name: "BNB Smart Chain", slug: "bnb", chain_id: 56, tier: "full",
     explorer_api_url: "https://api.etherscan.io/v2/api",
     rpc_url: "https://bsc-rpc.publicnode.com"
   },
   {
-    name: "Polygon PoS", slug: "polygon", chain_id: 137,
+    name: "Polygon PoS", slug: "polygon", chain_id: 137, tier: "full",
     explorer_api_url: "https://api.etherscan.io/v2/api",
     rpc_url: "https://polygon-bor-rpc.publicnode.com"
   }
