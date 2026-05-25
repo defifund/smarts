@@ -48,22 +48,35 @@
         </div>
 
         <div class="mt-10 rounded-3xl border border-white/10 bg-white/5 p-4 shadow-2xl shadow-slate-950/40 backdrop-blur">
-          <%= form_with url: "/", method: :get, local: true, class: "grid gap-3 sm:grid-cols-[1fr_auto]" do %>
-            <input
-              type="text"
-              name="q"
-              placeholder="eth/0x1f98..."
-              class="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-5 py-4 text-base text-white placeholder:text-slate-500 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-400/40"
-              required
-              pattern="[a-z]+/0x[0-9a-fA-F]{40}"
-              title="Format: chain/0xAddress (e.g. eth/0x1f98...)"
-            >
-            <button
-              type="submit"
-              class="rounded-2xl bg-sky-400 px-8 py-4 text-base font-semibold text-slate-950 transition-colors hover:bg-sky-300"
-            >
-              <%= t('marketing.home.go') %>
-            </button>
+          <%= form_with url: "/", method: :get, local: true, data: { controller: "contract-search" }, class: "grid gap-3" do %>
+            <div class="grid gap-3 sm:grid-cols-[auto_1fr_auto]">
+              <select
+                name="chain"
+                data-contract-search-target="chainSelect"
+                class="rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-4 text-base text-white focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-400/40 cursor-pointer"
+              >
+                <% MarketingController::CHAIN_LABELS.each do |chain_slug, chain_name| %>
+                  <option value="<%= chain_slug %>" <%= 'selected' if chain_slug == 'eth' %>><%= chain_name %></option>
+                <% end %>
+              </select>
+              <input
+                type="text"
+                data-contract-search-target="addressInput"
+                placeholder="0x1f98..."
+                class="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-5 py-4 text-base text-white placeholder:text-slate-500 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-400/40"
+                required
+                pattern="0x[0-9a-fA-F]{40}"
+                title="Enter a 40-character hex address (e.g. 0x1f98...)"
+              >
+              <button
+                type="submit"
+                data-action="click->contract-search#submit"
+                class="rounded-2xl bg-sky-400 px-8 py-4 text-base font-semibold text-slate-950 transition-colors hover:bg-sky-300 cursor-pointer"
+              >
+                <%= t('marketing.home.go') %>
+              </button>
+            </div>
+            <p class="text-xs text-slate-400"><%= t('marketing.home.search_helper') %></p>
           <% end %>
         </div>
 
