@@ -104,9 +104,6 @@ export default class extends Controller {
     // Check if we're on /articles or /cn/articles or /tw/articles
     const articlesMatch = path.match(/^\/?(?:cn|tw)?\/?(articles)$/);
 
-    // Check if we're on /mcp (no locale prefix needed)
-    const mcpMatch = path === "/mcp";
-
     if (homeMatch) {
       // Home route: adjust locale prefix
       if (locale === "en") {
@@ -131,10 +128,6 @@ export default class extends Controller {
       } else {
         newPath = `/${locale}/articles`;
       }
-    } else if (mcpMatch) {
-      // MCP route: no URL change needed, locale is set via cookie, just reload
-      window.location.reload();
-      return;
     } else {
       // Other routes (admin, etc.): cookie is set, force reload
       window.location.reload();
