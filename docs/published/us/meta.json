@@ -1,0 +1,14 @@
+{
+  "category": "stablecoins",
+  "subcategory": "infrastructure",
+  "title": {
+    "en": "Beyond Blacklists: Writing Through USDC's Control Stack",
+    "zh-CN": "不只黑名单：把 USDC 的控制栈写透",
+    "zh-TW": "不只黑名單：把 USDC 的控制堆疊寫透"
+  },
+  "summary": {
+    "en": "A deeper USDC walkthrough focused on the control stack: minting quotas, signed authorizations, proxy upgradeability, rescue paths, and the monitoring signals that matter beyond blacklisting.",
+    "zh-CN": "一篇更完整的 USDC 拆解，重点放在权限栈、发行额度、签名授权、升级代理和救援路径，而不只停留在黑名单事件。",
+    "zh-TW": "一篇更完整的 USDC 拆解，重點放在權限堆疊、發行額度、簽名授權、升級代理與救援路徑，而不只停留在黑名單事件。"
+  }
+}
