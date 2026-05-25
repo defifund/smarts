@@ -7,7 +7,7 @@
     <p class="text-sm opacity-70 mt-1"><%= adapter.architecture_summary %></p>
     <% if data[:static] %>
       <p class="text-xs opacity-50 mt-4">
-        This contract is documented as part of the Polymarket settlement architecture; live activity is shown on the exchange, CTF, UMA, and neg-risk adapter pages.
+        <%= t('adapters.polymarket_static.note') %>
       </p>
     <% end %>
   </div>

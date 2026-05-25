@@ -6,27 +6,24 @@
   <% if @inspection&.eoa? %>
     <div class="text-center mb-8">
       <div class="text-5xl mb-3">👤</div>
-      <h1 class="text-3xl font-bold mb-2">Wallet address</h1>
+      <h1 class="text-3xl font-bold mb-2"><%= t('contracts.not_verified.wallet_heading') %></h1>
       <p class="text-base opacity-70">
-        This is an externally owned account (EOA), not a contract.
-        Smarts documents verified smart contracts — there's nothing to show for a wallet.
+        <%= t('contracts.not_verified.eoa_description') %>
       </p>
     </div>
   <% elsif @inspection&.is_contract %>
     <div class="text-center mb-8">
       <div class="text-5xl mb-3">📄</div>
-      <h1 class="text-3xl font-bold mb-2">Unverified contract</h1>
+      <h1 class="text-3xl font-bold mb-2"><%= t('contracts.not_verified.unverified_heading') %></h1>
       <p class="text-base opacity-70">
-        This address holds contract bytecode, but the source code isn't verified on <%= etherscan_label %>.
-        Smarts can only document contracts with published source.
+        <%= t('contracts.not_verified.unverified_description_html', explorer: etherscan_label) %>
       </p>
     </div>
   <% else %>
     <div class="text-center mb-8">
-      <h1 class="text-3xl font-bold mb-2">Contract Not Verified</h1>
+      <h1 class="text-3xl font-bold mb-2"><%= t('contracts.not_verified.generic_heading') %></h1>
       <p class="text-base opacity-70">
-        This contract is not verified on <%= @chain.name %> explorer.
-        Smarts only supports verified contracts.
+        <%= t('contracts.not_verified.generic_description_html', chain: @chain.name) %>
       </p>
     </div>
   <% end %>
@@ -48,7 +45,7 @@
 
       <% if @inspection&.balance_wei %>
         <div class="flex items-baseline gap-3 flex-wrap">
-          <span class="text-xs opacity-60">Balance</span>
+          <span class="text-xs opacity-60"><%= t('contracts.not_verified.balance') %></span>
           <span class="text-lg font-mono"><%= format_native_balance(@inspection.balance_wei, native) %></span>
           <% if @inspection.balance_wei > 0 %>
             <span class="text-xs opacity-50 font-mono"><%= format_native_balance_precise(@inspection.balance_wei, native) %></span>
@@ -59,7 +56,7 @@
       <% if @inspection&.tx_count %>
         <div class="flex items-baseline gap-3 flex-wrap mt-1">
           <span class="text-xs opacity-60" title="Nonce — outgoing transactions only. Etherscan includes incoming + internal txs, which requires an indexer we don't run.">
-            Transactions sent
+            <%= t('contracts.not_verified.tx_sent') %>
           </span>
           <span class="text-lg font-mono"><%= number_with_delimiter(@inspection.tx_count) %></span>
         </div>
@@ -70,12 +67,11 @@
   <% if etherscan %>
     <div class="text-center">
       <a href="<%= etherscan %>" target="_blank" rel="noopener" class="btn btn-primary btn-wide">
-        View on <%= etherscan_label %> ↗
+        <%= t('contracts.not_verified.view_on_explorer', explorer: etherscan_label) %>
       </a>
       <% if @inspection&.is_contract %>
         <p class="text-xs opacity-60 mt-3">
-          If you own this contract, you can request source verification on <%= etherscan_label %>,
-          then revisit smarts.md.
+          <%= t('contracts.not_verified.verification_hint_html', explorer: etherscan_label) %>
         </p>
       <% end %>
     </div>

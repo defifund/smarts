@@ -3,9 +3,9 @@
 <section class="py-10 sm:py-14">
   <div class="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <p class="text-sm font-semibold uppercase tracking-[0.2em] text-gray-500">Admin</p>
-      <h1 class="mt-2 text-4xl font-extrabold tracking-tight text-gray-950">Articles</h1>
-      <p class="mt-3 text-gray-600">All article records, including drafts, scheduled posts, and published posts.</p>
+      <p class="text-sm font-semibold uppercase tracking-[0.2em] text-gray-500"><%= t('admin.articles.index.section_label') %></p>
+      <h1 class="mt-2 text-4xl font-extrabold tracking-tight text-gray-950"><%= t('admin.articles.index.heading') %></h1>
+      <p class="mt-3 text-gray-600"><%= t('admin.articles.index.description') %></p>
     </div>
   </div>
 
@@ -17,12 +17,12 @@
     <table class="min-w-full divide-y divide-gray-200 text-sm">
       <thead class="bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
         <tr>
-          <th class="px-4 py-3">Slug</th>
-          <th class="px-4 py-3">Title</th>
-          <th class="px-4 py-3">Status</th>
-          <th class="px-4 py-3">Category</th>
-          <th class="px-4 py-3">Published at</th>
-          <th class="px-4 py-3">Updated</th>
+          <th class="px-4 py-3"><%= t('admin.articles.index.th_slug') %></th>
+          <th class="px-4 py-3"><%= t('admin.articles.index.th_title') %></th>
+          <th class="px-4 py-3"><%= t('admin.articles.index.th_status') %></th>
+          <th class="px-4 py-3"><%= t('admin.articles.index.th_category') %></th>
+          <th class="px-4 py-3"><%= t('admin.articles.index.th_published_at') %></th>
+          <th class="px-4 py-3"><%= t('admin.articles.index.th_updated') %></th>
           <th class="px-4 py-3"></th>
         </tr>
       </thead>
@@ -43,7 +43,7 @@
             <td class="px-4 py-4 text-gray-700"><%= article.published_at&.to_fs(:db) || "—" %></td>
             <td class="px-4 py-4 text-gray-500"><%= article.updated_at.to_fs(:db) %></td>
             <td class="px-4 py-4 text-right">
-              <%= link_to "Edit", edit_admin_article_path(article), class: "font-semibold text-gray-900 underline underline-offset-4 hover:text-gray-600" %>
+              <%= link_to t('admin.articles.index.edit'), edit_admin_article_path(article), class: "font-semibold text-gray-900 underline underline-offset-4 hover:text-gray-600" %>
             </td>
           </tr>
         <% end %>

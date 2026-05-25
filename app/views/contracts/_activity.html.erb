@@ -6,8 +6,8 @@
 <section class="mb-2">
   <div class="flex items-start justify-between gap-4 flex-wrap mb-4">
     <div>
-      <h2 class="text-2xl font-semibold">Live Activity</h2>
-      <p class="text-sm opacity-70 mt-1">Recent contract events decoded from the verified ABI, newest first.</p>
+      <h2 class="text-2xl font-semibold"><%= t('contracts.activity.heading') %></h2>
+      <p class="text-sm opacity-70 mt-1"><%= t('contracts.activity.description') %></p>
     </div>
 
     <% if @activity&.success? && @activity.latest_block %>
@@ -20,7 +20,7 @@
 
   <div class="card bg-base-200 border border-base-300 mb-5">
     <div class="card-body py-4">
-      <div class="text-sm font-semibold mb-2">Ask your AI to analyze this activity</div>
+      <div class="text-sm font-semibold mb-2"><%= t('contracts.activity.ai_prompt_label') %></div>
       <div class="flex items-start gap-2 flex-wrap">
         <span class="text-sm italic flex-1 min-w-0 break-words">“<%= prompt %>”</span>
         <button type="button"
@@ -28,16 +28,16 @@
                 data-copy-text-value="<%= prompt %>"
                 data-action="click->copy#write"
                 class="text-xs px-2 py-1 bg-base-300 hover:bg-base-100 rounded transition-colors"
-                title="Copy prompt">Copy prompt</button>
+                title="<%= t('contracts.activity.copy_prompt') %>"><%= t('contracts.activity.copy_prompt') %></button>
       </div>
-      <p class="text-xs opacity-60 mt-2">Use this with the Smarts MCP endpoint at <code>https://smarts.md/mcp</code>.</p>
+      <p class="text-xs opacity-60 mt-2"><%= t('contracts.activity.mcp_hint') %> <code>https://smarts.md/mcp</code>.</p>
     </div>
   </div>
 
   <% if filters.any? %>
     <div class="flex items-center gap-2 flex-wrap mb-5">
-      <span class="text-xs opacity-60">Filter:</span>
-      <%= link_to "All", activity_filter_path(nil), class: "btn btn-xs #{@activity&.event_filter.blank? ? 'btn-primary' : 'btn-ghost'}", data: { turbo_frame: "contract_activity", turbo_action: "advance" } %>
+      <span class="text-xs opacity-60"><%= t('contracts.activity.filter') %></span>
+      <%= link_to t('contracts.activity.filter_all'), activity_filter_path(nil), class: "btn btn-xs #{@activity&.event_filter.blank? ? 'btn-primary' : 'btn-ghost'}", data: { turbo_frame: "contract_activity", turbo_action: "advance" } %>
       <% filters.each do |name| %>
         <%= link_to name, activity_filter_path(name), class: "btn btn-xs #{@activity&.event_filter == name ? 'btn-primary' : 'btn-ghost'}", data: { turbo_frame: "contract_activity", turbo_action: "advance" } %>
       <% end %>
@@ -46,11 +46,11 @@
 
   <% if @activity&.error.present? %>
     <div class="alert alert-warning">
-      <span>Could not load recent activity: <%= @activity.error %></span>
+      <span><%= t('contracts.activity.error') %> <%= @activity.error %></span>
     </div>
   <% elsif @activity&.events.blank? %>
     <div class="alert">
-      <span>No recent events found in the current block window.</span>
+      <span><%= t('contracts.activity.empty') %></span>
     </div>
   <% else %>
     <div class="space-y-3">

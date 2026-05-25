@@ -11,7 +11,7 @@
       </div>
       <% if (block = data[:window_block_to]) %>
         <div class="text-xs opacity-60 font-mono self-start text-right">
-          last ~3h on-chain<br>
+          <%= t('adapters.polymarket_exchange.window_label') %><br>
           through block <%= number_with_delimiter(block) %>
         </div>
       <% end %>
@@ -19,31 +19,31 @@
 
     <% if data[:error] %>
       <div class="alert alert-warning mt-4">
-        Could not read on-chain activity: <%= data[:error] %>
+        <%= t('adapters.polymarket_exchange.error') %> <%= data[:error] %>
       </div>
     <% else %>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
         <div>
-          <div class="text-xs opacity-60 mb-1">Fills</div>
+          <div class="text-xs opacity-60 mb-1"><%= t('adapters.polymarket_exchange.fills') %></div>
           <div class="text-2xl font-mono"><%= number_with_delimiter(data[:fills_count] || 0) %></div>
         </div>
         <div>
-          <div class="text-xs opacity-60 mb-1">Volume</div>
+          <div class="text-xs opacity-60 mb-1"><%= t('adapters.polymarket_exchange.volume') %></div>
           <div class="text-2xl font-mono">$<%= number_with_delimiter((data[:volume_usdc] || 0).round(0).to_i) %></div>
         </div>
         <div>
-          <div class="text-xs opacity-60 mb-1">Unique takers</div>
+          <div class="text-xs opacity-60 mb-1"><%= t('adapters.polymarket_exchange.unique_takers') %></div>
           <div class="text-2xl font-mono"><%= number_with_delimiter(data[:unique_takers] || 0) %></div>
         </div>
         <div>
-          <div class="text-xs opacity-60 mb-1">Markets touched</div>
+          <div class="text-xs opacity-60 mb-1"><%= t('adapters.polymarket_exchange.markets_touched') %></div>
           <div class="text-2xl font-mono"><%= number_with_delimiter(data[:unique_markets] || 0) %></div>
         </div>
       </div>
 
       <% if data[:top_markets].present? %>
         <div class="divider mt-6 mb-2"></div>
-        <h3 class="text-sm font-semibold opacity-80 mb-2">Most active markets (by USDC volume)</h3>
+        <h3 class="text-sm font-semibold opacity-80 mb-2"><%= t('adapters.polymarket_exchange.top_markets') %></h3>
         <div class="overflow-x-auto">
           <table class="table table-sm">
             <thead>
@@ -73,7 +73,7 @@
 
       <% if data[:latest_fills].present? %>
         <div class="divider mt-6 mb-2"></div>
-        <h3 class="text-sm font-semibold opacity-80 mb-2">Latest fills</h3>
+        <h3 class="text-sm font-semibold opacity-80 mb-2"><%= t('adapters.polymarket_exchange.latest_fills') %></h3>
         <div class="overflow-x-auto">
           <table class="table table-sm">
             <thead>
@@ -105,12 +105,12 @@
       <% end %>
 
       <% if data[:fills_count].to_i.zero? %>
-        <p class="text-sm opacity-70 mt-6">No OrderFilled events in the last ~3h. This contract version may be inactive — check the other Polymarket exchange contracts.</p>
+        <p class="text-sm opacity-70 mt-6"><%= t('adapters.polymarket_exchange.empty') %></p>
       <% end %>
     <% end %>
 
     <div class="text-xs opacity-50 mt-6">
-      Ask your AI to explain how this exchange routes orders through Polymarket's on-chain market contracts.
+      <%= t('adapters.polymarket_exchange.ai_hint') %>
     </div>
   </div>
 </div>

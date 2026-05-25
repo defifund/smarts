@@ -6,8 +6,8 @@
 <section class="mb-2">
   <div class="flex items-start justify-between gap-4 flex-wrap mb-4">
     <div>
-      <h2 class="text-2xl font-semibold">Governance Timeline</h2>
-      <p class="text-sm opacity-70 mt-1">Privileged events only — role changes, proxy upgrades, pauses, blacklisting, minter config. Decoded from the verified ABI, newest first.</p>
+      <h2 class="text-2xl font-semibold"><%= t('contracts.governance.heading') %></h2>
+      <p class="text-sm opacity-70 mt-1"><%= t('contracts.governance.description') %></p>
     </div>
 
     <% if @governance&.success? && @governance.latest_block %>
@@ -23,8 +23,8 @@
 
   <% if available_categories.any? %>
     <div class="flex items-center gap-2 flex-wrap mb-5">
-      <span class="text-xs opacity-60">Filter:</span>
-      <%= link_to "All", governance_filter_path(nil),
+      <span class="text-xs opacity-60"><%= t('contracts.governance.filter') %></span>
+      <%= link_to t('contracts.governance.filter_all'), governance_filter_path(nil),
             class: "btn btn-xs #{selected_category.blank? ? 'btn-primary' : 'btn-ghost'}",
             data: { turbo_frame: "contract_governance", turbo_action: "advance" } %>
       <% GovernanceEvent::CATEGORIES.each do |cat| %>
@@ -44,13 +44,13 @@
          data-governance-poll-interval-value="1500"
          class="alert alert-info alert-soft mb-3">
       <span class="loading loading-spinner loading-xs"></span>
-      <span>Loading the governance timeline in the background. This section refreshes automatically.</span>
+      <span><%= t('contracts.governance.loading') %></span>
     </div>
   <% end %>
 
   <% if @governance&.error.present? %>
     <div class="alert alert-warning">
-      <span>Could not refresh governance timeline: <%= @governance.error %></span>
+      <span><%= t('contracts.governance.error') %> <%= @governance.error %></span>
     </div>
   <% end %>
 
@@ -63,9 +63,9 @@
         <% if selected_category.present? %>
           <span>No <%= governance_category_label(selected_category).downcase %> events in the timeline yet.</span>
         <% elsif @governance&.error.present? %>
-          <span>No governance events loaded yet — see the warning above. The timeline will populate on retry.</span>
+          <span><%= t('contracts.governance.empty_with_error') %></span>
         <% else %>
-          <span>No governance events recorded in the recent window. This contract may be fully autonomous, or no admin actions have occurred recently.</span>
+          <span><%= t('contracts.governance.empty') %></span>
         <% end %>
       </div>
     <% end %>

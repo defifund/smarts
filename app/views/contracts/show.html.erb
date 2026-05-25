@@ -47,7 +47,7 @@
     <% if @contract.implementation_address.present? %>
       <p class="text-sm opacity-70 mt-1 break-all">
         <span class="badge badge-ghost badge-sm">Proxy</span>
-        <span class="opacity-60">implementation:</span>
+        <span class="opacity-60"><%= t('contracts.show.implementation') %></span>
         <span class="font-mono"><%= @contract.implementation_address %></span>
       </p>
     <% end %>
@@ -77,12 +77,12 @@
        data-contract-tabs-activity-url-value="<%= contract_island_path("activity") %>"
        data-contract-tabs-governance-url-value="<%= contract_island_path("governance") %>"
        data-contract-tabs-source-url-value="<%= contract_island_path("source") %>">
-    <input id="contract_tab_docs" data-turbo-permanent type="radio" name="contract_view" role="tab" class="tab" aria-label="Docs" checked />
+    <input id="contract_tab_docs" data-turbo-permanent type="radio" name="contract_view" role="tab" class="tab" aria-label="<%= t('contracts.show.tab_docs') %>" checked />
     <div role="tabpanel" class="tab-content bg-base-100 border-base-300 p-6">
       <%= render "contracts/docs" %>
     </div>
 
-    <input id="contract_tab_activity" data-turbo-permanent type="radio" name="contract_view" role="tab" class="tab" aria-label="Live Activity" data-contract-tabs-target="activity" data-action="change->contract-tabs#loadTab" />
+    <input id="contract_tab_activity" data-turbo-permanent type="radio" name="contract_view" role="tab" class="tab" aria-label="<%= t('contracts.show.tab_activity') %>" data-contract-tabs-target="activity" data-action="change->contract-tabs#loadTab" />
     <div role="tabpanel" class="tab-content bg-base-100 border-base-300 p-6">
       <turbo-frame id="contract_activity">
         <div class="flex flex-col gap-3">
@@ -93,7 +93,7 @@
       </turbo-frame>
     </div>
 
-    <input id="contract_tab_governance" data-turbo-permanent type="radio" name="contract_view" role="tab" class="tab" aria-label="Governance" data-contract-tabs-target="governance" data-action="change->contract-tabs#loadTab" />
+    <input id="contract_tab_governance" data-turbo-permanent type="radio" name="contract_view" role="tab" class="tab" aria-label="<%= t('contracts.show.tab_governance') %>" data-contract-tabs-target="governance" data-action="change->contract-tabs#loadTab" />
     <div role="tabpanel" class="tab-content bg-base-100 border-base-300 p-6">
       <turbo-frame id="contract_governance">
         <div class="flex flex-col gap-3">
@@ -103,7 +103,7 @@
       </turbo-frame>
     </div>
 
-    <input id="contract_tab_source" data-turbo-permanent type="radio" name="contract_view" role="tab" class="tab" aria-label="Source" data-contract-tabs-target="source" data-action="change->contract-tabs#loadTab" />
+    <input id="contract_tab_source" data-turbo-permanent type="radio" name="contract_view" role="tab" class="tab" aria-label="<%= t('contracts.show.tab_source') %>" data-contract-tabs-target="source" data-action="change->contract-tabs#loadTab" />
     <div role="tabpanel" class="tab-content bg-base-100 border-base-300 p-6">
       <turbo-frame id="contract_source">
         <div class="flex flex-col gap-3">

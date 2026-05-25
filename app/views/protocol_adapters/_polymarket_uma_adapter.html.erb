@@ -7,7 +7,7 @@
       <div>
         <div class="text-xs opacity-60 font-mono mb-1">Polymarket</div>
         <h2 class="text-2xl font-bold"><%= adapter.display_name %></h2>
-        <p class="text-sm opacity-70 mt-1">UMA Optimistic Oracle bridge · resolves binary markets · Polygon</p>
+        <p class="text-sm opacity-70 mt-1"><%= t('adapters.polymarket_uma.subtitle') %></p>
       </div>
     </div>
 
@@ -28,7 +28,7 @@
       <div class="overflow-x-auto">
         <table class="table table-sm">
           <thead>
-            <tr><th></th><th>Stage</th><th>Question</th><th>Payouts</th></tr>
+            <tr><th></th><th><%= t('adapters.polymarket_uma.th_stage') %></th><th><%= t('adapters.polymarket_uma.th_question') %></th><th><%= t('adapters.polymarket_uma.th_payouts') %></th></tr>
           </thead>
           <tbody>
             <% data[:timeline].each do |q| %>
@@ -61,7 +61,7 @@
 
     <% if data[:initialized].present? %>
       <div class="divider mt-4 mb-2"></div>
-      <h3 class="text-sm font-semibold opacity-80 mb-2">In-flight (initialized, awaiting resolution)</h3>
+      <h3 class="text-sm font-semibold opacity-80 mb-2"><%= t('adapters.polymarket_uma.in_flight') %></h3>
       <div class="overflow-x-auto">
         <table class="table table-sm">
           <thead>
@@ -86,7 +86,7 @@
 
     <% if data[:disputed].present? %>
       <div class="divider mt-4 mb-2"></div>
-      <h3 class="text-sm font-semibold opacity-80 mb-2 text-error">Disputed</h3>
+      <h3 class="text-sm font-semibold opacity-80 mb-2 text-error"><%= t('adapters.polymarket_uma.disputed') %></h3>
       <div class="overflow-x-auto">
         <table class="table table-sm">
           <thead>
@@ -110,11 +110,11 @@
     <% end %>
 
     <% if data[:timeline].blank? && data[:resolved].blank? && data[:initialized].blank? && data[:disputed].blank? %>
-      <p class="text-sm opacity-70 mt-6">No UMA adapter activity in the last ~3h. Older adapter versions may be inactive.</p>
+      <p class="text-sm opacity-70 mt-6"><%= t('adapters.polymarket_uma.empty') %></p>
     <% end %>
 
     <div class="text-xs opacity-50 mt-6">
-      Ask your AI to trace a market from UMA question initialization through dispute and final CTF payout.
+      <%= t('adapters.polymarket_uma.ai_hint') %>
     </div>
   </div>
 </div>

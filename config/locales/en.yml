@@ -29,9 +29,364 @@
 
 en:
   hello: "Hello world"
+
+  # Navigation (layouts/application)
+  nav:
+    articles: "Articles"
+    my: "My"
+    sign_in: "Sign in"
+  footer:
+    built_by: "Built by"
+
+  # Contracts
+  contracts:
+    show:
+      implementation: "implementation:"
+      tab_docs: "Docs"
+      tab_activity: "Live Activity"
+      tab_governance: "Governance"
+      tab_source: "Source"
+    docs:
+      overview: "Overview"
+      read_functions: "Read Functions"
+      write_functions: "Write Functions"
+      events: "Events"
+      live_from_chain: "Live from chain · cached 60s"
+      th_name: "Name"
+      th_type: "Type"
+      th_indexed: "Indexed"
+      th_description: "Description"
+      polymarket_context: "Polymarket context"
+    function_card:
+      dev_label: "dev:"
+      parameters: "Parameters"
+      returns: "Returns"
+      th_name: "Name"
+      th_type: "Type"
+      th_description: "Description"
+      polymarket_context: "Polymarket context"
+    activity:
+      heading: "Live Activity"
+      description: "Recent contract events decoded from the verified ABI, newest first."
+      ai_prompt_label: "Ask your AI to analyze this activity"
+      copy_prompt: "Copy prompt"
+      mcp_hint: "Use this with the Smarts MCP endpoint at"
+      filter: "Filter:"
+      filter_all: "All"
+      error: "Could not load recent activity:"
+      empty: "No recent events found in the current block window."
+    governance:
+      heading: "Governance Timeline"
+      description: "Privileged events only — role changes, proxy upgrades, pauses, blacklisting, minter config. Decoded from the verified ABI, newest first."
+      filter: "Filter:"
+      filter_all: "All"
+      loading: "Loading the governance timeline in the background. This section refreshes automatically."
+      error: "Could not refresh governance timeline:"
+      empty: "No governance events recorded in the recent window. This contract may be fully autonomous, or no admin actions have occurred recently."
+      empty_with_error: "No governance events loaded yet — see the warning above. The timeline will populate on retry."
+      raw_args: "Raw args"
+    admin_risk:
+      section_label: "Admin & Risk"
+      heading: "Who can change the rules?"
+      polymarket_governance_title: "Polymarket contract governance"
+      polymarket_governance_desc: "Ask your AI who can pause, upgrade, or change roles on this Polymarket contract."
+      error: "Could not refresh admin/risk profile:"
+      current_controls: "Current controls"
+      none: "(none)"
+      view_on_smarts: "→ smarts"
+      recent_governance: "Recent governance"
+      latest: "Latest:"
+    mcp_info:
+      heading: "Query this contract from your AI"
+      reference: "Reference:"
+      copy: "Copy"
+      sample_prompt: "Sample prompt:"
+      no_ai_yet: "No AI wired up yet? →"
+    error:
+      heading: "Something went wrong"
+      description: "Please try again later."
+    not_verified:
+      wallet_heading: "Wallet address"
+      eoa_description: "This is an externally owned account (EOA), not a contract. Smarts documents verified smart contracts — there's nothing to show for a wallet."
+      unverified_heading: "Unverified contract"
+      unverified_description_html: "This address holds contract bytecode, but the source code isn't verified on %{explorer}. Smarts can only document contracts with published source."
+      generic_heading: "Contract Not Verified"
+      generic_description_html: "This contract is not verified on %{chain} explorer. Smarts only supports verified contracts."
+      balance: "Balance"
+      tx_sent: "Transactions sent"
+      view_on_explorer: "View on %{explorer} ↗"
+      verification_hint_html: "If you own this contract, you can request source verification on %{explorer}, then revisit smarts.md."
+    source:
+      unavailable: "Source code is not available."
+      file_count:
+        one: "%{count} file"
+        other: "%{count} files"
+    polymarket_arch:
+      heading: "Architecture"
+      role_label: "Polymarket contract role"
+      th_market_type: "Market type"
+      th_token_path: "Token path"
+      th_resolution_path: "Resolution path"
+      th_compare_with: "Compare with"
+
+  # Protocol adapters
+  adapters:
+    erc20:
+      error: "Could not read token state:"
+      issued_by: "Issued by"
+      total_supply: "Total supply"
+      price: "Price"
+      via_defillama: "via DefiLlama"
+      market_cap: "Market cap"
+      decimals: "Decimals"
+    uniswap_v3:
+      error: "Could not read pool state:"
+      price: "Price"
+      spot_no_slippage: "(spot, no slippage)"
+      current_tick: "Current tick"
+      active_liquidity: "Active liquidity"
+      v3_l: "(V3 L)"
+      not_usd: "not USD"
+      tvl: "TVL"
+      via_defillama: "via DefiLlama"
+      token0: "token0"
+      token1: "token1"
+      decimals: "decimals"
+    polymarket_ctf:
+      subtitle: "Outcome-token ledger (Gnosis ConditionalTokens) · ERC-1155 · Polygon"
+      errors: "Some on-chain reads failed:"
+      resolved: "Recently resolved conditions"
+      th_market: "Market"
+      th_payouts: "Payouts"
+      prepared: "Recently prepared conditions (new markets)"
+      th_outcomes: "Outcomes"
+      redemptions: "Recent redemptions"
+      th_redeemer: "Redeemer"
+      th_payout: "Payout"
+      empty: "No CTF activity in the last ~3h."
+      ai_hint: "Ask your AI to audit a market's on-chain payout vector and whether its outcome tokens are redeemable."
+    polymarket_exchange:
+      error: "Could not read on-chain activity:"
+      window_label: "last ~3h on-chain"
+      fills: "Fills"
+      volume: "Volume"
+      unique_takers: "Unique takers"
+      markets_touched: "Markets touched"
+      top_markets: "Most active markets (by USDC volume)"
+      th_market: "Market"
+      th_fills: "Fills"
+      th_volume: "Volume"
+      latest_fills: "Latest fills"
+      th_side: "Side"
+      th_price: "Price"
+      th_size: "Size"
+      empty: "No OrderFilled events in the last ~3h. This contract version may be inactive — check the other Polymarket exchange contracts."
+      ai_hint: "Ask your AI to explain how this exchange routes orders through Polymarket's on-chain market contracts."
+    polymarket_neg_risk:
+      subtitle: "Multi-outcome resolution adapter · Polygon"
+      th_market: "Market / Question"
+      th_details: "Details"
+      empty: "No multi-outcome resolution activity in the last ~3h."
+      unavailable: "Probed events not in this contract's ABI:"
+      ai_hint: "Ask your AI to explain how a multi-outcome market maps into on-chain neg-risk resolution events."
+    polymarket_uma:
+      subtitle: "UMA Optimistic Oracle bridge · resolves binary markets · Polygon"
+      errors: "Some on-chain reads failed:"
+      timeline: "Resolution timeline"
+      th_stage: "Stage"
+      th_question: "Question"
+      th_payouts: "Payouts"
+      in_flight: "In-flight (initialized, awaiting resolution)"
+      disputed: "Disputed"
+      empty: "No UMA adapter activity in the last ~3h. Older adapter versions may be inactive."
+      ai_hint: "Ask your AI to trace a market from UMA question initialization through dispute and final CTF payout."
+    polymarket_static:
+      note: "This contract is documented as part of the Polymarket settlement architecture; live activity is shown on the exchange, CTF, UMA, and neg-risk adapter pages."
+
+  # Marketing
+  marketing:
+    home:
+      badge: "Live docs for every smart contract"
+      subtitle: "Live contract docs without leaving the page."
+      description: "Enter a verified contract address or start from a curated blue chip. Smarts covers Ethereum, Base, Arbitrum, Optimism, BNB Smart Chain, and Polygon."
+      stat_curated: "curated contract URLs"
+      stat_chains: "supported chains"
+      go: "Go"
+      or: "Or"
+      connect_ai: "connect your AI agent"
+      via_mcp: "to query every contract via MCP."
+      discovery_surfaces: "Discovery surfaces"
+      canonical_urls: "canonical contract URLs"
+      structured_data: "structured discovery data"
+      ai_tools: "AI tools endpoint"
+      rest_api: "Actions-ready REST API"
+      what_you_get: "What you get"
+      benefit_1: "• Live source, admin controls, and governance history."
+      benefit_2: "• Curated tokens, pools, and protocol contracts."
+      benefit_3: "• Sitemap, structured data, and tool endpoints for agents."
+      curated_cta: "Or start from a curated blue chip"
+      latest_articles: "Latest articles"
+      browse_all: "Browse all articles"
+    mcp:
+      protocol_label: "Model Context Protocol"
+      heading: "Point your AI at smarts.md"
+      description: "One endpoint. Every verified smart contract. Live on-chain data your agent can query — no API keys, no scraping."
+      copy: "Copy"
+      quick_install: "Quick install"
+      recommended: "Recommended · one command"
+      ask_your_ai: "Ask your AI"
+      onchain_native: "On-chain native"
+      onchain_description: "Smarts does not stop at API metadata. Your AI can verify contract state, decoded events, governance changes, and Polymarket resolution payouts directly from chain data, then compare that evidence with off-chain market status when useful."
+      onchain_1: "Audit how a Polymarket market resolved on-chain."
+      onchain_2: "Ask who can pause, upgrade, or change roles on a contract."
+      onchain_3: "Check whether a condition has a final payout vector."
+      tools: "Tools"
+      curated_shortcuts: "Curated shortcuts"
+      shortcuts_description_html: "Use slugs anywhere a tool accepts <code class=\"text-gray-300\">slug</code>. They resolve to curated blue-chip contracts without copying chain IDs or hex addresses."
+      built_on_mcp: "Built on the MCP spec"
+      generic_client_note: "Check the client's MCP docs for exact config syntax — the URL is what matters."
+      mcp_remote_note_html: "Uses <code class=\"text-gray-400\">mcp-remote</code> to bridge Streamable HTTP → stdio."
+    polymarket:
+      heading: "Polymarket Live Odds"
+      description: "Top prediction markets by 24h volume · prices refresh every 30s"
+      multi_outcome: "multi-outcome"
+      disputed: "disputed on UMA"
+      volume: "Volume"
+      ends: "Ends"
+      empty: "No active markets found."
+      ask_ai: "Ask Your AI"
+      ask_ai_desc: "Connect Smarts through MCP, then ask natural questions about Polymarket contracts and markets."
+      example_1: "What are the current prices and outcome token IDs for this Polymarket market?"
+      example_2: "Audit how this market resolved on-chain and compare it with Polymarket's market status."
+      example_3: "Check whether this wallet holds redeemable positions in these markets."
+      onchain_contracts: "On-chain contracts:"
+
+  # Sessions
+  sessions:
+    new:
+      heading: "Sign in"
+      submit: "Sign in"
+      email_placeholder: "Enter your email address"
+      password_placeholder: "Enter your password"
+      forgot_password: "Forgot password?"
+
+  # Passwords
+  passwords:
+    new:
+      heading: "Forgot your password?"
+      email_placeholder: "Enter your email address"
+      submit: "Email reset instructions"
+    edit:
+      heading: "Update your password"
+      new_password_placeholder: "Enter new password"
+      confirm_password_placeholder: "Repeat new password"
+      save: "Save"
+
+  # Password mailer
+  passwords_mailer:
+    reset:
+      body: "You can reset your password on"
+      link_text: "this password reset page"
+      expiry_html: "This link will expire in %{duration}."
+
+  # Users
+  users:
+    new:
+      heading: "Create account"
+      submit: "Create account"
+      description: "Create a Smarts account for MCP article publishing."
+      error_heading: "Could not create account"
+      email_label: "Email address"
+      confirm_password_label: "Confirm password"
+      already_have_account: "Already have an account?"
+      sign_in_link: "Sign in"
+    created:
+      section_label: "Account created"
+      heading: "Save this publishing token"
+      token_warning_html: "This token is shown once. The setup commands below already embed it as an <code class=\"rounded bg-gray-100 px-1.5 py-0.5\">Authorization: Bearer</code> header — once your agent is connected, calling <code class=\"rounded bg-gray-100 px-1.5 py-0.5\">validate_article_draft</code> or <code class=\"rounded bg-gray-100 px-1.5 py-0.5\">publish_article</code> needs no further auth arguments."
+      digest_note: "The database stores only a BCrypt digest, not this plain token."
+      connect_mcp_label: "Connect MCP"
+      connect_heading: "Add Smarts to your coding agent"
+      connect_description_html: "Each command below registers <code class=\"rounded bg-gray-100 px-1.5 py-0.5\">smarts</code> as a remote MCP server with your token baked into the connection."
+
+  # My account
+  my:
+    show:
+      section_label: "Account"
+      heading: "My"
+      description: "Manage your publishing accounts and, if you have admin access, open the article admin and jobs dashboard."
+      x_accounts: "X accounts"
+      x_accounts_desc: "One account per locale for article distribution."
+      manage: "Manage"
+      connected: "Connected"
+      no_account: "No X account"
+      skipped_hint: "Tweets for this locale will be skipped until connected."
+      reconnect_x: "Reconnect X"
+      connect_x: "Connect X"
+      admin: "Admin"
+      admin_desc: "Admin-only tools."
+      admin_accounts: "Accounts"
+      admin_articles: "Article admin"
+      admin_jobs: "Jobs"
+      session: "Session"
+      session_desc: "End the current session on this device."
+      sign_out: "Sign out"
+
+  # Accounts
+  accounts:
+    index:
+      section_label: "Publishing"
+      heading: "X accounts"
+      description: "Connect one X account per article locale. When MCP publishing includes tweets, Smarts schedules each locale through its matching account."
+      connected: "Connected"
+      no_account: "No X account"
+      skipped_until_connected: "Tweets for %{locale} will be skipped until connected."
+      reconnect_x: "Reconnect X"
+      connect_x: "Connect X"
+
+  # Admin
+  admin:
+    articles:
+      index:
+        section_label: "Admin"
+        heading: "Articles"
+        description: "All article records, including drafts, scheduled posts, and published posts."
+        th_slug: "Slug"
+        th_title: "Title"
+        th_status: "Status"
+        th_category: "Category"
+        th_published_at: "Published at"
+        th_updated: "Updated"
+        edit: "Edit"
+      edit:
+        back: "← Back to articles"
+        heading: "Edit"
+        description: "Update metadata, localized content, and publication status."
+        error_heading: "Could not save article:"
+        status_label: "Status"
+        status_draft: "Draft"
+        status_scheduled: "Scheduled"
+        status_published: "Published"
+        subcategory_placeholder: "examples, mcp, infrastructure..."
+        published_at: "Published at"
+        published_at_hint: "Draft clears this value. Published uses now if empty. Scheduled requires a future time to stay scheduled."
+        title_label: "Title"
+        summary_label: "Summary"
+        content_label: "Content"
+        save: "Save article"
+        cancel: "Cancel"
+
+  # Articles
   articles:
     toc: "Table of contents"
     on_this_page: "On this page"
+    index:
+      section_label: "Articles"
+      heading: "Published articles"
+      description: "A lightweight index of the latest Smarts posts."
+      empty: "No published articles yet."
+
+  # Article categories
   article_categories:
     product: "Product"
     stablecoins: "Stablecoins"

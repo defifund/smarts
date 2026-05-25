@@ -7,7 +7,7 @@
       <div>
         <div class="text-xs opacity-60 font-mono mb-1">Polymarket</div>
         <h2 class="text-2xl font-bold"><%= adapter.display_name %></h2>
-        <p class="text-sm opacity-70 mt-1">Multi-outcome resolution adapter · Polygon</p>
+        <p class="text-sm opacity-70 mt-1"><%= t('adapters.polymarket_neg_risk.subtitle') %></p>
       </div>
     </div>
 
@@ -63,7 +63,7 @@
     <% end %>
 
     <div class="text-xs opacity-50 mt-6">
-      Ask your AI to explain how a multi-outcome market maps into on-chain neg-risk resolution events.
+      <%= t('adapters.polymarket_neg_risk.ai_hint') %>
     </div>
   </div>
 </div>

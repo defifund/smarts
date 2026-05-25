@@ -7,13 +7,13 @@
       <div>
         <div class="text-xs opacity-60 font-mono mb-1">Polymarket</div>
         <h2 class="text-2xl font-bold"><%= adapter.display_name %></h2>
-        <p class="text-sm opacity-70 mt-1">Outcome-token ledger (Gnosis ConditionalTokens) · ERC-1155 · Polygon</p>
+        <p class="text-sm opacity-70 mt-1"><%= t('adapters.polymarket_ctf.subtitle') %></p>
       </div>
     </div>
 
     <% if data[:errors].present? %>
       <div class="alert alert-warning mt-4 text-sm">
-        Some on-chain reads failed:
+        <%= t('adapters.polymarket_ctf.errors') %>
         <ul class="ml-4 list-disc">
           <% data[:errors].each do |event_name, message| %>
             <li><%= event_name %>: <%= message %></li>
@@ -24,11 +24,11 @@
 
     <% if data[:resolutions].present? %>
       <div class="divider mt-4 mb-2"></div>
-      <h3 class="text-sm font-semibold opacity-80 mb-2">Recently resolved conditions</h3>
+      <h3 class="text-sm font-semibold opacity-80 mb-2"><%= t('adapters.polymarket_ctf.resolved') %></h3>
       <div class="overflow-x-auto">
         <table class="table table-sm">
           <thead>
-            <tr><th></th><th>Market</th><th>Payouts</th></tr>
+            <tr><th></th><th><%= t('adapters.polymarket_ctf.th_market') %></th><th><%= t('adapters.polymarket_ctf.th_payouts') %></th></tr>
           </thead>
           <tbody>
             <% data[:resolutions].each do |res| %>
@@ -50,11 +50,11 @@
 
     <% if data[:preparations].present? %>
       <div class="divider mt-4 mb-2"></div>
-      <h3 class="text-sm font-semibold opacity-80 mb-2">Recently prepared conditions (new markets)</h3>
+      <h3 class="text-sm font-semibold opacity-80 mb-2"><%= t('adapters.polymarket_ctf.prepared') %></h3>
       <div class="overflow-x-auto">
         <table class="table table-sm">
           <thead>
-            <tr><th></th><th>Market</th><th>Outcomes</th></tr>
+            <tr><th></th><th><%= t('adapters.polymarket_ctf.th_market') %></th><th><%= t('adapters.polymarket_ctf.th_outcomes') %></th></tr>
           </thead>
           <tbody>
             <% data[:preparations].each do |prep| %>
@@ -76,11 +76,11 @@
 
     <% if data[:redemptions].present? %>
       <div class="divider mt-4 mb-2"></div>
-      <h3 class="text-sm font-semibold opacity-80 mb-2">Recent redemptions</h3>
+      <h3 class="text-sm font-semibold opacity-80 mb-2"><%= t('adapters.polymarket_ctf.redemptions') %></h3>
       <div class="overflow-x-auto">
         <table class="table table-sm">
           <thead>
-            <tr><th></th><th>Redeemer</th><th class="text-right">Payout</th></tr>
+            <tr><th></th><th><%= t('adapters.polymarket_ctf.th_redeemer') %></th><th class="text-right"><%= t('adapters.polymarket_ctf.th_payout') %></th></tr>
           </thead>
           <tbody>
             <% data[:redemptions].each do |redeem| %>
@@ -102,11 +102,11 @@
     <% end %>
 
     <% if data[:resolutions].blank? && data[:preparations].blank? && data[:redemptions].blank? %>
-      <p class="text-sm opacity-70 mt-6">No CTF activity in the last ~3h.</p>
+      <p class="text-sm opacity-70 mt-6"><%= t('adapters.polymarket_ctf.empty') %></p>
     <% end %>
 
     <div class="text-xs opacity-50 mt-6">
-      Ask your AI to audit a market's on-chain payout vector and whether its outcome tokens are redeemable.
+      <%= t('adapters.polymarket_ctf.ai_hint') %>
     </div>
   </div>
 </div>

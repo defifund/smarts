@@ -2,7 +2,7 @@
 
 <% if data[:error] %>
   <div class="alert alert-warning mb-6">
-    Could not read token state: <%= data[:error] %>
+    <%= t('adapters.erc20.error') %> <%= data[:error] %>
   </div>
 <% else %>
   <div class="card bg-gradient-to-br from-primary/10 to-secondary/10 border border-base-300 mb-6">
@@ -36,7 +36,7 @@
       <div class="mt-6 flex flex-wrap gap-8">
         <% if data[:total_supply_formatted] %>
           <div>
-            <div class="text-xs opacity-60 mb-1">Total supply</div>
+            <div class="text-xs opacity-60 mb-1"><%= t('adapters.erc20.total_supply') %></div>
             <div class="text-xl font-mono"><%= data[:total_supply_formatted] %></div>
             <% if data[:total_supply_raw] %>
               <div class="text-xs opacity-60 mt-1 font-mono">
@@ -48,10 +48,10 @@
 
         <% if data[:price_usd] %>
           <div>
-            <div class="text-xs opacity-60 mb-1">Price</div>
+            <div class="text-xs opacity-60 mb-1"><%= t('adapters.erc20.price') %></div>
             <div class="text-xl font-mono">$<%= number_with_delimiter(data[:price_usd].round(6)) %></div>
             <div class="text-xs opacity-60 mt-1">
-              via DefiLlama
+              <%= t('adapters.erc20.via_defillama') %>
               <% if data[:price_observed_at] %>
                 · <%= freshness_phrase(data[:price_observed_at]) %>
               <% end %>
@@ -61,13 +61,13 @@
 
         <% if data[:market_cap_usd] %>
           <div>
-            <div class="text-xs opacity-60 mb-1">Market cap</div>
+            <div class="text-xs opacity-60 mb-1"><%= t('adapters.erc20.market_cap') %></div>
             <div class="text-xl font-mono">$<%= number_with_delimiter(data[:market_cap_usd].round(0)) %></div>
           </div>
         <% end %>
 
         <div>
-          <div class="text-xs opacity-60 mb-1">Decimals</div>
+          <div class="text-xs opacity-60 mb-1"><%= t('adapters.erc20.decimals') %></div>
           <div class="text-xl font-mono"><%= data[:decimals] %></div>
         </div>
       </div>
