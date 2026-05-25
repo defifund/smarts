@@ -40,7 +40,10 @@ class ApplicationTool < MCP::Tool
     # callers should short-circuit when the result is a Hash.
     #
     # Slug wins when both are supplied (friendlier than erroring on conflict).
-    def resolve_contract(chain: nil, address: nil, slug: nil)
+    #
+    # `require_full: true` rejects docs_only chains with a friendly error so
+    # live-data tools (RPC-backed) fail fast instead of timing out.
+    def resolve_contract(chain: nil, address: nil, slug: nil, require_full: false)
       if slug.present?
         lookup = ContractSlugs.resolve(slug)
         return { error: "unknown slug: #{slug}" } unless lookup
@@ -55,6 +58,9 @@ class ApplicationTool < MCP::Tool
       chain_record = Chain.find_by(slug: chain_slug)
       return { error: "unknown chain: #{chain_slug}" } unless chain_record
 
+      tier_error = check_full_tier(chain_record) if require_full
+      return tier_error if tier_error
+
       normalized_address = address.to_s.downcase
       contract = Contract.find_by(chain: chain_record, address: normalized_address)
       unless contract
@@ -62,6 +68,16 @@ class ApplicationTool < MCP::Tool
       end
 
       [ chain_record, contract ]
+    end
+
+    # Returns an error hash if the chain is docs_only, nil otherwise.
+    # Used by tools that need live RPC data (state, events, balances).
+    def check_full_tier(chain_record)
+      return nil if chain_record.full?
+
+      {
+        error: "chain '#{chain_record.slug}' is docs-only — Smarts indexes source code and ABI on this chain, but live on-chain data (state, events, balances) is not available. Use get_contract_info or get_contract_source instead."
+      }
     end
 
     # Returns the publisher User resolved from the current MCP request's

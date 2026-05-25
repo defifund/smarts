@@ -18,7 +18,7 @@ class GetGovernanceTimelineTool < ApplicationTool
 
   class << self
     def payload(chain: nil, address: nil, slug: nil, category: nil, limit: 100)
-      resolved = resolve_contract(chain: chain, address: address, slug: slug)
+      resolved = resolve_contract(chain: chain, address: address, slug: slug, require_full: true)
       return resolved if resolved.is_a?(Hash)
 
       _chain_record, contract = resolved

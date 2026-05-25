@@ -65,47 +65,57 @@
 
   <%= render "contracts/mcp_info" %>
 
-  <%# Protocol adapter panel — loaded eagerly via Turbo Frame so the shell
-      itself skips the RPC / API calls that panel_data triggers. %>
-  <turbo-frame id="contract_live" src="<%= contract_island_path("live") %>" loading="eager">
-    <div class="skeleton h-32 w-full rounded-lg mb-6"></div>
-  </turbo-frame>
+  <% if @chain.full? %>
+    <%# Protocol adapter panel — loaded eagerly via Turbo Frame so the shell
+        itself skips the RPC / API calls that panel_data triggers. %>
+    <turbo-frame id="contract_live" src="<%= contract_island_path("live") %>" loading="eager">
+      <div class="skeleton h-32 w-full rounded-lg mb-6"></div>
+    </turbo-frame>
 
-  <%= render "contracts/admin_risk" %>
+    <%= render "contracts/admin_risk" %>
+  <% else %>
+    <div class="alert alert-info mb-6">
+      <%= t('contracts.show.docs_only_notice', chain: @chain.name) %>
+    </div>
+  <% end %>
 
   <%# data-turbo-permanent on each tab radio so user's selection survives the
       background-job-triggered Turbo morph refresh. Server-rendered `checked`
       still wins on initial load (when there's no client state to preserve). %>
   <div role="tablist" class="tabs tabs-lift tabs-sm md:tabs-lg"
        data-controller="contract-tabs"
+       <% if @chain.full? %>
        data-contract-tabs-activity-url-value="<%= contract_island_path("activity") %>"
        data-contract-tabs-governance-url-value="<%= contract_island_path("governance") %>"
+       <% end %>
        data-contract-tabs-source-url-value="<%= contract_island_path("source") %>">
     <input id="contract_tab_docs" data-turbo-permanent type="radio" name="contract_view" role="tab" class="tab" aria-label="<%= t('contracts.show.tab_docs') %>" checked />
     <div role="tabpanel" class="tab-content bg-base-100 border-base-300 p-6">
       <%= render "contracts/docs" %>
     </div>
 
-    <input id="contract_tab_activity" data-turbo-permanent type="radio" name="contract_view" role="tab" class="tab" aria-label="<%= t('contracts.show.tab_activity') %>" data-contract-tabs-target="activity" data-action="change->contract-tabs#loadTab" />
-    <div role="tabpanel" class="tab-content bg-base-100 border-base-300 p-6">
-      <turbo-frame id="contract_activity">
-        <div class="flex flex-col gap-3">
-          <div class="skeleton h-8 w-48"></div>
-          <div class="skeleton h-24 w-full rounded-lg"></div>
-          <div class="skeleton h-24 w-full rounded-lg"></div>
-        </div>
-      </turbo-frame>
-    </div>
+    <% if @chain.full? %>
+      <input id="contract_tab_activity" data-turbo-permanent type="radio" name="contract_view" role="tab" class="tab" aria-label="<%= t('contracts.show.tab_activity') %>" data-contract-tabs-target="activity" data-action="change->contract-tabs#loadTab" />
+      <div role="tabpanel" class="tab-content bg-base-100 border-base-300 p-6">
+        <turbo-frame id="contract_activity">
+          <div class="flex flex-col gap-3">
+            <div class="skeleton h-8 w-48"></div>
+            <div class="skeleton h-24 w-full rounded-lg"></div>
+            <div class="skeleton h-24 w-full rounded-lg"></div>
+          </div>
+        </turbo-frame>
+      </div>
 
-    <input id="contract_tab_governance" data-turbo-permanent type="radio" name="contract_view" role="tab" class="tab" aria-label="<%= t('contracts.show.tab_governance') %>" data-contract-tabs-target="governance" data-action="change->contract-tabs#loadTab" />
-    <div role="tabpanel" class="tab-content bg-base-100 border-base-300 p-6">
-      <turbo-frame id="contract_governance">
-        <div class="flex flex-col gap-3">
-          <div class="skeleton h-8 w-48"></div>
-          <div class="skeleton h-24 w-full rounded-lg"></div>
-        </div>
-      </turbo-frame>
-    </div>
+      <input id="contract_tab_governance" data-turbo-permanent type="radio" name="contract_view" role="tab" class="tab" aria-label="<%= t('contracts.show.tab_governance') %>" data-contract-tabs-target="governance" data-action="change->contract-tabs#loadTab" />
+      <div role="tabpanel" class="tab-content bg-base-100 border-base-300 p-6">
+        <turbo-frame id="contract_governance">
+          <div class="flex flex-col gap-3">
+            <div class="skeleton h-8 w-48"></div>
+            <div class="skeleton h-24 w-full rounded-lg"></div>
+          </div>
+        </turbo-frame>
+      </div>
+    <% end %>
 
     <input id="contract_tab_source" data-turbo-permanent type="radio" name="contract_view" role="tab" class="tab" aria-label="<%= t('contracts.show.tab_source') %>" data-contract-tabs-target="source" data-action="change->contract-tabs#loadTab" />
     <div role="tabpanel" class="tab-content bg-base-100 border-base-300 p-6">

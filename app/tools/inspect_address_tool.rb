@@ -17,6 +17,9 @@ class InspectAddressTool < ApplicationTool
       chain_record = Chain.find_by(slug: chain)
       return { error: "unknown chain: #{chain}" } unless chain_record
 
+      tier_error = check_full_tier(chain_record)
+      return tier_error if tier_error
+
       result = ChainReader::AddressInspector.call(chain: chain_record, address: address)
 
       {

@@ -21,7 +21,7 @@ class GetRecentEventsTool < ApplicationTool
 
   class << self
     def payload(chain: nil, address: nil, slug: nil, event_name: nil, limit: DEFAULT_LIMIT)
-      resolved = resolve_contract(chain: chain, address: address, slug: slug)
+      resolved = resolve_contract(chain: chain, address: address, slug: slug, require_full: true)
       return resolved if resolved.is_a?(Hash)
 
       _chain_record, contract = resolved

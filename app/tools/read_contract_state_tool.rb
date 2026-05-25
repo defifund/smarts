@@ -17,7 +17,7 @@ class ReadContractStateTool < ApplicationTool
 
   class << self
     def payload(function_name:, chain: nil, address: nil, slug: nil, args: [])
-      resolved = resolve_contract(chain: chain, address: address, slug: slug)
+      resolved = resolve_contract(chain: chain, address: address, slug: slug, require_full: true)
       return resolved if resolved.is_a?(Hash)
 
       _chain_record, contract = resolved
