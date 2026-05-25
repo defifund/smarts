@@ -120,6 +120,7 @@ class MarketingController < ApplicationController
     end
 
     @homepage = Marketing::HomepagePresenter.call(featured: FEATURED, recent_limit: 3, contract_limit: 50, locale: I18n.locale)
+    response.set_header("Vary", "Accept-Language, Cookie")
     expires_in 6.hours, public: true
   end
 

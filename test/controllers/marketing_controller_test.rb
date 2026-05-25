@@ -126,7 +126,7 @@ class MarketingControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_match %r{href="/cn/usdc-eth"[^>]*>.*?<div class="mb-1 text-sm text-slate-300">USD Coin</div>}m, response.body
     assert_match %r{href="/cn/articles"[^>]*>浏览所有文章</a>}, response.body
-    assert_match "Circle 发行的受监管美元稳定币，在多条主流链上具有深度流动性。", response.body
+    assert_match "Circle 发行的受监管美元稳定币，流动性深厚。", response.body
     refute_match "Circle's regulated USD stablecoin", response.body
     refute_match "largest by market cap", response.body
     refute_match "按市值计规模最大", response.body

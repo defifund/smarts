@@ -221,9 +221,9 @@ en:
       ai_tools: "AI tools endpoint"
       rest_api: "Actions-ready REST API"
       what_you_get: "What you get"
-      benefit_1: "• Live source, admin controls, and governance history."
-      benefit_2: "• Curated tokens, pools, and protocol contracts."
-      benefit_3: "• Sitemap, structured data, and tool endpoints for agents."
+      benefit_1: "Live source, admin controls, and governance history."
+      benefit_2: "Curated tokens, pools, and protocol contracts."
+      benefit_3: "Sitemap, structured data, and tool endpoints for agents."
       curated_cta: "Or start from a curated blue chip"
       latest_articles: "Latest articles"
       browse_all: "Browse all articles"
@@ -235,7 +235,7 @@ en:
       featured:
         usdc_eth:
           name: "USD Coin"
-          blurb: "Circle-issued regulated USD stablecoin with deep liquidity across major chains."
+          blurb: "Circle-issued regulated USD stablecoin with deep liquidity."
         usdt_eth:
           name: "Tether USD"
           blurb: "The oldest and most-traded dollar stablecoin."
