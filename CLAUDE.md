@@ -125,12 +125,27 @@ external_apis:
 
 ## 支持范围（MVP 硬边界）
 
-### 支持的链（Month 1-3）
-- Ethereum mainnet (chain_id: 1)
-- Base (chain_id: 8453)
-- Arbitrum One (chain_id: 42161)
-- Optimism (chain_id: 10)
-- Polygon PoS (chain_id: 137)
+### 支持的链 — 两层 tier 制度
+
+链注册的唯一数据源是 `db/seeds/chains.rb`，由 `Chains::Seeder.call`（幂等）应用。
+**不再写 per-chain data migration**（`db/migrate/*_add_<chain>_chain.rb` 已废弃，参见 `add_bnb_chain.rb` 头部注释）。
+Production 部署由 `bin/docker-entrypoint` 在 server 启动时自动跑 `Chains::Seeder.call`。
+
+**Tier 1 — `full`**：完整能力，live state + activity + governance + admin/risk + protocol adapters。
+- Ethereum (1) / Base (8453) / Arbitrum One (42161) / Optimism (10) / Polygon PoS (137) / BNB Smart Chain (56)
+- 配置必备：`rpc_url`，所有链上读取走 `ChainReader::*`（Multicall3 + view caller + event decoder）
+- 适用于：Top DeFi 协议、需要 AI agent 查实时状态的合约
+
+**Tier 2 — `docs_only`**：只索引源代码 + ABI，不调 RPC。
+- 当前：Linea (59144)
+- 数据源：Etherscan V2 `getsourcecode` / `getabi` —— Etherscan **官方对所有支持链 + Free tier 都开放这两个端点**（其他端点如 `getLogs` 只在 paid + selected chains）
+- 配置：`rpc_url: nil`
+- 启用的 MCP tools：`get_contract_info`、`get_contract_source`
+- 禁用的 MCP tools（友好返回 docs-only error，不会 timeout）：`read_contract_state`、`get_erc20_info`、`get_uniswap_v3_pool`、`get_recent_events`、`get_governance_timeline`、`get_admin_risk`、`inspect_address`
+- UI：show 页面只渲染 Docs + Source tabs，隐藏 Live State / Activity / Governance tabs，顶部显示 docs-only notice
+- 价值：用零额外成本覆盖长尾 EVM 链，引流长尾开发者，反向推广主流链
+
+加新链流程：编辑 `db/seeds/chains.rb` → `bin/rails db:seed`（或部署即自动跑）。
 
 ### 支持的合约
 - 必须是 Solidity 编写
