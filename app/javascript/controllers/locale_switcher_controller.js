@@ -77,6 +77,31 @@ export default class extends Controller {
     return false;
   }
 
+  isChainPath(path) {
+    const cleanPath = this.stripLocalePrefix(path);
+    return /^\/chains(?:\/[a-z0-9-]+(?:\.md)?)?$/.test(cleanPath);
+  }
+
+  currentChainPath(locale) {
+    const localePrefix = locale === "en" ? "" : `/${locale}`;
+    const cleanPath = this.stripLocalePrefix(window.location.pathname);
+    const segments = cleanPath.split("/").filter(Boolean);
+
+    if (segments[0] !== "chains") {
+      return null;
+    }
+
+    if (segments.length === 1) {
+      return `${localePrefix}/chains`;
+    }
+
+    if (segments.length === 2) {
+      return `${localePrefix}/chains/${segments[1]}`;
+    }
+
+    return null;
+  }
+
   currentContractPath(locale) {
     const localePrefix = locale === "en" ? "" : `/${locale}`;
     const cleanPath = this.stripLocalePrefix(window.location.pathname);
@@ -129,6 +154,8 @@ export default class extends Controller {
       }
     } else if (this.isContractPath(path)) {
       newPath = this.currentContractPath(locale);
+    } else if (this.isChainPath(path)) {
+      newPath = this.currentChainPath(locale);
     } else if (articlesMatch) {
       // Articles list route: adjust locale prefix
       if (locale === "en") {

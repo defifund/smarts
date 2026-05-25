@@ -1,0 +1,124 @@
+<% content_for :body_class, "overflow-x-hidden bg-slate-950 text-slate-100" %>
+<% content_for :nav_class, "border-b border-white/10 bg-transparent px-3 py-4 sm:px-5" %>
+<% content_for :brand_class, "text-xl font-bold text-white hover:text-slate-200" %>
+<% content_for :nav_link_class, "flex items-center gap-4 text-sm font-medium text-slate-300" %>
+<% content_for :nav_link_item_class, "hover:text-white" %>
+<% content_for :footer_class, "container mx-auto mt-12 border-t border-white/10 px-3 py-8 sm:px-5" %>
+<% content_for :footer_text_class, "text-xs text-slate-400" %>
+<% content_for :footer_link_class, "text-slate-300 underline hover:text-white" %>
+
+<% seo_meta title: t("chains.show.seo_title", name: @chain.name), description: @chain.summary %>
+
+<% content_for :head do %>
+  <%= render_json_ld(Seo::JsonLd.item_list(
+    name: t("chains.show.json_ld_name", name: @chain.name),
+    description: @chain.summary,
+    items: @chain.contracts.map { |contract| { name: contract.name, url: "#{SeoHelper::SITE_URL}#{contract.path}" } }
+  )) %>
+<% end %>
+
+<div class="-mx-3 relative isolate overflow-hidden sm:-mx-5">
+  <div class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_25%_15%,rgba(56,189,248,0.15),transparent_24%),radial-gradient(circle_at_80%_18%,rgba(16,185,129,0.12),transparent_22%),linear-gradient(180deg,#09111f_0%,#07101a_48%,#050b14_100%)]"></div>
+  <div class="absolute inset-0 -z-10 bg-[linear-gradient(rgba(148,163,184,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.08)_1px,transparent_1px)] bg-[size:5rem_5rem] opacity-15"></div>
+
+  <div class="mx-auto w-full max-w-7xl px-4 pb-14 pt-10 sm:px-8 lg:px-10">
+    <section class="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
+      <div class="space-y-6">
+        <div class="inline-flex items-center gap-2 rounded-full border border-sky-400/20 bg-sky-400/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-sky-200">
+          <%= @chain.full? ? t("chains.show.live_badge") : t("chains.show.docs_badge") %>
+        </div>
+        <div>
+          <h1 class="text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
+            <%= @chain.name %>
+          </h1>
+          <p class="mt-5 max-w-2xl text-base leading-7 text-slate-300 sm:text-lg">
+            <%= @chain.summary %>
+          </p>
+        </div>
+
+        <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-2">
+          <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <p class="text-[10px] uppercase tracking-[0.3em] text-slate-500"><%= t("chains.show.metric_chain_id") %></p>
+            <p class="mt-2 font-mono text-xl text-white"><%= @chain.chain_id %></p>
+          </div>
+          <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <p class="text-[10px] uppercase tracking-[0.3em] text-slate-500"><%= t("chains.show.metric_contracts") %></p>
+            <p class="mt-2 font-mono text-xl text-white"><%= @chain.contract_count %></p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-3 text-sm text-slate-300">
+          <span class="rounded-full border border-white/10 bg-white/5 px-4 py-2"><%= @chain.full? ? t("chains.show.live_pill") : t("chains.show.docs_pill") %></span>
+          <% if @chain.docs_url.present? %>
+            <a href="<%= @chain.docs_url %>" target="_blank" rel="noopener" class="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sky-200 underline decoration-sky-400/40 underline-offset-4 hover:text-sky-100">
+              <%= t("chains.show.docs_link") %>
+            </a>
+          <% end %>
+          <a href="<%= public_chain_markdown_path(@chain.slug) %>" class="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sky-200 underline decoration-sky-400/40 underline-offset-4 hover:text-sky-100">
+            <%= t("chains.show.markdown_link") %>
+          </a>
+        </div>
+      </div>
+
+      <div class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-slate-950/20">
+        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-slate-400"><%= t("chains.show.surface_label") %></p>
+        <p class="mt-4 text-sm leading-6 text-slate-300">
+          <%= @chain.full? ? t("chains.show.live_description") : t("chains.show.docs_only_surface_description") %>
+        </p>
+
+        <div class="mt-6 grid gap-2 sm:grid-cols-2">
+          <% @chain.top_kinds(2).each do |kind, count| %>
+            <div class="rounded-2xl border border-white/10 bg-slate-950/40 p-3">
+              <p class="text-[10px] uppercase tracking-[0.3em] text-slate-500"><%= kind %></p>
+              <p class="mt-2 text-xl font-black text-white"><%= count %></p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </section>
+
+    <% if @chain.docs_only? %>
+      <div class="mt-8 rounded-3xl border border-sky-400/15 bg-slate-900/55 p-5 text-sm leading-6 text-slate-300">
+        <%= t("chains.show.docs_only_notice") %>
+      </div>
+    <% end %>
+
+    <section class="mt-12">
+      <div class="mb-4 flex items-center justify-between gap-4">
+        <h2 class="text-xs font-semibold uppercase tracking-[0.35em] text-slate-400"><%= t("chains.show.contracts_heading") %></h2>
+        <span class="text-xs text-slate-500"><%= t("chains.show.contracts_hint") %></span>
+      </div>
+
+      <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <% @chain.contracts.each do |contract| %>
+          <% card_classes = "rounded-3xl border border-white/10 bg-slate-900/70 p-5 shadow-xl shadow-slate-950/20 transition-all group hover:-translate-y-0.5 hover:bg-slate-900/90" %>
+          <% card_classes += @chain.docs_only? ? " hover:border-white/20" : " hover:border-sky-400/40" %>
+          <a href="<%= contract.path %>" class="<%= card_classes %>">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <h3 class="text-lg font-bold text-white transition-colors group-hover:text-sky-300"><%= contract.name %></h3>
+                <p class="mt-1 text-sm text-slate-400"><%= contract.kind %></p>
+              </div>
+              <% if contract.slug.present? && @chain.full? %>
+                <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-slate-300">slug</span>
+              <% end %>
+            </div>
+
+            <div class="mt-4 space-y-2 text-xs text-slate-400">
+              <div class="break-all font-mono text-slate-300"><%= contract.address %></div>
+              <% if contract.notes.present? %>
+                <p class="leading-6"><%= contract.notes %></p>
+              <% end %>
+            </div>
+
+            <% if @chain.docs_only? %>
+              <div class="mt-4 inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-slate-400">
+                <%= t("chains.show.docs_only_card_tag") %>
+              </div>
+            <% end %>
+          </a>
+        <% end %>
+      </div>
+    </section>
+  </div>
+</div>

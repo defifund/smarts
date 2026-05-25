@@ -88,6 +88,14 @@ Rails.application.routes.draw do
 
   root "marketing#home"
 
+  get ":locale/chains", to: "chains#index", as: :localized_chains,
+    constraints: { locale: Regexp.union(Article::LOCALE_ROUTE_MAP.keys) }
+  get "chains", to: "chains#index"
+  get ":locale/chains/:slug(.:format)", to: "chains#show", as: :localized_chain,
+    constraints: { locale: Regexp.union(Article::LOCALE_ROUTE_MAP.keys), slug: /[a-z0-9-]+/, format: /html|md/ }
+  get "chains/:slug(.:format)", to: "chains#show", as: :chain,
+    constraints: { slug: /[a-z0-9-]+/, format: /html|md/ }
+
   get "polymarket", to: "marketing#polymarket"
   get "sitemap.xml", to: "marketing#sitemap", defaults: { format: :xml }
   get "robots.txt", to: "marketing#robots", defaults: { format: :text }

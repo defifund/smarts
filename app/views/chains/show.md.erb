@@ -1,0 +1,44 @@
+<% canonical = "https://smarts.md#{@chain.path}" %>
+<% reference = "chains/#{@chain.slug}" %>
+
+# <%= @chain.name %>
+
+- **Chain ID:** `<%= @chain.chain_id %>`
+- **Tier:** <%= @chain.full? ? "live" : "docs-only" %>
+- **Contracts:** <%= @chain.contract_count %>
+<% if @chain.docs_url.present? %>
+- **Docs:** <%= @chain.docs_url %>
+<% end %>
+
+<%= @chain.summary %>
+
+<% if @chain.docs_only? %>
+> Indexed source, ABI, and contract references.
+<% else %>
+> This is a live chain on Smarts. Contract pages can surface live on-chain state, recent activity, and governance.
+<% end %>
+
+## Query via AI agent
+
+- **MCP endpoint:** `https://smarts.md/mcp`
+- **Reference:** `<%= reference %>`
+- **Sample prompt:** "Show me the supported contracts on <%= @chain.name %> and summarize the highest-signal ones."
+
+## Contract breakdown
+
+<% @chain.top_kinds(8).each do |kind, count| %>
+- **<%= kind %>:** <%= count %>
+<% end %>
+
+## Contracts
+
+<% @chain.contracts.each do |contract| %>
+- **<%= contract.name %>** (`<%= contract.kind %>`) - `<%= contract.address %>`<% if contract.slug.present? %> - [canonical page](<%= contract.path %>)<% end %>
+<% end %>
+
+## Links
+
+- Canonical page: <<%= canonical %>>
+<% if @chain.docs_url.present? %>
+- External docs: <%= @chain.docs_url %>
+<% end %>

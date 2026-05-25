@@ -1,7 +1,7 @@
 require "test_helper"
 
 class Marketing::SitemapBuilderTest < ActiveSupport::TestCase
-  test "returns canonical contract paths and locale-specific article paths" do
+  test "returns canonical contract, chain, and locale-specific article paths" do
     Article.create!(
       slug: "1z",
       user: users(:one),
@@ -15,9 +15,11 @@ class Marketing::SitemapBuilderTest < ActiveSupport::TestCase
 
     result = Marketing::SitemapBuilder.call(contract_limit: 50)
 
-    assert_equal 52, result.entries.length
+    assert_equal 71, result.entries.length
     assert_equal "https://smarts.md/usdc-eth", result.entries.first[:loc]
     assert_includes result.entries.map { |entry| entry[:loc] }, "https://smarts.md/1z"
     assert_includes result.entries.map { |entry| entry[:loc] }, "https://smarts.md/cn/1z"
+    assert_includes result.entries.map { |entry| entry[:loc] }, "https://smarts.md/chains"
+    assert_includes result.entries.map { |entry| entry[:loc] }, "https://smarts.md/chains/eth"
   end
 end
