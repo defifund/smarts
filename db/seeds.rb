@@ -1,42 +1,8 @@
-chains = [
-  {
-    name: "Ethereum", slug: "eth", chain_id: 1, tier: "full",
-    explorer_api_url: "https://api.etherscan.io/v2/api",
-    rpc_url: "https://ethereum-rpc.publicnode.com"
-  },
-  {
-    name: "Base", slug: "base", chain_id: 8453, tier: "full",
-    explorer_api_url: "https://api.etherscan.io/v2/api",
-    rpc_url: "https://base-rpc.publicnode.com"
-  },
-  {
-    name: "Arbitrum One", slug: "arbitrum", chain_id: 42161, tier: "full",
-    explorer_api_url: "https://api.etherscan.io/v2/api",
-    rpc_url: "https://arbitrum-one-rpc.publicnode.com"
-  },
-  {
-    name: "Optimism", slug: "optimism", chain_id: 10, tier: "full",
-    explorer_api_url: "https://api.etherscan.io/v2/api",
-    rpc_url: "https://optimism-rpc.publicnode.com"
-  },
-  {
-    name: "BNB Smart Chain", slug: "bnb", chain_id: 56, tier: "full",
-    explorer_api_url: "https://api.etherscan.io/v2/api",
-    rpc_url: "https://bsc-rpc.publicnode.com"
-  },
-  {
-    name: "Polygon PoS", slug: "polygon", chain_id: 137, tier: "full",
-    explorer_api_url: "https://api.etherscan.io/v2/api",
-    rpc_url: "https://polygon-bor-rpc.publicnode.com"
-  }
-]
-
-chains.each do |attrs|
-  chain = Chain.find_or_initialize_by(slug: attrs[:slug])
-  chain.update!(attrs)
-end
-
-puts "Seeded #{Chain.count} chains"
+# Chains are registered via the canonical Chains::Seeder. The chain list lives
+# in db/seeds/chains.rb (single source of truth). Do NOT inline chain data here
+# — keep this file as a thin orchestrator.
+seeded = Chains::Seeder.call
+puts "Seeded #{seeded} chains (total: #{Chain.count})"
 
 # -----------------------------------------------------------------------------
 # Protocol templates: for recognising common contract kinds by their ABI
