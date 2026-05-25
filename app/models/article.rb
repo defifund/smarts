@@ -24,6 +24,9 @@ class Article < ApplicationRecord
     to
     my
     me
+    en
+    cn
+    tw
     in
     on
   ].freeze

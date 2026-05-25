@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="<%= I18n.locale %>">
   <head>
     <title><%= page_title %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -44,7 +44,7 @@
         </a>
         <div class="<%= content_for(:nav_link_class).presence || 'flex items-center gap-4 text-sm font-medium text-gray-600' %>">
           <% unless content_for(:hide_secondary_nav).present? %>
-            <%= link_to t('nav.articles'), articles_path, class: (content_for(:nav_link_item_class).presence || "hover:text-gray-950") %>
+            <%= link_to t('nav.articles'), localized_articles_index_path, class: (content_for(:nav_link_item_class).presence || "hover:text-gray-950") %>
             <% if authenticated? %>
               <%= link_to t('nav.my'), my_path, class: (content_for(:nav_link_item_class).presence || "hover:text-gray-950") %>
             <% else %>

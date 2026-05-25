@@ -1,5 +1,6 @@
 class ContractsController < ApplicationController
   allow_unauthenticated_access
+  before_action :set_contract_locale
 
   def show
     chain_slug, address = resolve_chain_and_address
@@ -9,7 +10,12 @@ class ContractsController < ApplicationController
     # preserved so `/eth/0xa0b8….md` redirects to `/usdc-eth.md`, not the
     # default HTML view.
     if params[:address].present? && (slug = ContractSlugs.for(chain_slug, address))
-      return redirect_to canonical_path(slug), status: :moved_permanently
+      return redirect_to canonical_path(
+        slug,
+        chain_slug: chain_slug,
+        address: address,
+        locale: params[:locale].presence
+      ), status: :moved_permanently
     end
 
     find_or_fetch_contract(address)
@@ -243,8 +249,14 @@ class ContractsController < ApplicationController
     Rails.logger.warn("[ContractsController] AI enqueue failed: #{e.class}: #{e.message}")
   end
 
-  def canonical_path(slug)
-    params[:format] == "md" ? "/#{slug}.md" : "/#{slug}"
+  def canonical_path(slug, chain_slug:, address:, locale: nil)
+    helpers.localized_contract_path(
+      locale: locale || I18n.locale,
+      slug: slug,
+      chain_slug: chain_slug,
+      address: address,
+      format: params[:format]
+    )
   end
 
   def unverified_markdown(chain, address, inspection)
@@ -264,5 +276,25 @@ class ContractsController < ApplicationController
 
       View raw on-chain state: <https://smarts.md/#{chain.slug}/#{address}>
     MD
+  end
+
+  def set_contract_locale
+    locale =
+      if request.path_parameters[:locale].present?
+        LOCALE_MAP[request.path_parameters[:locale]] || I18n.default_locale.to_s
+      else
+        I18n.default_locale.to_s
+      end
+
+    I18n.locale = locale
+
+    return unless request.path_parameters[:locale].present?
+
+    cookies[:locale] = {
+      value: request.path_parameters[:locale],
+      path: "/",
+      expires: 1.year.from_now,
+      same_site: :lax
+    }
   end
 end

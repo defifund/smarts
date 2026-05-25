@@ -117,11 +117,17 @@
 
       <% @homepage.featured_groups.each do |category, items| %>
         <div class="mb-10">
-          <h2 class="mb-3 text-xs font-semibold uppercase tracking-[0.3em] text-slate-400"><%= category %></h2>
+          <% category_key = category.parameterize(separator: "_") %>
+          <h2 class="mb-3 text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
+            <%= t("marketing.home.featured_categories.#{category_key}", default: category) %>
+          </h2>
           <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <% items.each do |item| %>
               <% slug = ContractSlugs.for(item[:chain], item[:address]) %>
-              <a href="<%= slug ? "/#{slug}" : "/#{item[:chain]}/#{item[:address]}" %>"
+              <% featured_key = slug.to_s.tr("-", "_") %>
+              <% item_name = t("marketing.home.featured.#{featured_key}.name", default: item[:display_name].presence || item[:name]) %>
+              <% item_blurb = t("marketing.home.featured.#{featured_key}.blurb", default: item[:blurb]) %>
+              <a href="<%= localized_contract_path(locale: I18n.locale, slug: slug, chain_slug: item[:chain], address: item[:address]) %>"
                  class="group block rounded-2xl border border-white/10 bg-slate-900/65 p-4 transition-all hover:-translate-y-0.5 hover:border-sky-400/40 hover:bg-slate-900/90">
                 <div class="mb-1 flex items-baseline justify-between gap-2">
                   <span class="text-lg font-bold text-white transition-colors group-hover:text-sky-300"><%= item[:symbol] %></span>
@@ -129,8 +135,8 @@
                     <%= MarketingController::CHAIN_LABELS[item[:chain]] || item[:chain] %>
                   </span>
                 </div>
-                <div class="mb-1 text-sm text-slate-300"><%= item[:display_name].presence || item[:name] %></div>
-                <div class="text-xs leading-6 text-slate-500"><%= item[:blurb] %></div>
+                <div class="mb-1 text-sm text-slate-300"><%= item_name %></div>
+                <div class="text-xs leading-6 text-slate-500"><%= item_blurb %></div>
               </a>
             <% end %>
           </div>
@@ -148,10 +154,10 @@
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <% @homepage.recent_articles.each do |article| %>
-            <% locale = "en" %>
-            <% title = article.title_for(locale) %>
-            <% summary = article.summary_for(locale) %>
-            <% article_url = article_path(article.slug) %>
+            <% article_locale = I18n.locale.to_s %>
+            <% title = article.title_for(article_locale) %>
+            <% summary = article.summary_for(article_locale) %>
+            <% article_url = article.public_path(article_locale) %>
             <a href="<%= article_url %>"
                class="group block rounded-2xl border border-white/10 bg-slate-900/65 p-5 transition-all hover:-translate-y-0.5 hover:border-sky-400/40 hover:bg-slate-900/90">
               <div class="mb-2 flex items-baseline justify-between gap-2">
@@ -171,7 +177,7 @@
         </div>
 
         <div class="mt-8 text-center">
-          <%= link_to t('marketing.home.browse_all'), articles_path, class: "text-sm font-semibold text-sky-300 underline decoration-sky-400/50 underline-offset-4 hover:text-sky-200" %>
+          <%= link_to t('marketing.home.browse_all'), localized_articles_index_path, class: "text-sm font-semibold text-sky-300 underline decoration-sky-400/50 underline-offset-4 hover:text-sky-200" %>
         </div>
       </section>
     <% end %>

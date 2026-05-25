@@ -9,10 +9,12 @@ class ArticleTest < ActiveSupport::TestCase
   end
 
   test "rejects reserved slugs" do
-    article = build_article(slug: "up")
+    Article::RESERVED_SLUGS.each do |slug|
+      article = build_article(slug: slug)
 
-    refute article.valid?
-    assert article.errors[:slug].any?
+      refute article.valid?, "expected #{slug.inspect} to be reserved"
+      assert article.errors[:slug].any?
+    end
   end
 
   test "validates subcategory belongs to category" do

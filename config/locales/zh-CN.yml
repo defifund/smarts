@@ -192,6 +192,57 @@
       curated_cta: "或从精选蓝筹合约开始"
       latest_articles: "最新文章"
       browse_all: "浏览所有文章"
+      featured_categories:
+        stablecoins: "稳定币"
+        dex_wrapped: "DEX 与封装资产"
+        governance: "治理"
+        multi_chain: "多链"
+      featured:
+        usdc_eth:
+          name: "USD Coin"
+          blurb: "Circle 发行的受监管美元稳定币，在多条主流链上具有深度流动性。"
+        usdt_eth:
+          name: "Tether USD"
+          blurb: "历史最久、交易最活跃的美元稳定币。"
+        dai_eth:
+          name: "Dai"
+          blurb: "MakerDAO 的去中心化、加密资产抵押稳定币。"
+        univ3_usdc_weth_eth:
+          name: "Uniswap V3 · 0.05% 费率"
+          blurb: "Ethereum 上流动性最深的 Uniswap V3 USDC/WETH 池。"
+        weth_eth:
+          name: "Wrapped Ether"
+          blurb: "ETH 的 ERC-20 形式，是各类 DEX 的基础资产。"
+        wbtc_eth:
+          name: "Wrapped Bitcoin"
+          blurb: "由 BitGo 托管并桥接为 ERC-20 的比特币资产。"
+        uni_eth:
+          name: "Uniswap"
+          blurb: "Uniswap 协议的治理代币。"
+        link_eth:
+          name: "Chainlink"
+          blurb: "Chainlink 去中心化预言机网络的代币。"
+        aave_eth:
+          name: "Aave"
+          blurb: "Aave 的治理与安全模块代币。"
+        usdc_base:
+          name: "USD Coin (Base)"
+          blurb: "Base 上由 Circle 原生发行的 USDC。"
+        usdc_arbitrum:
+          name: "USD Coin (Arbitrum)"
+          blurb: "Arbitrum One 上由 Circle 原生发行的 USDC。"
+        usdt_bnb:
+          name: "Tether USD (BNB)"
+          blurb: "BNB Smart Chain 上交易最活跃的美元稳定币。"
+        wbnb_bnb:
+          name: "Wrapped BNB"
+          blurb: "BNB Smart Chain 上标准的封装 Gas 代币。"
+        cake_bnb:
+          name: "PancakeSwap"
+          blurb: "BNB Smart Chain 最大交易场所的旗舰 DEX 代币。"
+        wpol_polygon:
+          name: "Wrapped POL"
+          blurb: "Polygon 标准封装 Gas 代币，前身为 WMATIC。"
     mcp:
       protocol_label: "模型上下文协议"
       heading: "将你的 AI 指向 smarts.md"

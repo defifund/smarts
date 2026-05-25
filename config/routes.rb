@@ -110,6 +110,10 @@ Rails.application.routes.draw do
   # These MUST sit before the slug / hex catch-all routes so Rails tries them
   # first; otherwise `:slug` would swallow "usdc-eth/live" as a single param.
   %w[live activity governance source].each do |island|
+    get ":locale/:slug/#{island}", to: "contracts##{island}",
+      constraints: { locale: Regexp.union(Article::LOCALE_ROUTE_MAP.keys), slug: ContractSlugs::ROUTE_PATTERN }
+    get ":locale/:chain/:address/#{island}", to: "contracts##{island}",
+      constraints: { locale: Regexp.union(Article::LOCALE_ROUTE_MAP.keys), address: /0x[0-9a-fA-F]{40}/ }
     get ":slug/#{island}", to: "contracts##{island}",
       constraints: { slug: ContractSlugs::ROUTE_PATTERN }
     get ":chain/:address/#{island}", to: "contracts##{island}",
@@ -120,11 +124,15 @@ Rails.application.routes.draw do
   # The pattern constraint rejects `/about`, `/api`, etc. — only strings ending
   # in a known chain suffix reach this route. Optional `.md` format returns
   # an AI-agent-friendly markdown distillation of the page.
+  get ":locale/:slug(.:format)", to: "contracts#show", as: :localized_contract_slug,
+    constraints: { locale: Regexp.union(Article::LOCALE_ROUTE_MAP.keys), slug: ContractSlugs::ROUTE_PATTERN, format: /html|md/ }
   get ":slug(.:format)", to: "contracts#show", as: :contract_slug,
     constraints: { slug: ContractSlugs::ROUTE_PATTERN, format: /html|md/ }
 
   # Canonical hex form: GET /eth/0x1f98... — redirected to slug if one exists.
   # Supports the same optional `.md` format as the slug route.
+  get ":locale/:chain/:address(.:format)", to: "contracts#show", as: :localized_contract,
+    constraints: { locale: Regexp.union(Article::LOCALE_ROUTE_MAP.keys), address: /0x[0-9a-fA-F]{40}/, format: /html|md/ }
   get ":chain/:address(.:format)", to: "contracts#show", as: :contract,
     constraints: { address: /0x[0-9a-fA-F]{40}/, format: /html|md/ }
 

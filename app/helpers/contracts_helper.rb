@@ -3,14 +3,33 @@ require "bigdecimal/util"
 require "set"
 
 module ContractsHelper
+  def localized_contract_path(locale: I18n.locale, slug: nil, chain_slug: nil, address: nil, format: nil)
+    locale_key = locale.to_s
+    route_locale =
+      if Article::LOCALE_ROUTE_MAP.key?(locale_key)
+        locale_key
+      else
+        Article.route_locale_for(locale_key)
+      end
+    base_path =
+      if slug.present?
+        "/#{slug}"
+      elsif chain_slug.present? && address.present?
+        "/#{chain_slug}/#{address}"
+      end
+
+    return nil if base_path.blank?
+
+    path = route_locale.present? ? "/#{route_locale}#{base_path}" : base_path
+    return path unless format.to_s == "md"
+
+    "#{path}.md"
+  end
+
   # Generates the path for a Turbo Frame island sub-resource (live, activity,
   # governance, source). Prefers the slug form when available.
   def contract_island_path(island)
-    if @canonical_slug
-      "/#{@canonical_slug}/#{island}"
-    else
-      "/#{@chain.slug}/#{@contract.address}/#{island}"
-    end
+    "#{localized_contract_path(slug: @canonical_slug, chain_slug: @chain.slug, address: @contract.address)}/#{island}"
   end
 
   # Dispatches by ABI output shape: tuples → (name: val, ...), arrays → [...],
