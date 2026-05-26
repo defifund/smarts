@@ -46,6 +46,7 @@
           <%= contract_protocol_badge %>
         </span>
       <% end %>
+      <%= link_to t('contracts.show.browse_chains'), public_chains_index_path, class: "text-sm font-semibold text-sky-600 underline decoration-sky-400/40 underline-offset-4 hover:text-sky-500" %>
     </div>
     <p class="font-mono text-sm opacity-70 break-all"><%= @contract.address %></p>
     <% if @contract.implementation_address.present? %>

@@ -10,6 +10,7 @@
   contracts:
     show:
       implementation: "實作合約："
+      browse_chains: "瀏覽鏈"
       tab_docs: "文件"
       tab_activity: "即時動態"
       tab_governance: "治理"
@@ -71,6 +72,7 @@
       copy: "複製"
       sample_prompt: "範例提示詞："
       no_ai_yet: "還沒有接入 AI？→"
+      browse_chains: "瀏覽鏈"
     error:
       heading: "出了點問題"
       description: "請稍後重試。"
@@ -259,6 +261,7 @@
       recommended: "推薦 · 一條指令"
       cli_label: "CLI"
       config_path_label: "設定檔路徑"
+      browse_chains: "瀏覽鏈"
       ask_your_ai: "問你的 AI"
       onchain_native: "鏈上原生"
       onchain_description: "Smarts 不止於 API 元資料。你的 AI 可以直接從鏈上資料驗證合約狀態、解碼事件、治理變更和 Polymarket 結算賠付，並在需要時與鏈下市場狀態進行對比。"

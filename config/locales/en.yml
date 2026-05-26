@@ -43,6 +43,7 @@ en:
   contracts:
     show:
       implementation: "implementation:"
+      browse_chains: "Browse chains"
       tab_docs: "Docs"
       tab_activity: "Live Activity"
       tab_governance: "Governance"
@@ -104,6 +105,7 @@ en:
       copy: "Copy"
       sample_prompt: "Sample prompt:"
       no_ai_yet: "No AI wired up yet? →"
+      browse_chains: "Browse chains"
     error:
       heading: "Something went wrong"
       description: "Please try again later."
@@ -294,6 +296,7 @@ en:
       recommended: "Recommended · one command"
       cli_label: "CLI"
       config_path_label: "config path"
+      browse_chains: "Browse chains"
       ask_your_ai: "Ask your AI"
       onchain_native: "On-chain native"
       onchain_description: "Smarts does not stop at API metadata. Your AI can verify contract state, decoded events, governance changes, and Polymarket resolution payouts directly from chain data, then compare that evidence with off-chain market status when useful."

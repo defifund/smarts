@@ -11,6 +11,7 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "h1", "Uni"
+    assert_match %r{href="/chains"[^>]*>\s*Browse chains\s*</a>}m, response.body
   end
 
   test "show via friendly slug resolves to the contract" do
@@ -78,6 +79,7 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
     assert_match "## Query via AI agent", response.body
     assert_match "## Links", response.body
     assert_match "mcp.smarts.md", response.body
+    assert_match "Browse chains", response.body
   end
 
   test "slug URL .md resolves without redirect and uses the canonical slug in the reference line" do

@@ -337,6 +337,8 @@ end
 
 - [ ] 建立聚合页面（`/protocols`, `/chains`, `/trending`）
 - [ ] 内部链接架构（合约 → 协议 → 链视图）
+- [ ] 继续把 `/chains` 的 docs-only 页面做目录化收敛，减少首屏噪音
+- [ ] 丰富各个链的合约信息，补更高信号的摘要、代表性协议和覆盖质量说明
 - [ ] 添加"权限风险看板"原创内容
 - [ ] AI FAQ 自动生成 + 页面展示
 - [ ] 向 ProductHunt / Hacker News / Twitter 发布，重点强调"live"和"从 Claude Code 调用"

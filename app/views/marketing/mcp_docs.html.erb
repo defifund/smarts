@@ -26,6 +26,12 @@
         title="<%= t('marketing.mcp.copy_tooltip') %>"
       ><%= t('marketing.mcp.copy') %></button>
     </div>
+
+    <div class="mt-4">
+      <a href="<%= public_chains_index_path %>" class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-sky-200 underline decoration-sky-400/40 underline-offset-4 hover:text-sky-100">
+        <%= t('marketing.mcp.browse_chains') %>
+      </a>
+    </div>
   </div>
 
   <%# ---------- Install ---------- %>
@@ -184,6 +190,7 @@
     <div>
       <a href="https://smarts.md/" class="text-gray-400 hover:text-white underline">smarts.md</a>
       · <%= t('marketing.mcp.built_on_mcp') %> <a href="https://modelcontextprotocol.io" target="_blank" rel="noopener" class="hover:text-white underline">MCP spec</a>
+      · <a href="<%= public_chains_index_path %>" class="hover:text-white underline"><%= t('marketing.mcp.browse_chains') %></a>
     </div>
     <div>
       Built by <a href="https://chain.dev" class="text-gray-400 hover:text-white underline">chain.dev</a>

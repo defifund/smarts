@@ -369,10 +369,12 @@ class MarketingControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_match "Point your AI at smarts.md", response.body
     assert_match "https://smarts.md/mcp", response.body
+    assert_match %r{href="/chains"[^>]*>\s*Browse chains\s*</a>}m, response.body
     assert_match "Quick install", response.body
     assert_match "claude mcp add", response.body
     assert_match "Ask your AI", response.body
     assert_match "Tools", response.body
+    assert_match %r{href="/chains"[^>]*>Browse chains</a>}, response.body
   end
 
   test "mcp_docs also renders for the mcp.localhost local-dev alias" do
