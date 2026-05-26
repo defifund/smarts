@@ -34,6 +34,76 @@ class MarketingControllerTest < ActionDispatch::IntegrationTest
     assert_match %r{<a href="https://mcp\.smarts\.md/"[^>]*>connect your AI agent</a>}, response.body
   end
 
+  test "home surfaces a chains entry button" do
+    get root_path
+
+    assert_response :success
+    assert_match %r{<a href="/chains"[^>]*>.*?Browse chains.*?</a>}m, response.body
+  end
+
+  test "chains index renders the catalog" do
+    get "/chains"
+
+    assert_response :success
+    assert_match "Supported chains", response.body
+    assert_match "Ethereum", response.body
+    assert_match "Linea", response.body
+    assert_match "Docs only", response.body
+  end
+
+  test "chains index filters by search term and tier" do
+    get "/chains", params: { q: "PancakeSwap", tier: "full" }
+
+    assert_response :success
+    assert_match "BNB Smart Chain", response.body
+    refute_match "Ethereum", response.body
+    refute_match "Linea", response.body
+  end
+
+  test "chain detail renders the contract catalog" do
+    get "/chains/eth"
+
+    assert_response :success
+    assert_match "Ethereum", response.body
+    assert_match "USD Coin", response.body
+    assert_match "Wrapped Ether", response.body
+    assert_match "/chains/eth.md", response.body
+  end
+
+  test "docs-only chain pages use docs-oriented wording" do
+    get "/chains/celo"
+
+    assert_response :success
+    assert_match "Indexed source, ABI, and contract references.", response.body
+    assert_match "Indexed", response.body
+  end
+
+  test "chain markdown renders an AI-friendly summary" do
+    get "/chains/eth.md"
+
+    assert_response :success
+    assert_equal "text/markdown", response.media_type
+    assert_match "# Ethereum", response.body
+    assert_match "## Query via AI agent", response.body
+    assert_match "## Contracts", response.body
+  end
+
+  test "localized chain markdown routes work" do
+    get "/cn/chains/eth.md"
+
+    assert_response :success
+    assert_equal "text/markdown", response.media_type
+    assert_match "# Ethereum", response.body
+  end
+
+  test "localized chains URLs render the localized catalog" do
+    get "/cn/chains"
+
+    assert_response :success
+    assert_match "支持的链", response.body
+    assert_match %r{href="/cn/chains/eth"}, response.body
+  end
+
   test "polymarket page uses natural-language AI prompts, not tool call syntax" do
     market = PolymarketClient::Market.new(
       condition_id: "0x" + ("12" * 32),
@@ -204,11 +274,13 @@ class MarketingControllerTest < ActionDispatch::IntegrationTest
     assert_equal "application/xml", response.media_type
 
     urls = response.body.scan(%r{<loc>([^<]+)</loc>}).flatten
-    assert_equal 52, urls.length
+    assert_equal 71, urls.length
     assert_equal "https://smarts.md/usdc-eth", urls.first
     refute_includes urls, "https://smarts.md/wmatic-polygon"
     assert_includes urls, "https://smarts.md/1z"
     assert_includes urls, "https://smarts.md/cn/1z"
+    assert_includes urls, "https://smarts.md/chains"
+    assert_includes urls, "https://smarts.md/chains/eth"
   end
 
   test "robots.txt advertises the sitemap" do

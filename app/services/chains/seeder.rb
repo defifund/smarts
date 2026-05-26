@@ -26,7 +26,8 @@ module Chains
     private
 
     def load_chain_data
-      eval(SEED_PATH.read, binding, SEED_PATH.to_s)
+      load(SEED_PATH)
+      CHAIN_SEEDS
     end
   end
 end

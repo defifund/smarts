@@ -71,7 +71,8 @@ class ChainTest < ActiveSupport::TestCase
   end
 
   test "DISPLAY_ORDER covers every chain in db/seeds/chains.rb" do
-    seeded_slugs = eval(Rails.root.join("db/seeds/chains.rb").read).map { |c| c[:slug] }
+    load Rails.root.join("db/seeds/chains.rb")
+    seeded_slugs = CHAIN_SEEDS.map { |c| c[:slug] }
     missing = seeded_slugs - Chain::DISPLAY_ORDER
     assert_empty missing,
                  "Seeded chains not listed in Chain::DISPLAY_ORDER: #{missing.inspect}. " \

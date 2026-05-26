@@ -16,11 +16,31 @@ module Marketing
 
     def call
       Result.new(
-        entries: contract_entries + article_entries
+        entries: contract_entries + article_entries + chain_entries
       )
     end
 
     private
+
+    def chain_entries
+      I18n.with_locale(:en) do
+        index_entry = {
+          loc: "#{SeoHelper::SITE_URL}/chains",
+          changefreq: "monthly",
+          priority: "0.6"
+        }
+
+        [ index_entry, *Chains::Catalog.all.map { |chain| chain_entry(chain) } ]
+      end
+    end
+
+    def chain_entry(chain)
+      {
+        loc: "#{SeoHelper::SITE_URL}#{chain.path}",
+        changefreq: "monthly",
+        priority: chain.full? ? "0.7" : "0.5"
+      }
+    end
 
     def contract_entries
       ContractSlugs.canonical_slugs(@contract_limit).map do |slug|

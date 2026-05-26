@@ -4,7 +4,8 @@ class Chains::SeederTest < ActiveSupport::TestCase
   test "registers every chain from db/seeds/chains.rb" do
     seeded_count = Chains::Seeder.call
 
-    data = eval(Rails.root.join("db/seeds/chains.rb").read)
+    load Rails.root.join("db/seeds/chains.rb")
+    data = CHAIN_SEEDS
     assert_equal data.length, seeded_count
     data.each do |attrs|
       chain = Chain.find_by!(slug: attrs[:slug])

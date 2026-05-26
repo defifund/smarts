@@ -7,7 +7,9 @@
 # Do NOT write per-chain data migrations. The previous pattern
 # (db/migrate/*_add_<chain>_chain.rb) is deprecated; new chains belong here.
 
-[
+Object.send(:remove_const, :CHAIN_SEEDS) if Object.const_defined?(:CHAIN_SEEDS)
+
+CHAIN_SEEDS = [
   # ── Tier 1 — full: live state + activity + governance via RPC. ──────────
   {
     name: "Ethereum", slug: "eth", chain_id: 1, tier: "full",
@@ -41,9 +43,67 @@
   },
 
   # ── Tier 2 — docs_only: Etherscan source/ABI only, no RPC, no live data. ─
+  # Order roughly by ecosystem maturity / search demand. Etherscan V2 Free tier
+  # serves `getsourcecode` / `getabi` for ALL supported chains — that's the
+  # entire reason Tier 2 costs $0 to operate.
   {
     name: "Linea", slug: "linea", chain_id: 59144, tier: "docs_only",
     explorer_api_url: "https://api.etherscan.io/v2/api",
     rpc_url: nil
+  },
+  {
+    name: "Unichain", slug: "unichain", chain_id: 130, tier: "docs_only",
+    explorer_api_url: "https://api.etherscan.io/v2/api",
+    rpc_url: nil
+  },
+  {
+    name: "Berachain", slug: "berachain", chain_id: 80094, tier: "docs_only",
+    explorer_api_url: "https://api.etherscan.io/v2/api",
+    rpc_url: nil
+  },
+  {
+    name: "Blast", slug: "blast", chain_id: 81457, tier: "docs_only",
+    explorer_api_url: "https://api.etherscan.io/v2/api",
+    rpc_url: nil
+  },
+  {
+    name: "Sonic", slug: "sonic", chain_id: 146, tier: "docs_only",
+    explorer_api_url: "https://api.etherscan.io/v2/api",
+    rpc_url: nil
+  },
+  {
+    name: "Mantle", slug: "mantle", chain_id: 5000, tier: "docs_only",
+    explorer_api_url: "https://api.etherscan.io/v2/api",
+    rpc_url: nil
+  },
+  {
+    name: "Gnosis", slug: "gnosis", chain_id: 100, tier: "docs_only",
+    explorer_api_url: "https://api.etherscan.io/v2/api",
+    rpc_url: nil
+  },
+  {
+    name: "Celo", slug: "celo", chain_id: 42220, tier: "docs_only",
+    explorer_api_url: "https://api.etherscan.io/v2/api",
+    rpc_url: nil
+  },
+  {
+    name: "Fraxtal", slug: "fraxtal", chain_id: 252, tier: "docs_only",
+    explorer_api_url: "https://api.etherscan.io/v2/api",
+    rpc_url: nil
+  },
+  {
+    name: "Taiko", slug: "taiko", chain_id: 167000, tier: "docs_only",
+    explorer_api_url: "https://api.etherscan.io/v2/api",
+    rpc_url: nil
+  },
+  {
+    name: "World Chain", slug: "world", chain_id: 480, tier: "docs_only",
+    explorer_api_url: "https://api.etherscan.io/v2/api",
+    rpc_url: nil
+  },
+  {
+    name: "Abstract", slug: "abstract", chain_id: 2741, tier: "docs_only",
+    explorer_api_url: "https://api.etherscan.io/v2/api",
+    rpc_url: nil
   }
-]
+].freeze
