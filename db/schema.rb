@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_25_170000) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_26_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -48,11 +48,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_25_170000) do
     t.datetime "created_at", null: false
     t.string "explorer_api_url", null: false
     t.string "name", null: false
+    t.string "network_kind", default: "mainnet", null: false
     t.string "rpc_url"
     t.string "slug", null: false
     t.string "tier", default: "full", null: false
     t.datetime "updated_at", null: false
     t.index ["chain_id"], name: "index_chains_on_chain_id", unique: true
+    t.index ["network_kind"], name: "index_chains_on_network_kind"
     t.index ["slug"], name: "index_chains_on_slug", unique: true
     t.index ["tier"], name: "index_chains_on_tier"
   end

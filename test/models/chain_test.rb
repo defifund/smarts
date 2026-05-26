@@ -56,6 +56,29 @@ class ChainTest < ActiveSupport::TestCase
     assert_not chains(:ethereum).docs_only?
   end
 
+  test "network_kind defaults to mainnet" do
+    assert_equal "mainnet", Chain.new.network_kind
+    assert chains(:ethereum).mainnet?
+    assert_not chains(:ethereum).testnet?
+  end
+
+  test "network_kind scopes return matching chains" do
+    assert_includes Chain.mainnet, chains(:ethereum)
+    assert_empty Chain.testnet
+
+    testnet_chain = Chain.create!(
+      name: "Sepolia",
+      slug: "sepolia",
+      chain_id: 11,
+      explorer_api_url: "https://api.etherscan.io/v2/api",
+      network_kind: "testnet"
+    )
+
+    assert_includes Chain.testnet, testnet_chain
+    assert testnet_chain.testnet?
+    assert_not testnet_chain.mainnet?
+  end
+
   test "tier scopes return matching chains" do
     assert_includes Chain.full, chains(:ethereum)
     assert_empty Chain.docs_only

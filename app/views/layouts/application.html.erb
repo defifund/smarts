@@ -31,7 +31,7 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="<%= content_for(:body_class).presence || 'overflow-x-hidden bg-white text-slate-950' %>">
+  <body class="<%= ['min-h-screen flex flex-col overflow-x-hidden', content_for(:body_class).presence || 'bg-white text-slate-950'].join(' ') %>">
     <%# Match main's mobile padding so the nav logo left-aligns with
         below-the-fold content (H1, address, cards). %>
     <nav class="<%= content_for(:nav_class).presence || 'border-b border-gray-200 bg-white/90 px-3 py-3 backdrop-blur sm:px-5' %>">
@@ -73,7 +73,7 @@
         viewport on mobile. A plain block container respects viewport width.
         Mobile side padding kept tight (12px) to maximize content area on
         narrow screens; widens at sm+ for breathing room on desktop. %>
-    <main class="container mx-auto px-3 sm:px-5">
+    <main class="container mx-auto flex-1 px-3 sm:px-5">
       <%= yield %>
     </main>
     <footer class="<%= content_for(:footer_class).presence || 'container mx-auto mt-12 border-t border-gray-200 px-3 py-8 sm:px-5' %>">

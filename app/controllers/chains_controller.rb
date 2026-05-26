@@ -6,10 +6,14 @@ class ChainsController < ApplicationController
   def index
     @query = params[:q].to_s.strip
     @tier_filter = params[:tier].presence_in(%w[ all full docs_only ]) || "all"
+    @page_scope = params[:scope].presence_in(%w[ chains testnets ]) || "chains"
+    @network_filter = params[:network].presence_in(%w[ all mainnet testnet ]) || (@page_scope == "testnets" ? "testnet" : "all")
 
     @chains = Chains::Catalog.all.select { |chain| chain_visible?(chain) }
     @full_chains = @chains.select(&:full?)
     @docs_only_chains = @chains.select(&:docs_only?)
+    @mainnet_chains = @chains.select(&:mainnet?)
+    @testnet_chains = @chains.select(&:testnet?)
     @contract_total = @chains.sum(&:contract_count)
     @top_kinds = @chains.each_with_object(Hash.new(0)) do |chain, counts|
       chain.kind_counts.each do |kind, count|
@@ -36,7 +40,8 @@ class ChainsController < ApplicationController
 
   def chain_visible?(chain)
     tier_matches = @tier_filter == "all" || chain.tier.to_s == @tier_filter
-    return false unless tier_matches
+    network_matches = @network_filter == "all" || chain.network_kind.to_s == @network_filter
+    return false unless tier_matches && network_matches
     return true if @query.blank?
 
     haystack = [

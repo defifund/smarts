@@ -49,6 +49,7 @@ class MarketingControllerTest < ActionDispatch::IntegrationTest
     assert_match "Ethereum", response.body
     assert_match "Linea", response.body
     assert_match "Docs only", response.body
+    assert_match "All networks", response.body
   end
 
   test "chains index filters by search term and tier" do
@@ -58,6 +59,28 @@ class MarketingControllerTest < ActionDispatch::IntegrationTest
     assert_match "BNB Smart Chain", response.body
     refute_match "Ethereum", response.body
     refute_match "Linea", response.body
+  end
+
+  test "chains index filters by network" do
+    get "/chains", params: { network: "mainnet" }
+
+    assert_response :success
+    assert_match "Mainnets", response.body
+    assert_match "Ethereum", response.body
+  end
+
+  test "testnets route renders the testnet directory shell" do
+    get "/testnets"
+
+    assert_response :success
+    assert_match "Testnet directory", response.body
+    assert_match "Supported testnets", response.body
+    assert_match "RPC", response.body
+    assert_match "Explorer", response.body
+    assert_match "Faucet", response.body
+    assert_match "Verify", response.body
+    assert_match 'href="https://testnet.monadvision.com"', response.body
+    assert_match 'href="https://testnet.stablescan.xyz"', response.body
   end
 
   test "chain detail renders the contract catalog" do
@@ -76,6 +99,13 @@ class MarketingControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_match "Indexed source, ABI, and contract references.", response.body
     assert_match "Indexed", response.body
+  end
+
+  test "chain pages without contracts omit the contracts heading" do
+    get "/chains/sepolia"
+
+    assert_response :success
+    refute_match(/>Contracts<\/h2>/, response.body)
   end
 
   test "chain markdown renders an AI-friendly summary" do
@@ -274,7 +304,8 @@ class MarketingControllerTest < ActionDispatch::IntegrationTest
     assert_equal "application/xml", response.media_type
 
     urls = response.body.scan(%r{<loc>([^<]+)</loc>}).flatten
-    assert_equal 71, urls.length
+    expected_length = 50 + Article.published.first.available_locales.length + 1 + Chains::Catalog.all.length
+    assert_equal expected_length, urls.length
     assert_equal "https://smarts.md/usdc-eth", urls.first
     refute_includes urls, "https://smarts.md/wmatic-polygon"
     assert_includes urls, "https://smarts.md/1z"
