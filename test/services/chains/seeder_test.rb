@@ -1,12 +1,11 @@
-require "yaml"
-
 require "test_helper"
 
 class Chains::SeederTest < ActiveSupport::TestCase
   test "registers every chain from db/seeds/chains.rb" do
     seeded_count = Chains::Seeder.call
 
-    data = YAML.safe_load_file(Rails.root.join("db/seeds/chains.rb"), symbolize_names: true)
+    load Rails.root.join("db/seeds/chains.rb")
+    data = CHAIN_SEEDS
     assert_equal data.length, seeded_count
     data.each do |attrs|
       chain = Chain.find_by!(slug: attrs[:slug])
