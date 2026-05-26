@@ -23,8 +23,12 @@ module Chains
       :name,
       :chain_id,
       :tier,
+      :network_kind,
       :summary,
       :docs_url,
+      :explorer_url,
+      :faucet_url,
+      :verify_url,
       :contracts,
       keyword_init: true
     ) do
@@ -34,6 +38,14 @@ module Chains
 
       def docs_only?
         tier.to_s == "docs_only"
+      end
+
+      def mainnet?
+        network_kind.to_s == "mainnet"
+      end
+
+      def testnet?
+        network_kind.to_s == "testnet"
       end
 
       def contract_count
@@ -83,14 +95,30 @@ module Chains
         contract(chain_slug, name: name, slug: slug, address: address, kind: kind, notes: notes)
       end
 
-      def chain(slug, name:, chain_id:, tier:, summary:, docs_url: nil, contracts: [])
+      def chain(
+        slug,
+        name:,
+        chain_id:,
+        tier:,
+        summary:,
+        docs_url: nil,
+        explorer_url: nil,
+        faucet_url: nil,
+        verify_url: nil,
+        network_kind: "mainnet",
+        contracts: []
+      )
         Chain.new(
           slug: slug,
           name: name,
           chain_id: chain_id,
           tier: tier,
+          network_kind: network_kind,
           summary: summary,
           docs_url: docs_url,
+          explorer_url: explorer_url,
+          faucet_url: faucet_url,
+          verify_url: verify_url,
           contracts: contracts
         )
       end
@@ -190,6 +218,345 @@ module Chains
           slug_contract("polymarket-uma-adapter-v3-polygon", name: "Polymarket UMA Adapter V3", kind: "Oracle"),
           slug_contract("polymarket-conditional-tokens-polygon", name: "Conditional Tokens", kind: "Resolution")
         ]
+      ),
+      chain(
+        "sepolia",
+        name: "Ethereum Sepolia",
+        chain_id: 11_155_111,
+        tier: "docs_only",
+        network_kind: "testnet",
+        summary: "Ethereum Sepolia testnet contracts and explorer-supported tooling.",
+        docs_url: "https://ethereum.org/developers/docs/networks/",
+        explorer_url: "https://sepolia.etherscan.io",
+        faucet_url: "https://www.alchemy.com/faucets/ethereum-sepolia",
+        verify_url: "https://sepolia.etherscan.io/verifyContract"
+      ),
+      chain(
+        "hoodi",
+        name: "Ethereum Hoodi",
+        chain_id: 560_048,
+        tier: "docs_only",
+        network_kind: "testnet",
+        summary: "Ethereum Hoodi testnet contracts and explorer-supported tooling.",
+        docs_url: "https://hoodi.ethpandaops.io/",
+        explorer_url: "https://hoodi.etherscan.io",
+        faucet_url: "https://faucet.hoodi.ethpandaops.io/",
+        verify_url: "https://hoodi.etherscan.io/verifyContract"
+      ),
+      chain(
+        "polygon-amoy",
+        name: "Polygon Amoy",
+        chain_id: 80_002,
+        tier: "docs_only",
+        network_kind: "testnet",
+        summary: "Polygon Amoy testnet contracts and explorer-supported tooling.",
+        docs_url: "https://docs.polygon.technology/pos/reference/rpc-endpoints/",
+        explorer_url: "https://amoy.polygonscan.com",
+        faucet_url: "https://faucet.polygon.technology/",
+        verify_url: "https://amoy.polygonscan.com/verifyContract"
+      ),
+      chain(
+        "arbitrum-sepolia",
+        name: "Arbitrum Sepolia",
+        chain_id: 421_614,
+        tier: "docs_only",
+        network_kind: "testnet",
+        summary: "Arbitrum Sepolia testnet contracts and explorer-supported tooling.",
+        docs_url: "https://docs.arbitrum.io/",
+        explorer_url: "https://sepolia.arbiscan.io",
+        faucet_url: "https://www.alchemy.com/faucets/arbitrum-sepolia",
+        verify_url: "https://sepolia.arbiscan.io/verifyContract"
+      ),
+      chain(
+        "linea-sepolia",
+        name: "Linea Sepolia",
+        chain_id: 59_141,
+        tier: "docs_only",
+        network_kind: "testnet",
+        summary: "Linea Sepolia testnet contracts and explorer-supported tooling.",
+        docs_url: "https://docs.linea.build/",
+        explorer_url: "https://sepolia.lineascan.build",
+        verify_url: "https://sepolia.lineascan.build/verifyContract"
+      ),
+      chain(
+        "blast-sepolia",
+        name: "Blast Sepolia",
+        chain_id: 168_587_773,
+        tier: "docs_only",
+        network_kind: "testnet",
+        summary: "Blast Sepolia testnet contracts and explorer-supported tooling.",
+        docs_url: "https://docs.blast.io/building/network-information",
+        explorer_url: "https://sepolia.blastscan.io",
+        faucet_url: "https://docs.blast.io/tools/faucets",
+        verify_url: "https://sepolia.blastscan.io/verifyContract"
+      ),
+      chain(
+        "celo-sepolia",
+        name: "Celo Sepolia",
+        chain_id: 11_142_220,
+        tier: "docs_only",
+        network_kind: "testnet",
+        summary: "Celo Sepolia testnet contracts and explorer-supported tooling.",
+        docs_url: "https://docs.celo.org/learn/topology-of-a-celo-network",
+        explorer_url: "https://celo-sepolia.blockscout.com",
+        faucet_url: "https://faucet.celo.org/celo-sepolia",
+        verify_url: "https://celo-sepolia.blockscout.com/verifyContract"
+      ),
+      chain(
+        "fraxtal-hoodi",
+        name: "Fraxtal Hoodi",
+        chain_id: 2_523,
+        tier: "docs_only",
+        network_kind: "testnet",
+        summary: "Fraxtal Hoodi testnet contracts and explorer-supported tooling.",
+        docs_url: "https://docs.frax.com/fraxtal/network/network-information",
+        explorer_url: "https://hoodi.fraxscan.com",
+        faucet_url: "https://docs.frax.com/fraxtal/tools/faucets"
+      ),
+      chain(
+        "moonbeam",
+        name: "Moonbeam",
+        chain_id: 1_284,
+        tier: "docs_only",
+        network_kind: "mainnet",
+        summary: "Moonbeam contracts surfaced from ecosystem docs and explorer pages."
+      ),
+      chain(
+        "moonriver",
+        name: "Moonriver",
+        chain_id: 1_285,
+        tier: "docs_only",
+        network_kind: "mainnet",
+        summary: "Moonriver contracts surfaced from ecosystem docs and explorer pages."
+      ),
+      chain(
+        "moonbase",
+        name: "Moonbase Alpha",
+        chain_id: 1_287,
+        tier: "docs_only",
+        network_kind: "testnet",
+        summary: "Moonbase Alpha testnet contracts and explorer-supported tooling.",
+        docs_url: "https://docs.moonbeam.network/builders/get-started/networks/moonbase/",
+        explorer_url: "https://moonbase.moonscan.io"
+      ),
+      chain(
+        "opbnb",
+        name: "opBNB",
+        chain_id: 204,
+        tier: "docs_only",
+        network_kind: "mainnet",
+        summary: "opBNB contracts surfaced from ecosystem docs and explorer pages."
+      ),
+      chain(
+        "opbnb-testnet",
+        name: "opBNB Testnet",
+        chain_id: 5_611,
+        tier: "docs_only",
+        network_kind: "testnet",
+        summary: "opBNB Testnet contracts and explorer-supported tooling.",
+        docs_url: "https://docs.bnbchain.org/bnb-opbnb/get-started/network-info/",
+        explorer_url: "https://testnet.opbnbscan.com",
+        faucet_url: "https://docs.bnbchain.org/bnb-opbnb/developers/network-faucet/",
+        verify_url: "https://docs.bnbchain.org/bnb-opbnb/advanced/verify-on-opbnbscan/"
+      ),
+      chain(
+        "xdc",
+        name: "XDC Mainnet",
+        chain_id: 50,
+        tier: "docs_only",
+        network_kind: "mainnet",
+        summary: "XDC Mainnet contracts surfaced from ecosystem docs and explorer pages."
+      ),
+      chain(
+        "xdc-apothem",
+        name: "XDC Apothem",
+        chain_id: 51,
+        tier: "docs_only",
+        network_kind: "testnet",
+        summary: "XDC Apothem testnet contracts and explorer-supported tooling.",
+        docs_url: "https://docs.xdc.network/xdcchain/developers/apothemrpc/",
+        explorer_url: "https://testnet.xdcscan.com"
+      ),
+      chain(
+        "unichain-sepolia",
+        name: "Unichain Sepolia",
+        chain_id: 1_301,
+        tier: "docs_only",
+        network_kind: "testnet",
+        summary: "Unichain Sepolia testnet contracts and explorer-supported tooling.",
+        docs_url: "https://docs.unichain.org/docs/technical-information/network-information",
+        explorer_url: "https://sepolia.uniscan.xyz",
+        faucet_url: "https://docs.unichain.org/docs/tools/faucets",
+        verify_url: "https://docs.unichain.org/docs/building-on-unichain/deploy-a-smart-contract"
+      ),
+      chain(
+        "world-sepolia",
+        name: "World Chain Sepolia",
+        chain_id: 4_801,
+        tier: "docs_only",
+        network_kind: "testnet",
+        summary: "World Chain Sepolia testnet contracts and explorer-supported tooling.",
+        docs_url: "https://docs.world.org/world-chain/quick-start/info",
+        explorer_url: "https://worldchain-sepolia.explorer.alchemy.com",
+        faucet_url: "https://www.alchemy.com/faucets/world-chain-sepolia",
+        verify_url: "https://docs.world.org/world-chain/developers/deploy"
+      ),
+      chain(
+        "berachain-bepolia",
+        name: "Berachain Bepolia",
+        chain_id: 80_069,
+        tier: "docs_only",
+        network_kind: "testnet",
+        summary: "Berachain Bepolia testnet contracts and explorer-supported tooling.",
+        docs_url: "https://docs.berachain.com/build/getting-started/common-resources",
+        explorer_url: "https://testnet.berascan.com",
+        faucet_url: "https://bepolia.hub.berachain.com",
+        verify_url: "https://docs.berachain.com/build/guides/verifying-smart-contracts"
+      ),
+      chain(
+        "monad",
+        name: "Monad",
+        chain_id: 143,
+        tier: "docs_only",
+        network_kind: "mainnet",
+        summary: "Monad contracts surfaced from ecosystem docs and explorer pages.",
+        docs_url: "https://docs.monad.xyz/"
+      ),
+      chain(
+        "monad-testnet",
+        name: "Monad Testnet",
+        chain_id: 10_143,
+        tier: "docs_only",
+        network_kind: "testnet",
+        summary: "Monad Testnet contracts and explorer-supported tooling.",
+        docs_url: "https://docs.monad.xyz/",
+        explorer_url: "https://testnet.monadvision.com",
+        faucet_url: "https://faucet.monad.xyz/",
+        verify_url: "https://docs.monad.xyz/"
+      ),
+      chain(
+        "hyperevm",
+        name: "HyperEVM",
+        chain_id: 999,
+        tier: "docs_only",
+        network_kind: "mainnet",
+        summary: "HyperEVM contracts surfaced from ecosystem docs and explorer pages.",
+        docs_url: "https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/hyperevm",
+        explorer_url: "https://hyperscan.com"
+      ),
+      chain(
+        "hyperevm-testnet",
+        name: "HyperEVM Testnet",
+        chain_id: 998,
+        tier: "docs_only",
+        network_kind: "testnet",
+        summary: "HyperEVM Testnet contracts and explorer-supported tooling.",
+        docs_url: "https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/hyperevm",
+        explorer_url: "https://hyperscan.com",
+        faucet_url: "https://app.hyperliquid-testnet.xyz/drip"
+      ),
+      chain(
+        "katana",
+        name: "Katana",
+        chain_id: 747_474,
+        tier: "docs_only",
+        network_kind: "mainnet",
+        summary: "Katana contracts surfaced from ecosystem docs and explorer pages.",
+        docs_url: "https://docs.katana.network/katana/technical-reference/network-information/"
+      ),
+      chain(
+        "bokuto",
+        name: "Katana Bokuto",
+        chain_id: 737_373,
+        tier: "docs_only",
+        network_kind: "testnet",
+        summary: "Katana Bokuto testnet contracts and explorer-supported tooling.",
+        docs_url: "https://docs.katana.network/katana/get-started/technical-reference-testnet/",
+        explorer_url: "https://bokuto.katanascan.com",
+        faucet_url: "https://explorer-bokuto.katanarpc.com/",
+        verify_url: "https://docs.katana.network/katana/get-started/technical-reference-testnet/"
+      ),
+      chain(
+        "sei",
+        name: "Sei",
+        chain_id: 1_329,
+        tier: "docs_only",
+        network_kind: "mainnet",
+        summary: "Sei contracts surfaced from ecosystem docs and explorer pages.",
+        docs_url: "https://www.docs.sei.io/evm"
+      ),
+      chain(
+        "sei-testnet",
+        name: "Sei Testnet",
+        chain_id: 1_328,
+        tier: "docs_only",
+        network_kind: "testnet",
+        summary: "Sei Testnet contracts and explorer-supported tooling.",
+        docs_url: "https://www.docs.sei.io/evm",
+        explorer_url: "https://testnet.seiscan.io",
+        faucet_url: "https://docs.sei.io/providers/faucets",
+        verify_url: "https://docs.sei.io/evm/evm-verify-contracts"
+      ),
+      chain(
+        "stable",
+        name: "Stable",
+        chain_id: 988,
+        tier: "docs_only",
+        network_kind: "mainnet",
+        summary: "Stable contracts surfaced from ecosystem docs and explorer pages.",
+        docs_url: "https://docs.stable.xyz/en/developers/mainnet/mainnet-information"
+      ),
+      chain(
+        "stable-testnet",
+        name: "Stable Testnet",
+        chain_id: 2_201,
+        tier: "docs_only",
+        network_kind: "testnet",
+        summary: "Stable Testnet contracts and explorer-supported tooling.",
+        docs_url: "https://docs.stable.xyz/en/developers/testnet/testnet-information",
+        explorer_url: "https://testnet.stablescan.xyz",
+        faucet_url: "https://faucet.stable.xyz",
+        verify_url: "https://testnet.stablescan.xyz/verifyContract"
+      ),
+      chain(
+        "plasma",
+        name: "Plasma",
+        chain_id: 9_745,
+        tier: "docs_only",
+        network_kind: "mainnet",
+        summary: "Plasma contracts surfaced from ecosystem docs and explorer pages.",
+        docs_url: "https://docs.plasma.to/docs/guides/network-configuration/mainnet-details"
+      ),
+      chain(
+        "plasma-testnet",
+        name: "Plasma Testnet",
+        chain_id: 9_746,
+        tier: "docs_only",
+        network_kind: "testnet",
+        summary: "Plasma Testnet contracts and explorer-supported tooling.",
+        docs_url: "https://docs.plasma.to/docs/guides/network-configuration/testnet-details",
+        explorer_url: "https://testnet.plasmascan.to",
+        faucet_url: "https://gas.zip/faucet/plasma",
+        verify_url: "https://docs.plasma.to/docs/guides/smart-contracts/verify-a-contract"
+      ),
+      chain(
+        "megaeth",
+        name: "MegaETH",
+        chain_id: 4_326,
+        tier: "docs_only",
+        network_kind: "mainnet",
+        summary: "MegaETH contracts surfaced from ecosystem docs and explorer pages.",
+        docs_url: "https://docs.megaeth.com/frontier"
+      ),
+      chain(
+        "megaeth-testnet",
+        name: "MegaETH Testnet",
+        chain_id: 6_343,
+        tier: "docs_only",
+        network_kind: "testnet",
+        summary: "MegaETH Testnet contracts and explorer-supported tooling.",
+        docs_url: "https://docs.megaeth.com/testnet",
+        faucet_url: "https://testnet.megaeth.com"
       ),
       chain(
         "linea",

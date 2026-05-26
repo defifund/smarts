@@ -91,6 +91,10 @@ Rails.application.routes.draw do
   get ":locale/chains", to: "chains#index", as: :localized_chains,
     constraints: { locale: Regexp.union(Article::LOCALE_ROUTE_MAP.keys) }
   get "chains", to: "chains#index"
+  get ":locale/testnets", to: "chains#index", as: :localized_testnets,
+    defaults: { scope: "testnets", network: "testnet" },
+    constraints: { locale: Regexp.union(Article::LOCALE_ROUTE_MAP.keys) }
+  get "testnets", to: "chains#index", defaults: { scope: "testnets", network: "testnet" }
   get ":locale/chains/:slug(.:format)", to: "chains#show", as: :localized_chain,
     constraints: { locale: Regexp.union(Article::LOCALE_ROUTE_MAP.keys), slug: /[a-z0-9-]+/, format: /html|md/ }
   get "chains/:slug(.:format)", to: "chains#show", as: :chain,

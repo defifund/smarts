@@ -2,6 +2,7 @@ ethereum:
   name: Ethereum
   slug: eth
   chain_id: 1
+  network_kind: mainnet
   explorer_api_url: https://api.etherscan.io/v2/api
   rpc_url: https://ethereum-rpc.publicnode.com
 
@@ -9,6 +10,7 @@ base:
   name: Base
   slug: base
   chain_id: 8453
+  network_kind: mainnet
   explorer_api_url: https://api.etherscan.io/v2/api
   rpc_url: https://base-rpc.publicnode.com
 
@@ -16,6 +18,7 @@ arbitrum:
   name: Arbitrum One
   slug: arbitrum
   chain_id: 42161
+  network_kind: mainnet
   explorer_api_url: https://api.etherscan.io/v2/api
   rpc_url: https://arbitrum-one-rpc.publicnode.com
 
@@ -23,6 +26,7 @@ optimism:
   name: Optimism
   slug: optimism
   chain_id: 10
+  network_kind: mainnet
   explorer_api_url: https://api.etherscan.io/v2/api
   rpc_url: https://optimism-rpc.publicnode.com
 
@@ -30,6 +34,7 @@ bnb:
   name: BNB Smart Chain
   slug: bnb
   chain_id: 56
+  network_kind: mainnet
   explorer_api_url: https://api.etherscan.io/v2/api
   rpc_url: https://bsc-rpc.publicnode.com
 
@@ -37,5 +42,6 @@ polygon:
   name: Polygon PoS
   slug: polygon
   chain_id: 137
+  network_kind: mainnet
   explorer_api_url: https://api.etherscan.io/v2/api
   rpc_url: https://polygon-bor-rpc.publicnode.com

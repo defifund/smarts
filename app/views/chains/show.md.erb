@@ -5,7 +5,6 @@
 
 - **Chain ID:** `<%= @chain.chain_id %>`
 - **Tier:** <%= @chain.full? ? "live" : "docs-only" %>
-- **Contracts:** <%= @chain.contract_count %>
 <% if @chain.docs_url.present? %>
 - **Docs:** <%= @chain.docs_url %>
 <% end %>
@@ -24,16 +23,12 @@
 - **Reference:** `<%= reference %>`
 - **Sample prompt:** "Show me the supported contracts on <%= @chain.name %> and summarize the highest-signal ones."
 
-## Contract breakdown
-
-<% @chain.top_kinds(8).each do |kind, count| %>
-- **<%= kind %>:** <%= count %>
-<% end %>
-
+<% if @chain.contracts.any? %>
 ## Contracts
 
 <% @chain.contracts.each do |contract| %>
 - **<%= contract.name %>** (`<%= contract.kind %>`) - `<%= contract.address %>`<% if contract.slug.present? %> - [canonical page](<%= contract.path %>)<% end %>
+<% end %>
 <% end %>
 
 ## Links

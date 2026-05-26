@@ -12,6 +12,7 @@ class Chains::SeederTest < ActiveSupport::TestCase
       assert_equal attrs[:name],     chain.name
       assert_equal attrs[:chain_id], chain.chain_id
       assert_equal attrs[:tier],     chain.tier
+      assert_equal attrs.fetch(:network_kind, "mainnet"), chain.network_kind
     end
   end
 

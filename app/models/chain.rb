@@ -4,6 +4,7 @@ class Chain < ApplicationRecord
   # full: live state + activity + governance via RPC (Tier 1, ~6 chains)
   # docs_only: Etherscan source/ABI only — no RPC, no live data (Tier 2, long-tail EVM)
   enum :tier, { full: "full", docs_only: "docs_only" }, default: :full
+  enum :network_kind, { mainnet: "mainnet", testnet: "testnet" }, default: :mainnet
 
   validates :name, :slug, :chain_id, :explorer_api_url, presence: true
   validates :slug, uniqueness: true
@@ -15,6 +16,9 @@ class Chain < ApplicationRecord
   # chain in dropdowns — chain_registry_consistency_test catches this drift.
   DISPLAY_ORDER = %w[
     eth base bnb arbitrum optimism polygon
+    sepolia hoodi polygon-amoy arbitrum-sepolia linea-sepolia blast-sepolia celo-sepolia fraxtal-hoodi
+    moonbeam moonriver moonbase opbnb opbnb-testnet xdc xdc-apothem unichain-sepolia world-sepolia berachain-bepolia
+    monad monad-testnet hyperevm hyperevm-testnet katana bokuto sei sei-testnet stable stable-testnet plasma plasma-testnet megaeth megaeth-testnet
     linea unichain berachain blast sonic mantle gnosis celo fraxtal taiko world abstract
   ].freeze
 
