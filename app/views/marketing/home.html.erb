@@ -144,7 +144,7 @@
           </h2>
           <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <% items.each do |item| %>
-              <% slug = ContractSlugs.for(item[:chain], item[:address]) %>
+              <% slug = ContractSlugResolver.for(item[:chain], item[:address]) %>
               <% featured_key = slug.to_s.tr("-", "_") %>
               <% item_name = t("marketing.home.featured.#{featured_key}.name", default: item[:display_name].presence || item[:name]) %>
               <% item_blurb = t("marketing.home.featured.#{featured_key}.blurb", default: item[:blurb]) %>

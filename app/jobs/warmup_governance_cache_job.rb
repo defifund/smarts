@@ -6,13 +6,7 @@ class WarmupGovernanceCacheJob < ApplicationJob
   # warm, so running every 30 minutes is safe — only the contracts that
   # actually need a re-scan pay the Etherscan cost.
   def perform
-    ContractSlugs::MAP.each_value do |(chain_slug, address)|
-      chain = Chain.find_by(slug: chain_slug)
-      next unless chain
-
-      contract = Contract.find_by(chain: chain, address: address.downcase)
-      next unless contract
-
+    Contract.where.not(catalog_slug: nil).find_each do |contract|
       GovernanceTimelineRefreshJob.perform_later(contract.id)
     end
   end

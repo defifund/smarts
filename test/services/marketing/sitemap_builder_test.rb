@@ -13,9 +13,10 @@ class Marketing::SitemapBuilderTest < ActiveSupport::TestCase
       published_at: 1.day.ago
     )
 
+    Chains::Seeder.call
     result = Marketing::SitemapBuilder.call(contract_limit: 50)
 
-    expected_length = 50 + article.available_locales.length + 1 + Chains::Catalog.all.length
+    expected_length = 50 + article.available_locales.length + 1 + Chain.for_display.length
     assert_equal expected_length, result.entries.length
     assert_equal "https://smarts.md/usdc-eth", result.entries.first[:loc]
     urls = result.entries.map { |entry| entry[:loc] }

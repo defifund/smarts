@@ -9,7 +9,7 @@ class ContractsController < ApplicationController
     # Hex URL that has a slug → 301 to the canonical slug form. Format is
     # preserved so `/eth/0xa0b8….md` redirects to `/usdc-eth.md`, not the
     # default HTML view.
-    if params[:address].present? && (slug = ContractSlugs.for(chain_slug, address))
+    if params[:address].present? && (slug = ContractSlugResolver.for(chain_slug, address))
       return redirect_to canonical_path(
         slug,
         chain_slug: chain_slug,
@@ -19,7 +19,7 @@ class ContractsController < ApplicationController
     end
 
     find_or_fetch_contract(address)
-    @canonical_slug = ContractSlugs.for(chain_slug, address)
+    @canonical_slug = canonical_slug_for_request(chain_slug, address)
     @classification = classify(@contract)
     @protocol_adapter = resolve_protocol_adapter(@contract) if @chain.full?
     @admin_risk = load_admin_risk_profile(@contract) if @chain.full?
@@ -113,7 +113,7 @@ class ContractsController < ApplicationController
   def load_island_contract
     chain_slug, address = resolve_chain_and_address
     @chain = Chain.find_by!(slug: chain_slug)
-    @canonical_slug = ContractSlugs.for(chain_slug, address)
+    @canonical_slug = canonical_slug_for_request(chain_slug, address)
     find_or_fetch_contract(address)
   end
 
@@ -131,12 +131,20 @@ class ContractsController < ApplicationController
   # surfaces a clean 404 instead of NoMethodError down the line.
   def resolve_chain_and_address
     if params[:slug].present?
-      lookup = ContractSlugs.resolve(params[:slug])
+      lookup = ContractSlugResolver.resolve(params[:slug])
       raise ActionController::RoutingError, "unknown slug: #{params[:slug]}" unless lookup
 
       [ lookup[0], lookup[1].downcase ]
     else
       [ params[:chain], params[:address].to_s.downcase ]
+    end
+  end
+
+  def canonical_slug_for_request(chain_slug, address)
+    if params[:slug].present?
+      ContractSlugResolver.canonical_for_slug(params[:slug])
+    else
+      ContractSlugResolver.for(chain_slug, address)
     end
   end
 

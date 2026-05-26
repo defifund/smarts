@@ -30,7 +30,7 @@ module Marketing
           priority: "0.6"
         }
 
-        [ index_entry, *Chains::Catalog.all.map { |chain| chain_entry(chain) } ]
+        [ index_entry, *Chain.for_display.map { |chain| chain_entry(chain) } ]
       end
     end
 
@@ -43,7 +43,7 @@ module Marketing
     end
 
     def contract_entries
-      ContractSlugs.canonical_slugs(@contract_limit).map do |slug|
+      ContractSlugResolver.canonical_slugs(@contract_limit).map do |slug|
         {
           loc: "#{SeoHelper::SITE_URL}/#{slug}",
           changefreq: "weekly",

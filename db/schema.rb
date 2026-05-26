@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_26_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_26_002000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -46,14 +46,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_26_000000) do
   create_table "chains", force: :cascade do |t|
     t.integer "chain_id", null: false
     t.datetime "created_at", null: false
+    t.integer "display_order"
+    t.string "docs_url"
     t.string "explorer_api_url", null: false
+    t.string "explorer_url"
+    t.string "faucet_url"
     t.string "name", null: false
     t.string "network_kind", default: "mainnet", null: false
     t.string "rpc_url"
     t.string "slug", null: false
+    t.text "summary", default: "", null: false
     t.string "tier", default: "full", null: false
     t.datetime "updated_at", null: false
+    t.string "verify_url"
     t.index ["chain_id"], name: "index_chains_on_chain_id", unique: true
+    t.index ["display_order"], name: "index_chains_on_display_order"
     t.index ["network_kind"], name: "index_chains_on_network_kind"
     t.index ["slug"], name: "index_chains_on_slug", unique: true
     t.index ["tier"], name: "index_chains_on_tier"
@@ -63,6 +70,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_26_000000) do
     t.jsonb "abi"
     t.string "address", null: false
     t.jsonb "ai_natspec"
+    t.string "catalog_kind"
+    t.string "catalog_name"
+    t.text "catalog_notes"
+    t.integer "catalog_order"
+    t.string "catalog_slug"
     t.bigint "chain_id", null: false
     t.string "compiler_version"
     t.string "contract_type"
@@ -75,6 +87,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_26_000000) do
     t.datetime "updated_at", null: false
     t.datetime "verified_at"
     t.index ["chain_id", "address"], name: "index_contracts_on_chain_id_and_address", unique: true
+    t.index ["chain_id", "catalog_order"], name: "index_contracts_on_chain_id_and_catalog_order"
+    t.index ["chain_id", "catalog_slug"], name: "index_contracts_on_chain_id_and_catalog_slug", unique: true, where: "(catalog_slug IS NOT NULL)"
     t.index ["chain_id"], name: "index_contracts_on_chain_id"
   end
 

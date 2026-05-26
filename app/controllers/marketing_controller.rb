@@ -103,7 +103,7 @@ class MarketingController < ApplicationController
   def home
     if params[:q].present? && params[:q].match?(%r{\A[a-z]+/0x[0-9a-fA-F]{40}\z})
       chain_slug, address = params[:q].split("/", 2)
-      slug = ContractSlugs.for(chain_slug, address)
+      slug = ContractSlugResolver.for(chain_slug, address)
       target =
         if slug.present?
           helpers.localized_contract_path(locale: I18n.locale, slug: slug)
@@ -281,7 +281,7 @@ class MarketingController < ApplicationController
   end
 
   def fetch_disputed_slugs
-    chain_slug, address = ContractSlugs.resolve("polymarket-uma-adapter-v3-polygon")
+    chain_slug, address = ContractSlugResolver.resolve("polymarket-uma-adapter-v3-polygon")
     contract = Contract.find_by(chain: Chain.find_by(slug: chain_slug), address: address)
     return Set.new unless contract
 

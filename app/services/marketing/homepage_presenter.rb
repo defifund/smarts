@@ -18,7 +18,7 @@ module Marketing
     end
 
     def call
-      top_contract_slugs = ContractSlugs.canonical_slugs(@contract_limit)
+      top_contract_slugs = ContractSlugResolver.canonical_slugs(@contract_limit)
       route_locale = Article.route_locale_for(@locale.to_s)
 
       Result.new(

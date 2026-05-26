@@ -45,7 +45,7 @@ class ApplicationTool < MCP::Tool
     # live-data tools (RPC-backed) fail fast instead of timing out.
     def resolve_contract(chain: nil, address: nil, slug: nil, require_full: false)
       if slug.present?
-        lookup = ContractSlugs.resolve(slug)
+        lookup = ContractSlugResolver.resolve(slug)
         return { error: "unknown slug: #{slug}" } unless lookup
 
         chain_slug, address = lookup

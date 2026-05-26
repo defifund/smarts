@@ -23,7 +23,7 @@ class GetAdminRiskTool < ApplicationTool
       {
         contract: profile.contract,
         chain: profile.chain,
-        slug: ContractSlugs.for(profile.chain, profile.contract),
+        slug: ContractSlugResolver.for(profile.chain, profile.contract),
         summary: profile.summary,
         risk_flags: profile.risk_flags,
         controls: profile.controls,

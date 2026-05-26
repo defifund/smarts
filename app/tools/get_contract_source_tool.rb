@@ -44,7 +44,7 @@ class GetContractSourceTool < ApplicationTool
       {
         chain: contract.chain.slug,
         address: contract.address,
-        slug: ContractSlugs.for(contract.chain.slug, contract.address),
+        slug: ContractSlugResolver.for(contract.chain.slug, contract.address),
         compiler_version: contract.compiler_version,
         total_files: files.size,
         total_bytes: files.sum { |f| f[:content].bytesize },
