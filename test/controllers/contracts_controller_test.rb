@@ -1164,7 +1164,7 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "Polymarket contract pages highlight governance MCP queries in Admin & Risk" do
-    chain_slug, address = ContractSlugs.resolve("polymarket-conditional-tokens-polygon")
+    chain_slug, address = ContractSlugResolver.resolve("polymarket-conditional-tokens-polygon")
     contract = Contract.find_or_create_by!(chain: Chain.find_by!(slug: chain_slug), address: address) do |c|
       c.name = "ConditionalTokens"
       c.abi = [ { "type" => "event", "name" => "ConditionResolution", "inputs" => [] } ]
@@ -1194,8 +1194,8 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "Polymarket exchange docs tab distinguishes CTF and neg-risk architecture" do
-    ctf_chain, ctf_address = ContractSlugs.resolve("polymarket-ctf-exchange-v2-polygon")
-    neg_chain, neg_address = ContractSlugs.resolve("polymarket-neg-risk-exchange-v2-polygon")
+    ctf_chain, ctf_address = ContractSlugResolver.resolve("polymarket-ctf-exchange-v2-polygon")
+    neg_chain, neg_address = ContractSlugResolver.resolve("polymarket-neg-risk-exchange-v2-polygon")
     abi = [
       { "type" => "function", "name" => "PARENT_COLLECTION_ID",
         "inputs" => [], "outputs" => [ { "type" => "bytes32" } ], "stateMutability" => "view" }
@@ -1235,7 +1235,7 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "Polymarket docs add context to key functions and events" do
-    chain_slug, address = ContractSlugs.resolve("polymarket-ctf-exchange-v2-polygon")
+    chain_slug, address = ContractSlugResolver.resolve("polymarket-ctf-exchange-v2-polygon")
     abi = [
       { "type" => "function", "name" => "matchOrders",
         "inputs" => [], "outputs" => [], "stateMutability" => "nonpayable" },
@@ -1273,7 +1273,7 @@ class ContractsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "Polymarket markdown includes architecture and key contract context" do
-    chain_slug, address = ContractSlugs.resolve("polymarket-neg-risk-exchange-v2-polygon")
+    chain_slug, address = ContractSlugResolver.resolve("polymarket-neg-risk-exchange-v2-polygon")
     abi = [
       { "type" => "function", "name" => "matchOrders",
         "inputs" => [], "outputs" => [], "stateMutability" => "nonpayable" },

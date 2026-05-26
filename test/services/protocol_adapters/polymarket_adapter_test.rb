@@ -22,7 +22,7 @@ class ProtocolAdapters::PolymarketAdapterTest < ActiveSupport::TestCase
   end
 
   test "matches every curated Polymarket address on Polygon" do
-    addresses = ContractSlugs.polymarket_slugs.map { |slug| ContractSlugs.resolve(slug).last }
+    addresses = ContractSlugResolver.polymarket_slugs.map { |slug| ContractSlugResolver.resolve(slug).last }
     assert_equal addresses.sort, ProtocolAdapters::PolymarketAdapter::ADDRESSES.to_a.sort
 
     addresses.each do |address|

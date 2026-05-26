@@ -4,8 +4,25 @@ class Contract < ApplicationRecord
 
   validates :address, presence: true
   validates :address, uniqueness: { scope: :chain_id }
+  validates :catalog_slug, uniqueness: { scope: :chain_id }, allow_nil: true
 
   before_validation :normalize_address
+
+  scope :for_catalog, -> { where.not(catalog_kind: nil).order(Arel.sql("catalog_order ASC NULLS LAST"), :catalog_name, :name) }
+
+  def catalog_display_name
+    catalog_name.presence || name
+  end
+
+  def catalog_display_kind
+    catalog_kind.presence || contract_type
+  end
+
+  def path(locale: I18n.locale)
+    route_locale = Article.route_locale_for(locale.to_s)
+    base_path = catalog_slug.present? ? "/#{catalog_slug}" : "/#{chain.slug}/#{address}"
+    route_locale.present? ? "/#{route_locale}#{base_path}" : base_path
+  end
 
   def display_address
     "#{address[0..5]}...#{address[-4..]}"

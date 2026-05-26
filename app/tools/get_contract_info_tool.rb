@@ -25,7 +25,7 @@ class GetContractInfoTool < ApplicationTool
         name: contract.name,
         chain: contract.chain.slug,
         address: contract.address,
-        slug: ContractSlugs.for(contract.chain.slug, contract.address),
+        slug: ContractSlugResolver.for(contract.chain.slug, contract.address),
         compiler_version: contract.compiler_version,
         classification: classification&.protocol_key,
         classification_display: classification&.display_name,

@@ -8,6 +8,7 @@
 # (db/migrate/*_add_<chain>_chain.rb) is deprecated; new chains belong here.
 
 Object.send(:remove_const, :CHAIN_SEEDS) if Object.const_defined?(:CHAIN_SEEDS)
+Object.send(:remove_const, :CHAIN_PRESENTATION) if Object.const_defined?(:CHAIN_PRESENTATION)
 
 CHAIN_SEEDS = [
   # ── Tier 1 — full: live state + activity + governance via RPC. ──────────
@@ -267,3 +268,215 @@ CHAIN_SEEDS = [
     rpc_url: nil
   }
 ].freeze
+
+CHAIN_PRESENTATION = {
+  "eth" => {
+    summary: "Blue-chip Ethereum contracts for stablecoins, DeFi, and core protocol plumbing."
+  },
+  "base" => {
+    summary: "Base-native stablecoin, DEX, and lending contracts built on the OP Stack."
+  },
+  "arbitrum" => {
+    summary: "Native stablecoin and lending contracts on Arbitrum One."
+  },
+  "optimism" => {
+    summary: "Optimism-native stablecoins, governance tokens, and lending markets."
+  },
+  "bnb" => {
+    summary: "The biggest BNB Chain primitives: stablecoins, wrapped gas, and PancakeSwap."
+  },
+  "polygon" => {
+    summary: "Polygon's canonical stablecoins, wrapped gas token, and Polymarket infrastructure."
+  },
+  "sepolia" => {
+    docs_url: "https://ethereum.org/developers/docs/networks/",
+    explorer_url: "https://sepolia.etherscan.io",
+    faucet_url: "https://www.alchemy.com/faucets/ethereum-sepolia",
+    verify_url: "https://sepolia.etherscan.io/verifyContract"
+  },
+  "hoodi" => {
+    docs_url: "https://hoodi.ethpandaops.io/",
+    explorer_url: "https://hoodi.etherscan.io",
+    faucet_url: "https://faucet.hoodi.ethpandaops.io/",
+    verify_url: "https://hoodi.etherscan.io/verifyContract"
+  },
+  "polygon-amoy" => {
+    docs_url: "https://docs.polygon.technology/pos/reference/rpc-endpoints/",
+    explorer_url: "https://amoy.polygonscan.com",
+    faucet_url: "https://faucet.polygon.technology/",
+    verify_url: "https://amoy.polygonscan.com/verifyContract"
+  },
+  "arbitrum-sepolia" => {
+    docs_url: "https://docs.arbitrum.io/",
+    explorer_url: "https://sepolia.arbiscan.io",
+    faucet_url: "https://www.alchemy.com/faucets/arbitrum-sepolia",
+    verify_url: "https://sepolia.arbiscan.io/verifyContract"
+  },
+  "linea-sepolia" => {
+    docs_url: "https://docs.linea.build/",
+    explorer_url: "https://sepolia.lineascan.build",
+    verify_url: "https://sepolia.lineascan.build/verifyContract"
+  },
+  "blast-sepolia" => {
+    docs_url: "https://docs.blast.io/building/network-information",
+    explorer_url: "https://sepolia.blastscan.io",
+    faucet_url: "https://docs.blast.io/tools/faucets",
+    verify_url: "https://sepolia.blastscan.io/verifyContract"
+  },
+  "celo-sepolia" => {
+    docs_url: "https://docs.celo.org/learn/topology-of-a-celo-network",
+    explorer_url: "https://celo-sepolia.blockscout.com",
+    faucet_url: "https://faucet.celo.org/celo-sepolia",
+    verify_url: "https://celo-sepolia.blockscout.com/verifyContract"
+  },
+  "fraxtal-hoodi" => {
+    docs_url: "https://docs.frax.com/fraxtal/network/network-information",
+    explorer_url: "https://hoodi.fraxscan.com",
+    faucet_url: "https://docs.frax.com/fraxtal/tools/faucets"
+  },
+  "moonbase" => {
+    docs_url: "https://docs.moonbeam.network/builders/get-started/networks/moonbase/",
+    explorer_url: "https://moonbase.moonscan.io"
+  },
+  "opbnb-testnet" => {
+    docs_url: "https://docs.bnbchain.org/bnb-opbnb/get-started/network-info/",
+    explorer_url: "https://testnet.opbnbscan.com",
+    faucet_url: "https://docs.bnbchain.org/bnb-opbnb/developers/network-faucet/",
+    verify_url: "https://docs.bnbchain.org/bnb-opbnb/advanced/verify-on-opbnbscan/"
+  },
+  "xdc-apothem" => {
+    docs_url: "https://docs.xdc.network/xdcchain/developers/apothemrpc/",
+    explorer_url: "https://testnet.xdcscan.com"
+  },
+  "unichain-sepolia" => {
+    docs_url: "https://docs.unichain.org/docs/technical-information/network-information",
+    explorer_url: "https://sepolia.uniscan.xyz",
+    faucet_url: "https://docs.unichain.org/docs/tools/faucets",
+    verify_url: "https://docs.unichain.org/docs/building-on-unichain/deploy-a-smart-contract"
+  },
+  "world-sepolia" => {
+    docs_url: "https://docs.world.org/world-chain/quick-start/info",
+    explorer_url: "https://worldchain-sepolia.explorer.alchemy.com",
+    faucet_url: "https://www.alchemy.com/faucets/world-chain-sepolia",
+    verify_url: "https://docs.world.org/world-chain/developers/deploy"
+  },
+  "berachain-bepolia" => {
+    docs_url: "https://docs.berachain.com/build/getting-started/common-resources",
+    explorer_url: "https://testnet.berascan.com",
+    faucet_url: "https://bepolia.hub.berachain.com",
+    verify_url: "https://docs.berachain.com/build/guides/verifying-smart-contracts"
+  },
+  "monad" => {
+    docs_url: "https://docs.monad.xyz/"
+  },
+  "monad-testnet" => {
+    docs_url: "https://docs.monad.xyz/",
+    explorer_url: "https://testnet.monadvision.com",
+    faucet_url: "https://faucet.monad.xyz/",
+    verify_url: "https://docs.monad.xyz/"
+  },
+  "hyperevm" => {
+    docs_url: "https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/hyperevm",
+    explorer_url: "https://hyperscan.com"
+  },
+  "hyperevm-testnet" => {
+    docs_url: "https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/hyperevm",
+    explorer_url: "https://hyperscan.com",
+    faucet_url: "https://app.hyperliquid-testnet.xyz/drip"
+  },
+  "katana" => {
+    docs_url: "https://docs.katana.network/katana/technical-reference/network-information/"
+  },
+  "bokuto" => {
+    docs_url: "https://docs.katana.network/katana/get-started/technical-reference-testnet/",
+    explorer_url: "https://bokuto.katanascan.com",
+    faucet_url: "https://explorer-bokuto.katanarpc.com/",
+    verify_url: "https://docs.katana.network/katana/get-started/technical-reference-testnet/"
+  },
+  "sei" => {
+    docs_url: "https://www.docs.sei.io/evm"
+  },
+  "sei-testnet" => {
+    docs_url: "https://www.docs.sei.io/evm",
+    explorer_url: "https://testnet.seiscan.io",
+    faucet_url: "https://docs.sei.io/providers/faucets",
+    verify_url: "https://docs.sei.io/evm/evm-verify-contracts"
+  },
+  "stable" => {
+    docs_url: "https://docs.stable.xyz/en/developers/mainnet/mainnet-information"
+  },
+  "stable-testnet" => {
+    docs_url: "https://docs.stable.xyz/en/developers/testnet/testnet-information",
+    explorer_url: "https://testnet.stablescan.xyz",
+    faucet_url: "https://faucet.stable.xyz",
+    verify_url: "https://testnet.stablescan.xyz/verifyContract"
+  },
+  "plasma" => {
+    docs_url: "https://docs.plasma.to/docs/guides/network-configuration/mainnet-details"
+  },
+  "plasma-testnet" => {
+    docs_url: "https://docs.plasma.to/docs/guides/network-configuration/testnet-details",
+    explorer_url: "https://testnet.plasmascan.to",
+    faucet_url: "https://gas.zip/faucet/plasma",
+    verify_url: "https://docs.plasma.to/docs/guides/smart-contracts/verify-a-contract"
+  },
+  "megaeth" => {
+    docs_url: "https://docs.megaeth.com/frontier"
+  },
+  "megaeth-testnet" => {
+    docs_url: "https://docs.megaeth.com/testnet",
+    faucet_url: "https://testnet.megaeth.com"
+  },
+  "linea" => {
+    summary: "Docs-only Linea contracts from the ecosystem's native tokens and leading apps.",
+    docs_url: "https://docs.linea.build/"
+  },
+  "unichain" => {
+    summary: "Unichain's core contracts for v2, v3, v4, and native token deployment.",
+    docs_url: "https://docs.unichain.org/docs/technical-information/contract-addresses"
+  },
+  "berachain" => {
+    summary: "Berachain BEX and Proof-of-Liquidity contracts plus the native tokens.",
+    docs_url: "https://docs.berachain.com/build/bex/deployed-contracts"
+  },
+  "blast" => {
+    summary: "Blast's core bridge and token contracts on the L2.",
+    docs_url: "https://docs.blast.io/building/contracts"
+  },
+  "sonic" => {
+    summary: "Sonic's core gas, bridge, and gateway infrastructure contracts.",
+    docs_url: "https://docs.soniclabs.com/sonic/build-on-sonic/contract-addresses"
+  },
+  "mantle" => {
+    summary: "Mantle contracts pulled from ecosystem deployment guides and protocol docs.",
+    docs_url: "https://docs.dodoex.io/en/developer/contracts/dodo-v1-v2/contracts-address/mantle"
+  },
+  "gnosis" => {
+    summary: "Gnosis Chain bridge, staking, and token contracts from the ecosystem docs.",
+    docs_url: "https://docs.gnosischain.com/about/specs/gbc/"
+  },
+  "celo" => {
+    summary: "Celo's core governance, bridge, and Uniswap deployment addresses.",
+    docs_url: "https://docs.celo.org/contracts/core-contracts"
+  },
+  "fraxtal" => {
+    summary: "Fraxtal's native stablecoins, Fraxswap, and name service contracts.",
+    docs_url: "https://docs.frax.com/fraxtal/addresses/frax-tokens"
+  },
+  "taiko" => {
+    summary: "Taiko Alethia bridge, tokens, and operator contracts surfaced in explorer pages.",
+    docs_url: "https://taikoscan.io/address/0x1670000000000000000000000000000000000001"
+  },
+  "world" => {
+    summary: "World Chain contracts for identity, tokens, and account abstraction primitives.",
+    docs_url: "https://docs.world.org/world-chain/developers/world-chain-contracts"
+  },
+  "abstract" => {
+    summary: "Abstract system contracts that power account abstraction and deployment.",
+    docs_url: "https://docs.abs.xyz/how-abstract-works/system-contracts/list-of-system-contracts"
+  }
+}.freeze
+
+CHAIN_SEEDS.each do |attrs|
+  attrs.merge!(CHAIN_PRESENTATION.fetch(attrs[:slug], {}))
+end

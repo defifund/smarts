@@ -37,7 +37,7 @@ class GetAdminRiskToolTest < ActiveSupport::TestCase
 
       assert_equal contract.address, result[:contract]
       assert_equal "eth", result[:chain]
-      assert_equal ContractSlugs.for(contract.chain.slug, contract.address), result[:slug]
+      assert_equal ContractSlugResolver.for(contract.chain.slug, contract.address), result[:slug]
       assert_equal profile.summary, result[:summary]
       assert_equal profile.risk_flags, result[:risk_flags]
       assert_equal profile.controls, result[:controls]

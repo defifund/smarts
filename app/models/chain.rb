@@ -1,5 +1,5 @@
 class Chain < ApplicationRecord
-  has_many :contracts, dependent: :destroy
+  has_many :contracts, -> { order(Arel.sql("catalog_order ASC NULLS LAST"), :name) }, dependent: :destroy
 
   # full: live state + activity + governance via RPC (Tier 1, ~6 chains)
   # docs_only: Etherscan source/ABI only — no RPC, no live data (Tier 2, long-tail EVM)
@@ -10,10 +10,9 @@ class Chain < ApplicationRecord
   validates :slug, uniqueness: true
   validates :chain_id, uniqueness: true
 
-  # User-facing display order for chain selectors and labels. Tier 1 first
-  # (most-recognised brands at the top), Tier 2 follows. Adding a new chain to
-  # db/seeds/chains.rb without also appending to DISPLAY_ORDER will skip the
-  # chain in dropdowns — chain_registry_consistency_test catches this drift.
+  # User-facing display order for chain selectors and labels. Seeded records
+  # also persist this value in display_order so database reads can keep the same
+  # order without depending on an in-memory catalog.
   DISPLAY_ORDER = %w[
     eth base bnb arbitrum optimism polygon
     sepolia hoodi polygon-amoy arbitrum-sepolia linea-sepolia blast-sepolia celo-sepolia fraxtal-hoodi
@@ -22,7 +21,7 @@ class Chain < ApplicationRecord
     linea unichain berachain blast sonic mantle gnosis celo fraxtal taiko world abstract
   ].freeze
 
-  scope :for_display, -> { in_order_of(:slug, DISPLAY_ORDER) }
+  scope :for_display, -> { order(Arel.sql("display_order ASC NULLS LAST"), :name) }
 
   # Hash of { slug => name } in display order. Replaces the old
   # MarketingController::CHAIN_LABELS hardcoded constant — single source of
@@ -47,5 +46,26 @@ class Chain < ApplicationRecord
 
   def native_symbol
     NATIVE_SYMBOLS[slug] || "ETH"
+  end
+
+  def summary
+    self[:summary].presence || default_summary
+  end
+
+  def path(locale: I18n.locale)
+    route_locale = Article.route_locale_for(locale.to_s)
+    route_locale.present? ? "/#{route_locale}/chains/#{slug}" : "/chains/#{slug}"
+  end
+
+  private
+
+  def default_summary
+    if testnet?
+      "#{name} testnet contracts and explorer-supported tooling."
+    elsif docs_only?
+      "#{name} contracts surfaced from ecosystem docs and explorer pages."
+    else
+      "#{name} contracts with live state, activity, and governance coverage."
+    end
   end
 end

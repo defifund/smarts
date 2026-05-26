@@ -60,7 +60,7 @@ class GetGovernanceTimelineToolTest < ActiveSupport::TestCase
   end
 
   test "accepts Polymarket curated slugs for admin risk queries" do
-    chain_slug, address = ContractSlugs.resolve("polymarket-ctf-exchange-v2-polygon")
+    chain_slug, address = ContractSlugResolver.resolve("polymarket-ctf-exchange-v2-polygon")
     contract = Contract.create!(
       chain: Chain.find_by!(slug: chain_slug),
       address: address,

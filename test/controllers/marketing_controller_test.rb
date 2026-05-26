@@ -1,6 +1,10 @@
 require "test_helper"
 
 class MarketingControllerTest < ActionDispatch::IntegrationTest
+  setup do
+    Chains::Seeder.call
+  end
+
   test "home renders successfully with the hero" do
     get root_path
     assert_response :success
@@ -256,7 +260,7 @@ class MarketingControllerTest < ActionDispatch::IntegrationTest
     # Spot-check a few featured items render as clickable links. Items with
     # a slug link via `/{slug}`, items without link via `/{chain}/{address}`.
     MarketingController::FEATURED.sample(3).each do |item|
-      slug = ContractSlugs.for(item[:chain], item[:address])
+      slug = ContractSlugResolver.for(item[:chain], item[:address])
       expected_href = slug ? "/#{slug}" : "/#{item[:chain]}/#{item[:address]}"
       assert_match expected_href, response.body,
                    "expected link to #{expected_href} on home page"
@@ -304,7 +308,7 @@ class MarketingControllerTest < ActionDispatch::IntegrationTest
     assert_equal "application/xml", response.media_type
 
     urls = response.body.scan(%r{<loc>([^<]+)</loc>}).flatten
-    expected_length = 50 + Article.published.first.available_locales.length + 1 + Chains::Catalog.all.length
+    expected_length = 50 + Article.published.first.available_locales.length + 1 + Chain.for_display.length
     assert_equal expected_length, urls.length
     assert_equal "https://smarts.md/usdc-eth", urls.first
     refute_includes urls, "https://smarts.md/wmatic-polygon"
