@@ -1,0 +1,14 @@
+{
+  "category": "stablecoins",
+  "subcategory": "infrastructure",
+  "title": {
+    "en": "USD1's Control Stack: Minting, Freezing, and Signed Transfers",
+    "zh-CN": "USD1 的控制栈：mint、freeze 和签名转账",
+    "zh-TW": "USD1 的控制棧：mint、freeze 和簽名轉帳"
+  },
+  "summary": {
+    "en": "A source-grounded read of USD1's StablecoinV2 contract: proxy upgradeability, owner-only mint/pause/freeze paths, EIP-3009 authorizations, and the current live state behind the ticker.",
+    "zh-CN": "基于源码和链上实时读取，拆解 USD1 的 StablecoinV2 合约：代理可升级性、owner 级 mint / pause / freeze 路径、EIP-3009 授权，以及这个 ticker 背后的当前状态。",
+    "zh-TW": "基於源码和鏈上即時讀取，拆解 USD1 的 StablecoinV2 合約：代理可升級性、owner 級 mint / pause / freeze 路徑、EIP-3009 授權，以及這個 ticker 背後的當前狀態。"
+  }
+}

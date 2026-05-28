@@ -1,0 +1,14 @@
+{
+  "category": "guides",
+  "subcategory": "integrations",
+  "title": {
+    "en": "Smarts Now Covers 50 EVM Chains: A Full Map From Ethereum to the Long Tail",
+    "zh-CN": "Smarts 现已覆盖 50 条 EVM 链：从以太坊到长尾生态的完整地图",
+    "zh-TW": "Smarts 現已覆蓋 50 條 EVM 鏈：從以太坊到長尾生態的完整地圖"
+  },
+  "summary": {
+    "en": "How Smarts supports 50 EVM chains through a tiered model: live state on six mainstream chains, and verified source code plus ABI coverage across the long tail.",
+    "zh-CN": "介绍 Smarts 如何通过分层模型支持 50 条 EVM 链：6 条主流链提供实时状态，长尾链覆盖已验证源码和 ABI。",
+    "zh-TW": "介紹 Smarts 如何透過分層模型支援 50 條 EVM 鏈：6 條主流鏈提供即時狀態，長尾鏈覆蓋已驗證原始碼和 ABI。"
+  }
+}
