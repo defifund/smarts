@@ -53,7 +53,7 @@ gem "faraday-retry"
 gem "eth", "~> 0.5.17"
 
 # Syntax highlighting for contract source code
-gem "rouge", "~> 4.7"
+gem "rouge", "~> 5.0"
 
 # Markdown rendering for articles
 gem "redcarpet", "~> 3.6"
